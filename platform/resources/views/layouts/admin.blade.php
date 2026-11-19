@@ -11,6 +11,8 @@
                 <a href="{{ route('admin.categories.index') }}" @if (request()->routeIs('admin.categories.*')) aria-current="page" @endif><x-icon name="grid" /> Categories</a>
                 <a href="{{ route('admin.brands.index') }}" @if (request()->routeIs('admin.brands.*')) aria-current="page" @endif><x-icon name="store" /> Brands</a>
             @endcan
+            <h4>Account</h4>
+            <a href="{{ route('account.security') }}" @if (request()->routeIs('account.security')) aria-current="page" @endif><x-icon name="lock" /> Security &amp; MFA</a>
             @can('audit.view')
                 <h4>System</h4>
                 <a href="{{ route('admin.audit') }}" @if (request()->routeIs('admin.audit')) aria-current="page" @endif><x-icon name="lock" /> Audit log</a>

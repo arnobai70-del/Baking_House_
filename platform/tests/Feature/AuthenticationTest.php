@@ -50,13 +50,14 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticated();
     }
 
-    public function test_staff_land_on_the_admin_dashboard(): void
+    public function test_staff_are_sent_to_mfa_and_not_logged_in_by_password_alone(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
         User::factory()->admin()->create(['email' => 'staff@example.com']);
 
         $this->post('/login', ['identifier' => 'staff@example.com', 'password' => 'password'])
-            ->assertRedirect(route('admin.dashboard'));
+            ->assertRedirect(route('mfa.challenge'));
+        $this->assertGuest();
     }
 
     public function test_wrong_password_and_unknown_user_get_the_same_error(): void

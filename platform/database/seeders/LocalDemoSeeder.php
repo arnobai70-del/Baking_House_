@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Organization;
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -20,8 +21,8 @@ class LocalDemoSeeder extends Seeder
             return;
         }
 
-        User::factory()->superAdmin()->create(['name' => 'Demo Super Admin', 'email' => 'superadmin@example.test', 'phone' => '01700000001']);
-        User::factory()->admin()->create(['name' => 'Demo Admin', 'email' => 'admin@example.test', 'phone' => '01700000002']);
+        User::factory()->withRole(Role::SuperAdmin)->create(['name' => 'Demo Super Admin', 'email' => 'superadmin@example.test', 'phone' => '01700000001']);
+        User::factory()->withRole(Role::Admin)->create(['name' => 'Demo Admin', 'email' => 'admin@example.test', 'phone' => '01700000002']);
         User::factory()->create(['name' => 'Demo Retail Customer', 'email' => 'retail@example.test', 'phone' => '01700000003']);
 
         $businessOwner = User::factory()->create(['name' => 'Demo Restaurant Owner', 'email' => 'business@example.test', 'phone' => '01700000004']);

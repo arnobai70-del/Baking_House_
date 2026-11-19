@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Auth;
  */
 class AuditLogger
 {
-    private const REDACTED_KEYS = ['password', 'remember_token', 'api_key', 'secret', 'token'];
+    private const REDACTED_KEYS = [
+        'password', 'current_password', 'remember_token', 'api_key', 'secret', 'token', 'plain_text_token',
+        'mfa_secret', 'mfa_code', 'code', 'recovery_code', 'recovery_codes',
+    ];
 
     public function __construct(private Request $request) {}
 

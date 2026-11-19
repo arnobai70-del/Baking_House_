@@ -1,10 +1,13 @@
 <?php
 
 use App\Enums\StaffPermission;
+use App\Http\Controllers\Account\SecurityController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
+use App\Http\Controllers\Auth\MfaChallengeController;
+use App\Http\Controllers\Auth\MfaSetupController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BusinessPortalController;
 use App\Http\Controllers\OrganizationApplicationController;
@@ -32,6 +35,12 @@ Route::middleware('guest')->group(function (): void {
     Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:login');
     Route::get('/register', [RegisterController::class, 'create'])->name('register');
     Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:register');
+
+    /* Staff MFA — reachable only with a pending (password-verified) sign-in in the session. */
+    Route::get('/mfa/challenge', [MfaChallengeController::class, 'show'])->name('mfa.challenge');
+    Route::post('/mfa/challenge', [MfaChallengeController::class, 'store'])->middleware('throttle:mfa');
+    Route::get('/mfa/setup', [MfaSetupController::class, 'show'])->name('mfa.setup');
+    Route::post('/mfa/setup', [MfaSetupController::class, 'store'])->middleware('throttle:mfa');
 });
 
 Route::middleware('auth')->group(function (): void {
@@ -39,6 +48,14 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/account', AccountController::class)->name('account');
     Route::post('/account/context', OrganizationContextController::class)->name('account.context');
+
+    Route::middleware('can:'.StaffPermission::AccessAdmin->value)->group(function (): void {
+        Route::get('/account/security', [SecurityController::class, 'show'])->name('account.security');
+        Route::post('/account/security/recovery-codes', [SecurityController::class, 'regenerateRecoveryCodes'])
+            ->middleware('throttle:mfa')->name('account.security.recovery-codes');
+        Route::post('/account/security/reset-mfa', [SecurityController::class, 'reset'])
+            ->middleware('throttle:mfa')->name('account.security.reset');
+    });
 
     Route::get('/apply/{type}', [OrganizationApplicationController::class, 'create'])->name('organizations.apply');
     Route::post('/apply', [OrganizationApplicationController::class, 'store'])->name('organizations.apply.store');
@@ -58,6 +75,7 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
         Route::patch('/organizations/{organization}/status', Admin\OrganizationApprovalController::class)->name('organizations.status');
         Route::put('/users/{user}/roles', Admin\UserRoleController::class)->name('users.roles');
+        Route::post('/users/{user}/mfa-reset', Admin\UserMfaResetController::class)->middleware('throttle:mfa')->name('users.mfa-reset');
         Route::get('/audit', Admin\AuditLogController::class)
             ->middleware('can:'.StaffPermission::ViewAuditLog->value)
             ->name('audit');
