@@ -23,6 +23,35 @@ class Taka
     }
 
     /**
+     * Parse admin input like "650", "812.50" or "1,250.5" into paisa without floats.
+     * Returns null for anything that is not a non-negative amount with at most 2 decimals.
+     */
+    public static function parse(?string $input): ?int
+    {
+        $text = str_replace([',', '৳', ' '], '', trim((string) $input));
+
+        if (preg_match('/^(\d{1,12})(?:\.(\d{1,2}))?$/', $text, $matches) !== 1) {
+            return null;
+        }
+
+        return (int) $matches[1] * 100 + (int) str_pad($matches[2] ?? '', 2, '0');
+    }
+
+    /**
+     * Paisa back to a plain admin input value: 81250 → "812.50", 65000 → "650".
+     */
+    public static function toInput(?int $paisa): string
+    {
+        if ($paisa === null) {
+            return '';
+        }
+
+        $rest = $paisa % 100;
+
+        return intdiv($paisa, 100).($rest === 0 ? '' : '.'.str_pad((string) $rest, 2, '0', STR_PAD_LEFT));
+    }
+
+    /**
      * Integer division rounding half up (non-negative operands).
      */
     public static function divideRoundHalfUp(int $numerator, int $denominator): int

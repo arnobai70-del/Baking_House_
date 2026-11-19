@@ -10,31 +10,43 @@ use Illuminate\Contracts\Session\Session;
 /**
  * Resolves which approved organization a user is acting for.
  *
- * The chosen organization id lives in the session, but it is ALWAYS re-validated against the
- * user's approved memberships — a tampered or stale id is ignored, never trusted.
+ * Web: the chosen id lives in the session and is re-validated on every request; a tampered or
+ * stale id is ignored. API: the caller names the organization in the X-Organization-Id header;
+ * an id the user is not an approved member of is rejected outright (strict mode).
  */
 class OrganizationContext
 {
     public const SESSION_KEY = 'current_organization_id';
 
-    public function __construct(private Session $session) {}
+    public function __construct(private ?Session $session = null) {}
 
-    public function resolve(User $user, OrganizationType $type): ?Organization
+    /**
+     * @param  bool  $strict  when true, a preferred id that is not a valid membership resolves to null
+     */
+    public function resolve(User $user, OrganizationType $type, ?int $preferredId = null, bool $strict = false): ?Organization
     {
         $organizations = $user->approvedOrganizations($type);
 
-        $selectedId = $this->session->get(self::SESSION_KEY);
-        $selected = $organizations->firstWhere('id', $selectedId);
+        if ($preferredId !== null) {
+            $selected = $organizations->firstWhere('id', $preferredId);
 
-        if ($selected !== null) {
-            return $selected;
+            if ($selected !== null || $strict) {
+                return $selected;
+            }
         }
 
         return $organizations->count() === 1 ? $organizations->first() : null;
     }
 
+    public function resolveFromSession(User $user, OrganizationType $type): ?Organization
+    {
+        $selectedId = $this->session?->get(self::SESSION_KEY);
+
+        return $this->resolve($user, $type, is_numeric($selectedId) ? (int) $selectedId : null);
+    }
+
     /**
-     * Switch context. Returns false when the user is not an approved member.
+     * Switch web context. Returns false when the user is not an approved member.
      */
     public function switchTo(User $user, int $organizationId): bool
     {
@@ -42,7 +54,7 @@ class OrganizationContext
             ->flatMap(fn (OrganizationType $type) => $user->approvedOrganizations($type))
             ->contains('id', $organizationId);
 
-        if (! $isMember) {
+        if (! $isMember || $this->session === null) {
             return false;
         }
 
