@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Baking House — Bakery, Restaurant, Café & Food Business Supply in Bangladesh</title>
+  <meta name="description" content="One-stop supply for bakery, restaurant, café, Chinese kitchen and commercial food businesses in Bangladesh: ingredients, equipment, tools, packaging, bulk and wholesale.">
+  <meta name="robots" content="noindex"><!-- prototype: never index -->
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <main id="main">
+    <div class="container section" style="padding-bottom:16px">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-grid">
+          <div>
+            <h1 id="hero-title" class="reveal">Complete Supply Solution for Bakery, Restaurant, <em>Café &amp; Food Businesses</em> in Bangladesh</h1>
+            <ul class="reveal reveal-2">
+              <li><span id="i1"></span>Baking ingredients &amp; cake supplies</li>
+              <li><span id="i2"></span>Restaurant, café &amp; Chinese kitchen supplies</li>
+              <li><span id="i3"></span>Commercial kitchen equipment</li>
+              <li><span id="i4"></span>Packaging &amp; takeaway solutions</li>
+              <li><span id="i5"></span>Bulk &amp; wholesale for businesses</li>
+            </ul>
+            <div class="row reveal reveal-3">
+              <a class="btn btn-primary" href="shop.html">Shop now</a>
+              <a class="btn btn-outline" href="business.html#quotes">Request a bulk quote</a>
+            </div>
+          </div>
+          <div class="reveal reveal-2" id="hero-media"></div>
+        </div>
+      </section>
+    </div>
+
+    <section class="container section" aria-labelledby="cat-title">
+      <div class="section-head"><h2 id="cat-title">Shop by category</h2><a href="shop.html">View all categories →</a></div>
+      <div class="cat-grid" id="cat-grid"></div>
+    </section>
+
+    <section class="container section" aria-label="Shop by business type" style="padding-top:8px">
+      <div class="audience">
+        <div class="aud-panel aud-restaurant">
+          <div><h3>For Restaurants &amp; Cafés</h3><p>Cookware, Chinese kitchen woks, GN pans, serveware and daily operation supplies.</p>
+            <a class="btn btn-primary" href="shop.html?cat=restaurant-supply">Explore restaurant supply →</a></div>
+          <div data-ph="wok"></div>
+        </div>
+        <div class="aud-panel aud-bakery">
+          <div><h3>For Bakeries &amp; Home Bakers</h3><p>Ingredients, tools, moulds, chocolate and decoration — by the gram or in bulk.</p>
+            <a class="btn btn-primary" href="shop.html?cat=baking-tools">Explore baking supply →</a></div>
+          <div data-ph="cake"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container section" aria-labelledby="pop-title">
+      <div class="section-head">
+        <h2 id="pop-title">Popular products</h2>
+        <div class="tabs" role="tablist" aria-label="Filter popular products" id="pop-tabs"></div>
+      </div>
+      <div class="grid" id="pop-grid" role="tabpanel" aria-labelledby="pop-title"></div>
+    </section>
+
+    <section class="container section" aria-labelledby="combo-title">
+      <div class="section-head"><h2 id="combo-title">Combo &amp; bundle offers</h2><a href="combos.html">All bundles →</a></div>
+      <div class="card combo" id="combo"></div>
+    </section>
+
+    <section class="container section" aria-labelledby="b2b-title">
+      <div class="section-head"><h2 id="b2b-title">Buying for a business?</h2></div>
+      <div class="b2b-band">
+        <div class="card"><h3>Business accounts</h3><p class="muted">Verified restaurants, cafés and bakeries get bulk tiers, quotes, repeat orders and team access.</p><a class="btn btn-teal" href="business.html">Open a business account</a></div>
+        <div class="card navy"><h3>Reseller program</h3><p class="muted">Approved resellers get an assigned rate card, bulk reorder tools and statements.</p><a class="btn btn-navy" href="reseller.html">Apply as reseller</a></div>
+        <div class="card orange"><h3>Request a quote</h3><p class="muted">Large equipment, carton packs or regular supply? Tell us what you need and we'll quote.</p><a class="btn btn-primary" href="business.html#quotes">Request a quote</a></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script type="module">
+    import { initShell, icon, placeholder, productCard, CATEGORIES, PRODUCTS, COMBOS, catalog, cart, toast, formatTaka, esc } from './assets/js/app.js';
+    import { priceCombo, describeComboItem } from './assets/js/cart-core.js';
+
+    initShell();
+    ['i1', 'i2', 'i3', 'i4', 'i5'].forEach((id) => { document.getElementById(id).outerHTML = icon('check'); });
+    document.getElementById('hero-media').innerHTML = placeholder('photo', 'Licensed hero photo pending', 'ph-wide');
+    document.querySelectorAll('[data-ph]').forEach((el) => { el.innerHTML = placeholder(el.dataset.ph, 'Photo pending'); });
+
+    // Categories — restaurant & equipment given equal weight with bakery (blueprint §16 story 5)
+    const counts = Object.fromEntries(CATEGORIES.map((c) => [c.slug, PRODUCTS.filter((p) => p.category === c.slug).length]));
+    document.getElementById('cat-grid').innerHTML = CATEGORIES.map((c) => `
+      <a class="card cat-tile" href="${c.slug === 'combos' ? 'combos.html' : `shop.html?cat=${c.slug}`}">
+        ${placeholder(c.icon, 'Pending')}
+        <span>${esc(c.name)}<small>${esc(c.short)}</small></span>
+      </a>`).join('');
+
+    // Popular products with tabs
+    const TABS = [['all', 'All'], ['cake-decoration,ingredients,baking-tools', 'Baking essentials'], ['restaurant-supply', 'Restaurant supply'], ['kitchen-equipment', 'Kitchen equipment'], ['packaging', 'Packaging']];
+    const tabsEl = document.getElementById('pop-tabs');
+    tabsEl.innerHTML = TABS.map(([k, label], i) => `<button class="tab" role="tab" aria-selected="${i === 0}" data-k="${k}">${label}</button>`).join('');
+    const renderPop = (k) => {
+      const list = k === 'all' ? PRODUCTS : PRODUCTS.filter((p) => k.split(',').includes(p.category));
+      document.getElementById('pop-grid').innerHTML = list.slice(0, 10).map(productCard).join('');
+    };
+    tabsEl.addEventListener('click', (e) => {
+      const b = e.target.closest('.tab'); if (!b) return;
+      tabsEl.querySelectorAll('.tab').forEach((t) => t.setAttribute('aria-selected', String(t === b)));
+      renderPop(b.dataset.k);
+    });
+    renderPop('all');
+
+    // Featured combo
+    const combo = COMBOS[0];
+    const pc = priceCombo(combo, catalog.getProduct);
+    document.getElementById('combo').innerHTML = `
+      ${placeholder('gift', 'Bundle photo pending')}
+      <div><span class="chip-badge orange">Combo offer</span>
+        <h3 style="margin-top:8px">${esc(combo.name)}</h3><p class="muted small">${esc(combo.blurb)}</p>
+        <ul>${combo.items.map((it) => `<li>${icon('check')}${esc(describeComboItem(it, catalog.getProduct(it.id)))}</li>`).join('')}</ul></div>
+      <div class="price-box">
+        <div class="muted small"><s>${formatTaka(pc.normalPaisa)}</s></div>
+        <div class="big tnum">${formatTaka(pc.linePaisa)}</div>
+        <p><span class="save-pill">Save ${formatTaka(pc.discountPaisa)} (${combo.discountPct}%)</span></p>
+        <button class="btn btn-primary btn-block" id="add-combo">${icon('cart')} Add combo to cart</button>
+      </div>`;
+    document.getElementById('add-combo').addEventListener('click', () => {
+      cart.add({ type: 'combo', slug: combo.slug, qty: 1 });
+      toast('Bundle added to cart', { href: 'cart.html', label: 'View cart' });
+    });
+  </script>
+</body>
+</html>

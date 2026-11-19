@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Business Accounts — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container"><div id="root"></div></main>
+  <div id="app-footer"></div>
+  <script type="module">
+    import { initShell, getRole, icon, esc, PRODUCTS, cart, toast, formatTaka, formatWeight } from './assets/js/app.js';
+    import { renderDashboard, panel, kpis, ordersTable, emptyBlock, statusPill } from './assets/js/dash.js';
+    import { parseQuantity } from './assets/js/weight-pricing.js';
+
+    initShell();
+    const root = document.getElementById('root');
+    const role = getRole();
+
+    if (role !== 'business') landing(); else dashboard();
+
+    function landing() {
+      root.innerHTML = `
+        <section class="section">
+          <div class="hero"><div class="hero-grid">
+            <div><span class="eyebrow" style="color:#9fd6db">For restaurants, cafés, bakeries & caterers</span>
+              <h1 style="margin-top:8px">Business pricing, bulk orders &amp; quotes</h1>
+              <ul>${['Verified organisation account with protected pricing', 'Bulk tiers on total weight — e.g. chocolate from 5 kg', 'Request quotations for equipment and carton packs', 'Repeat orders, invoices and team members'].map((t) => `<li>${icon('check')}${t}</li>`).join('')}</ul>
+              <a class="btn btn-primary" href="#apply">Apply for a business account</a>
+            </div>
+            <div id="ph"></div></div></div>
+        </section>
+        ${role !== 'guest' && role !== 'retail' ? `<div class="alert alert-info">${icon('info')}<span>You're viewing as <strong>${esc(role)}</strong>. Business dashboards are only visible to approved business accounts — reseller accounts do not get business permissions automatically.</span></div>` : ''}
+        <section class="section" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+          <form class="card card-pad" id="apply" novalidate>
+            <h2 style="font-size:var(--bh-fs-lg)">Business account application</h2>
+            <p class="muted small">Manual review by our team. Pricing is shown only after approval.</p>
+            <div class="form-grid">
+              <div class="field full"><label for="b-org">Business name</label><input class="input" id="b-org" required></div>
+              <div class="field"><label for="b-type">Business type</label><select class="input" id="b-type"><option>Restaurant</option><option>Chinese restaurant</option><option>Café</option><option>Bakery</option><option>Caterer / cloud kitchen</option><option>Hotel</option><option>Other</option></select></div>
+              <div class="field"><label for="b-trade">Trade licence no. (optional)</label><input class="input" id="b-trade"></div>
+              <div class="field"><label for="b-name">Contact person</label><input class="input" id="b-name" required></div>
+              <div class="field"><label for="b-phone">Mobile</label><input class="input" id="b-phone" inputmode="tel" placeholder="01XXXXXXXXX" required></div>
+              <div class="field full"><label for="b-need">What do you buy regularly?</label><textarea class="input" id="b-need" placeholder="e.g. compound chocolate 20 kg/month, takeaway boxes, GN pans"></textarea></div>
+            </div>
+            <div id="b-msg" aria-live="polite"></div>
+            <button class="btn btn-teal" type="submit">Submit application</button>
+          </form>
+          <form class="card card-pad" id="quotes" novalidate>
+            <h2 style="font-size:var(--bh-fs-lg)">Request a quote (RFQ)</h2>
+            <p class="muted small">No account needed. Becomes a CRM lead → price/stock review → quote issued.</p>
+            <div class="field"><label for="r-items">Items &amp; quantities</label><textarea class="input" id="r-items" required placeholder="Deck oven 2-deck × 1&#10;Soy sauce cartons × 20&#10;Dark compound chocolate 25 kg"></textarea></div>
+            <div class="form-grid">
+              <div class="field"><label for="r-name">Name</label><input class="input" id="r-name" required></div>
+              <div class="field"><label for="r-phone">Mobile</label><input class="input" id="r-phone" inputmode="tel" required placeholder="01XXXXXXXXX"></div>
+            </div>
+            <div id="r-msg" aria-live="polite"></div>
+            <button class="btn btn-primary" type="submit">${icon('quote')} Send request</button>
+          </form>
+        </section>`;
+      document.getElementById('ph').innerHTML = `<div class="ph ph-wide" role="img" aria-label="Licensed commercial kitchen photo pending">${icon('store')}<span class="ph-tag">Licensed photo pending</span></div>`;
+      const phoneOk = (v) => /^(\+?88)?01[3-9]\d{8}$/.test(v.replace(/[\s-]/g, ''));
+      const handle = (formId, required, phoneId, msgId, okText) => {
+        document.getElementById(formId).addEventListener('submit', (e) => {
+          e.preventDefault();
+          const bad = required.filter((id) => !document.getElementById(id).value.trim());
+          if (!phoneOk(document.getElementById(phoneId).value)) bad.push(phoneId);
+          [...required, phoneId].forEach((id) => document.getElementById(id).setAttribute('aria-invalid', String(bad.includes(id))));
+          const m = document.getElementById(msgId);
+          if (bad.length) { m.innerHTML = `<div class="alert alert-error" style="margin-bottom:12px">${icon('alert')}<span>Please complete the highlighted fields (valid BD mobile required).</span></div>`; document.getElementById(bad[0]).focus(); return; }
+          m.innerHTML = `<div class="alert alert-success" style="margin-bottom:12px">${icon('check')}<span>${okText} (prototype — nothing sent)</span></div>`;
+          e.target.reset();
+        });
+      };
+      handle('apply', ['b-org', 'b-name'], 'b-phone', 'b-msg', 'Application received. Status: pending verification.');
+      handle('quotes', ['r-items', 'r-name'], 'r-phone', 'r-msg', 'Quote request logged as a CRM lead.');
+      if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
+    }
+
+    function dashboard() {
+      const QUOTES = [
+        { ref: 'RFQ-1021', date: '2026-11-10', items: 'Deck oven 2-deck × 1', status: 'Quote issued', valid: '2026-11-30' },
+        { ref: 'RFQ-1034', date: '2026-11-18', items: 'Soy sauce cartons × 20', status: 'Requested', valid: '—' },
+      ];
+      const weightItems = PRODUCTS.filter((p) => p.pricingMode === 'WEIGHT' && p.weight.tiers?.business);
+      renderDashboard(root, {
+        theme: 'role-business', initials: 'SR', name: 'Sample Restaurant Ltd.', sub: 'Business · verified (sample)',
+        headTitle: 'Commercial / business dashboard', headText: 'Organisation-scoped: bulk orders, quotes, your price list, recurring orders and team.',
+        sections: [
+          { id: 'overview', label: 'Overview', icon: 'chart', render: () => kpis([['Open quotes', '2', ''], ['Orders this month', '3', 'sample'], ['Delivery addresses', '2', ''], ['Team members', '3', '']]) + panel('Recent business orders', ordersTable()) },
+          { id: 'bulk', label: 'Bulk order', icon: 'pallet', render: bulkHtml, bind: bindBulk },
+          { id: 'quotes', label: 'Quotes', icon: 'quote', render: () => panel('Quotations', `<div class="table-wrap"><table class="table"><thead><tr><th>Ref</th><th>Requested</th><th>Items</th><th>Valid until</th><th>Status</th><th></th></tr></thead><tbody>
+              ${QUOTES.map((q) => `<tr><td><strong>${q.ref}</strong></td><td>${q.date}</td><td>${esc(q.items)}</td><td>${q.valid}</td><td>${statusPill(q.status)}</td><td>${q.status === 'Quote issued' ? '<button class="btn btn-primary btn-sm" data-accept>Accept quote</button>' : ''}</td></tr>`).join('')}</tbody></table></div>`, '<a class="btn btn-primary btn-sm" href="product.html?slug=deck-oven-2-deck#quote">New request</a>'),
+            bind: (el) => el.addEventListener('click', (e) => { if (e.target.closest('[data-accept]')) toast('Accepting a quote creates an order at the quoted price (Phase 6)'); }) },
+          { id: 'prices', label: 'Business pricing', icon: 'tag', render: () => panel('Your price list (weight items)', `<div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th>Standard</th><th>Your tier</th></tr></thead><tbody>
+              ${weightItems.map((p) => `<tr><td>${esc(p.name)}<div class="muted small">${p.sku}</div></td><td class="tnum">${formatTaka(p.weight.perKgPaisa)}/kg</td><td class="tnum">${p.weight.tiers.business.map((t) => `<strong>${formatTaka(t.perKgPaisa)}/kg</strong> from ${formatWeight(t.fromGrams)}`).join('<br>')}</td></tr>`).join('')}
+              </tbody></table></div><p class="hint card-pad" style="padding-top:8px">Confidential to your organisation. Derived from server-side account context, never from the browser.</p>`) },
+          { id: 'recurring', label: 'Recurring orders', icon: 'repeat', render: () => panel('Recurring orders', emptyBlock('repeat', 'No recurring orders yet', 'Schedule weekly or monthly supply from a past order.', '<button class="btn btn-teal">Create from last order</button>')) },
+          { id: 'addresses', label: 'Delivery addresses', icon: 'map', render: () => panel('Business delivery addresses', `<div class="card-pad" style="display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))">${['Main branch — Gulshan (sample)', 'Kitchen — Mirpur (sample)'].map((a) => `<div class="card card-pad">${icon('map')}<p style="margin:6px 0 0">${a}</p></div>`).join('')}</div>`) },
+          { id: 'team', label: 'Team & access', icon: 'users', render: () => panel('Team members', `<div class="table-wrap"><table class="table"><thead><tr><th>Name</th><th>Role</th><th>Can order</th></tr></thead><tbody>
+              <tr><td>Owner (sample)</td><td>Account owner</td><td>Yes</td></tr><tr><td>Head chef (sample)</td><td>Buyer</td><td>Yes, approval over ৳50,000</td></tr><tr><td>Accounts (sample)</td><td>Invoices only</td><td>No</td></tr></tbody></table></div>`, '<button class="btn btn-outline btn-sm">Invite member</button>') },
+          { id: 'reports', label: 'Invoices & reports', icon: 'file', render: () => panel('Invoices', emptyBlock('file', 'No invoices yet', 'Invoices and statement exports appear after delivered orders.')) },
+        ],
+      });
+    }
+
+    function bulkHtml() {
+      return panel('Bulk order — add many SKUs at once', `<form class="card-pad" id="bulk">
+        <p class="muted small">One line per item: <code>SKU, quantity</code>. Weight items take grams or kg (e.g. <code>BH-ING-0001, 6kg</code>).</p>
+        <div class="field"><label for="bulk-in">Items</label><textarea class="input tnum" id="bulk-in" rows="6">BH-ING-0001, 6kg
+BH-ING-0002, 25kg
+BH-RST-0001, 4
+BH-PKG-0002, 10</textarea></div>
+        <div id="bulk-out" aria-live="polite"></div>
+        <div class="row"><button type="button" class="btn btn-outline" id="bulk-check">Check prices &amp; stock</button><button type="submit" class="btn btn-primary">${icon('cart')} Add valid lines to cart</button></div>
+      </form>`);
+    }
+    function parseBulk(text) {
+      return text.split('\n').map((s) => s.trim()).filter(Boolean).map((line) => {
+        const [sku, raw = ''] = line.split(',').map((x) => x.trim());
+        const p = PRODUCTS.find((x) => x.sku.toLowerCase() === sku.toLowerCase());
+        if (!p) return { line, error: 'Unknown SKU' };
+        if (p.pricingMode === 'QUOTE_ONLY') return { line, p, error: 'Quote-only item — request a quote' };
+        if (p.pricingMode === 'WEIGHT') {
+          const m = raw.toLowerCase().match(/^([\d.]+)\s*(kg|g)?$/);
+          if (!m) return { line, p, error: 'Enter weight like 500g or 2kg' };
+          const q = parseQuantity(m[1], m[2] ?? 'g');
+          return q.ok ? { line, p, add: { type: 'product', productId: p.id, grams: q.grams } } : { line, p, error: q.error };
+        }
+        const n = Number.parseInt(raw, 10);
+        return Number.isInteger(n) && n > 0 ? { line, p, add: { type: 'product', productId: p.id, qty: n } } : { line, p, error: 'Enter a whole quantity' };
+      });
+    }
+    function bindBulk(el) {
+      const out = el.querySelector('#bulk-out');
+      const check = () => {
+        const rows = parseBulk(el.querySelector('#bulk-in').value);
+        out.innerHTML = `<div class="table-wrap" style="margin-bottom:12px"><table class="table"><thead><tr><th>Line</th><th>Product</th><th>Result</th></tr></thead><tbody>
+          ${rows.map((r) => `<tr><td class="tnum">${esc(r.line)}</td><td>${esc(r.p?.name ?? '—')}</td><td>${r.error ? `<span class="status warn">${esc(r.error)}</span>` : '<span class="status ok">OK — priced in cart</span>'}</td></tr>`).join('')}</tbody></table></div>`;
+        return rows;
+      };
+      el.querySelector('#bulk-check').addEventListener('click', check);
+      el.querySelector('#bulk').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const rows = check().filter((r) => r.add);
+        rows.forEach((r) => cart.add(r.add));
+        toast(`${rows.length} line(s) added — business tiers applied in cart`, { href: 'cart.html', label: 'View cart' });
+      });
+    }
+  </script>
+</body>
+</html>

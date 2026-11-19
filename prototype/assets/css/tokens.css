@@ -1,0 +1,70 @@
+/* Baking House design tokens — source of truth: docs/design-tokens.md
+   Red accent is prohibited. Errors use dark amber + icon + text. */
+:root {
+  /* Brand */
+  --bh-navy: #103b56;
+  --bh-navy-deep: #082d46;
+  --bh-teal: #087d88;
+  --bh-teal-soft: #e3f3f4;
+  --bh-orange: #f18b0a;
+  --bh-orange-hover: #d97b06;
+  --bh-orange-soft: #fff3e2;
+
+  /* Surfaces & text */
+  --bh-bg: #f7fafc;
+  --bh-surface: #ffffff;
+  --bh-border: #dbe4ea;
+  --bh-border-strong: #b9c8d2;
+  --bh-text: #192b39;
+  --bh-muted: #617481;
+  --bh-on-navy: #ffffff;
+  --bh-on-navy-muted: #b7cad7;
+
+  /* Status (no red) */
+  --bh-success: #1d7a4a;
+  --bh-success-soft: #e5f4ec;
+  --bh-error: #9a4a00;
+  --bh-error-soft: #fdf0e1;
+  --bh-warning: #8a6100;
+
+  /* Type */
+  --bh-font: "Inter", "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --bh-fs-xs: 0.75rem;
+  --bh-fs-sm: 0.875rem;
+  --bh-fs-md: 1rem;
+  --bh-fs-lg: 1.125rem;
+  --bh-fs-xl: 1.375rem;
+  --bh-fs-2xl: 1.75rem;
+  --bh-fs-3xl: clamp(1.75rem, 1.2rem + 2.2vw, 2.75rem);
+
+  /* Layout */
+  --bh-max: 1320px;
+  --bh-gutter: 16px;
+  --bh-radius-sm: 6px;
+  --bh-radius: 10px;
+  --bh-radius-lg: 16px;
+  --bh-shadow-sm: 0 1px 2px rgba(16, 59, 86, 0.06);
+  --bh-shadow: 0 4px 14px rgba(16, 59, 86, 0.08);
+  --bh-shadow-lg: 0 12px 32px rgba(16, 59, 86, 0.16);
+  --bh-touch: 44px;
+
+  /* Motion (blueprint §02) */
+  --bh-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --bh-dur-fast: 150ms;   /* cards, price ticks */
+  --bh-dur-menu: 200ms;   /* mega-menu, drawer, accordions */
+  --bh-dur-cart: 240ms;   /* cart badge, mini-cart, toast */
+  --bh-dur-hero: 400ms;   /* hero entry */
+}
+
+@media (min-width: 768px) {
+  :root { --bh-gutter: 24px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --bh-dur-fast: 0ms;
+    --bh-dur-menu: 0ms;
+    --bh-dur-cart: 0ms;
+    --bh-dur-hero: 0ms;
+  }
+}

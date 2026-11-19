@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Combo & Bundle Offers — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container section">
+    <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="index.html">Home</a></li><li aria-current="page">Combo &amp; bundles</li></ol></nav>
+    <h1 style="font-size:var(--bh-fs-2xl)">Combo &amp; bundle offers</h1>
+    <p class="muted">Curated kits for bakeries and restaurants. Normal price and savings are shown openly; bundle discounts don't stack with weight-tier prices.</p>
+    <div id="list" class="stack"></div>
+  </main>
+  <div id="app-footer"></div>
+  <script type="module">
+    import { initShell, icon, placeholder, COMBOS, catalog, cart, toast, formatTaka, esc } from './assets/js/app.js';
+    import { priceCombo, describeComboItem } from './assets/js/cart-core.js';
+    initShell({ active: 'combos' });
+    document.getElementById('list').innerHTML = COMBOS.map((c) => {
+      const pc = priceCombo(c, catalog.getProduct);
+      return `<article class="card combo">
+        ${placeholder('gift', 'Bundle photo pending')}
+        <div><h2 style="font-size:var(--bh-fs-xl)">${esc(c.name)}</h2><p class="muted small">${esc(c.blurb)}</p>
+          <ul>${c.items.map((it) => `<li>${icon('check')}${esc(describeComboItem(it, catalog.getProduct(it.id)))}</li>`).join('')}</ul></div>
+        <div class="price-box">${pc.ok ? `<div class="muted small">Normal price <s>${formatTaka(pc.normalPaisa)}</s></div>
+          <div class="big tnum">${formatTaka(pc.linePaisa)}</div><p><span class="save-pill">Save ${formatTaka(pc.discountPaisa)} (${c.discountPct}%)</span></p>
+          <button class="btn btn-primary btn-block" data-add="${c.slug}">${icon('cart')} Add combo to cart</button>`
+          : `<div class="alert alert-error">${icon('alert')}<span>${esc(pc.error)}</span></div>`}</div>
+      </article>`;
+    }).join('');
+    document.getElementById('list').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-add]'); if (!b) return;
+      cart.add({ type: 'combo', slug: b.dataset.add, qty: 1 });
+      toast('Bundle added to cart', { href: 'cart.html', label: 'View cart' });
+    });
+  </script>
+</body>
+</html>
