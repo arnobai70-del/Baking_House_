@@ -10,10 +10,23 @@ use App\Http\Controllers\BusinessPortalController;
 use App\Http\Controllers\OrganizationApplicationController;
 use App\Http\Controllers\OrganizationContextController;
 use App\Http\Controllers\ResellerPortalController;
+use App\Http\Controllers\Storefront;
 use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'home')->name('home');
+/*
+| Storefront (public)
+*/
+Route::get('/', Storefront\HomeController::class)->name('home');
+Route::get('/shop', [Storefront\ShopController::class, 'index'])->name('catalog.shop');
+Route::get('/category/{slug}', [Storefront\ShopController::class, 'category'])->name('catalog.category');
+Route::get('/search', [Storefront\ShopController::class, 'search'])->name('catalog.search');
+Route::get('/product/{slug}', [Storefront\ProductController::class, 'show'])->name('catalog.product');
+Route::get('/sitemap.xml', Storefront\SitemapController::class)->name('sitemap');
+Route::get('/robots.txt', Storefront\RobotsController::class)->name('robots');
 
+/*
+| Authentication
+*/
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:login');
@@ -38,6 +51,9 @@ Route::middleware('auth')->group(function (): void {
         ->middleware('organization:reseller')
         ->name('reseller.dashboard');
 
+    /*
+    | Admin
+    */
     Route::prefix('admin')->name('admin.')->middleware('can:'.StaffPermission::AccessAdmin->value)->group(function (): void {
         Route::get('/', Admin\DashboardController::class)->name('dashboard');
         Route::patch('/organizations/{organization}/status', Admin\OrganizationApprovalController::class)->name('organizations.status');
@@ -45,5 +61,11 @@ Route::middleware('auth')->group(function (): void {
         Route::get('/audit', Admin\AuditLogController::class)
             ->middleware('can:'.StaffPermission::ViewAuditLog->value)
             ->name('audit');
+
+        Route::middleware('can:'.StaffPermission::ManageCatalog->value)->group(function (): void {
+            Route::resource('categories', Admin\CategoryController::class)->except(['show', 'destroy']);
+            Route::resource('brands', Admin\BrandController::class)->only(['index', 'store', 'update']);
+            Route::resource('products', Admin\ProductController::class)->except(['show', 'destroy']);
+        });
     });
 });
