@@ -57,6 +57,15 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('register', fn (Request $request): Limit => Limit::perHour(10)->by($request->ip()));
 
+        RateLimiter::for('mfa', function (Request $request): array {
+            $subject = $request->session()->get('mfa.pending.user_id') ?? $request->user()?->getKey() ?? 'guest';
+
+            return [
+                Limit::perMinute(5)->by('mfa:'.$subject.'|'.$request->ip()),
+                Limit::perMinute(20)->by('mfa-ip:'.$request->ip()),
+            ];
+        });
+
         RateLimiter::for('catalog', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));
 
         RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(60)->by($request->user()?->getKey() ?: $request->ip()));

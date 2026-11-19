@@ -77,6 +77,10 @@ class ProductWriter
         unset($data['id']);
 
         $variant = $id === null ? new ProductVariant : $product->variants()->whereKey($id)->firstOrFail();
+        if ($id !== null) {
+            /* Stock on existing variants changes only through the inventory ledger. */
+            unset($data['stock_quantity']);
+        }
         $variant->fill($data);
         $variant->product()->associate($product);
         $variant->save();

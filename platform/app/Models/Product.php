@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\PricingMode;
 use App\Enums\ProductStatus;
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -16,13 +17,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
-    'brand_id', 'primary_category_id', 'name', 'name_bn', 'slug', 'short_description', 'description',
+    'brand_id', 'primary_category_id', 'name', 'name_bn', 'slug', 'short_description', 'short_description_bn', 'description', 'description_bn',
     'specifications', 'search_keywords', 'status', 'is_featured', 'seo_title', 'seo_description',
 ])]
 class Product extends Model
 {
     /** @use HasFactory<ProductFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasTranslations, SoftDeletes;
 
     /**
      * @return array<string, string>

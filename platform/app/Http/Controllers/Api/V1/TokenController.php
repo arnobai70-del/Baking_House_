@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\IssueTokenRequest;
 use App\Models\User;
 use App\Services\ApiTokenIssuer;
+use App\Services\AuditLogger;
+use App\Services\Mfa\MfaManager;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -17,8 +19,11 @@ class TokenController extends Controller
 {
     /**
      * POST /api/v1/auth/tokens — exchange credentials for a scoped, expiring token.
+     *
+     * Staff accounts additionally need MFA enrolled (via the web) and a fresh TOTP code in
+     * `mfa_code` on this very request; enrollment alone is not enough. Throttled ("login").
      */
-    public function store(IssueTokenRequest $request, ApiTokenIssuer $issuer): JsonResponse
+    public function store(IssueTokenRequest $request, ApiTokenIssuer $issuer, MfaManager $mfa, AuditLogger $audit): JsonResponse
     {
         $credentials = $request->credentials();
         $password = $credentials['password'];
@@ -30,7 +35,27 @@ class TokenController extends Controller
             throw ValidationException::withMessages(['identifier' => 'These credentials do not match our records.']);
         }
 
+        if ($user->isStaff()) {
+            if (! $user->hasMfaEnrolled()) {
+                $audit->record('api.token_denied', $user, after: ['reason' => 'mfa_not_enrolled']);
+                abort(403, 'Staff accounts must enroll in MFA on the website before using the API.');
+            }
+
+            if (! $mfa->verifyTotp($user, (string) $request->validated('mfa_code', ''))) {
+                $audit->record('mfa.failed', $user, after: ['method' => 'totp', 'context' => 'api_token']);
+                throw ValidationException::withMessages(['mfa_code' => 'A valid authenticator code is required for staff tokens.']);
+            }
+        }
+
         $token = $issuer->issue($user, $request->validated('device_name'), $request->validated('abilities', []));
+
+        $audit->record('api.token_issued', $user, after: [
+            'token_id' => $token->accessToken->id,
+            'device' => $token->accessToken->name,
+            'abilities' => $token->accessToken->abilities,
+            'expires_at' => $token->accessToken->expires_at?->toIso8601String(),
+            'mfa' => $user->isStaff() ? 'verified' : 'not_required',
+        ]);
 
         return response()->json([
             'token' => $token->plainTextToken,

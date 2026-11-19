@@ -59,7 +59,7 @@ class OrganizationApprovalTest extends TestCase
         $owner = User::factory()->create();
         $organization = Organization::factory()->business()->withMember($owner)->create();
 
-        $this->actingAs($admin)
+        $this->actingAsStaff($admin)
             ->patch("/admin/organizations/{$organization->id}/status", ['status' => 'approved', 'reason' => 'Trade licence checked'])
             ->assertRedirect();
 
@@ -72,7 +72,7 @@ class OrganizationApprovalTest extends TestCase
         $this->assertSame(['status' => 'approved'], $log->after);
         $this->assertSame('Trade licence checked', $log->reason);
 
-        $this->actingAs($owner)->get('/business/dashboard')->assertOk();
+        $this->actingAsStaff($owner)->get('/business/dashboard')->assertOk();
     }
 
     public function test_decision_requires_a_reason(): void
@@ -80,7 +80,7 @@ class OrganizationApprovalTest extends TestCase
         $admin = User::factory()->admin()->create();
         $organization = Organization::factory()->create();
 
-        $this->actingAs($admin)
+        $this->actingAsStaff($admin)
             ->patch("/admin/organizations/{$organization->id}/status", ['status' => 'approved'])
             ->assertSessionHasErrors('reason');
         $this->assertFalse($organization->fresh()->isApproved());
@@ -91,7 +91,7 @@ class OrganizationApprovalTest extends TestCase
         $admin = User::factory()->admin()->create();
         $organization = Organization::factory()->withMember($admin)->create();
 
-        $this->actingAs($admin)
+        $this->actingAsStaff($admin)
             ->patch("/admin/organizations/{$organization->id}/status", ['status' => 'approved', 'reason' => 'Approving myself'])
             ->assertForbidden();
     }
@@ -112,6 +112,6 @@ class OrganizationApprovalTest extends TestCase
         Organization::factory()->create(['name' => 'Pending Patisserie']);
         Organization::factory()->approved()->create(['name' => 'Already Approved']);
 
-        $this->actingAs($admin)->get('/admin')->assertOk()->assertSee('Pending Patisserie')->assertDontSee('Already Approved');
+        $this->actingAsStaff($admin)->get('/admin')->assertOk()->assertSee('Pending Patisserie')->assertDontSee('Already Approved');
     }
 }

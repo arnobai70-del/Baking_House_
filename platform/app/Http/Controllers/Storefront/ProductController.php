@@ -7,12 +7,15 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductVariant;
+use App\Services\Pricing\PriceResolver;
+use App\Services\Pricing\PricingContextResolver;
 use App\Support\Seo;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ProductController extends Controller
 {
-    public function show(string $slug): View
+    public function show(Request $request, string $slug, PricingContextResolver $contexts, PriceResolver $prices): View
     {
         $product = Product::query()
             ->visible()
@@ -42,8 +45,10 @@ class ProductController extends Controller
         $related = Product::query()->visible()
             ->whereKeyNot($product->id)
             ->whereHas('categories', fn ($query) => $query->where('categories.id', $product->primary_category_id))
-            ->with(['primaryCategory:id,name,slug,icon', 'variants' => fn ($query) => $query->where('is_active', true)])
+            ->with(['primaryCategory:id,name,name_bn,slug,icon', 'variants' => fn ($query) => $query->where('is_active', true)])
             ->limit(5)->get();
+
+        $context = $contexts->forWeb($request);
 
         return view('storefront.product', [
             'seo' => $seo,
@@ -51,7 +56,31 @@ class ProductController extends Controller
             'trail' => $trail,
             'variants' => $product->variants,
             'related' => $related,
+            'audience' => $context->audience,
+            'buyerPayload' => $product->variants->map(fn (ProductVariant $variant) => $this->buyerPayload($variant, $prices->visibleTiers($variant, $context), $context->audience->value))->values(),
+            'tiersByVariant' => $product->variants->mapWithKeys(fn (ProductVariant $variant) => [$variant->id => $prices->visibleTiers($variant, $context)]),
         ]);
+    }
+
+    /**
+     * Client preview data: the variant plus ONLY the caller's own price tiers.
+     *
+     * @param  list<array{min_quantity: int, rate_paisa: int, source: string}>  $tiers
+     * @return array<string, mixed>
+     */
+    private function buyerPayload(ProductVariant $variant, array $tiers, string $audience): array
+    {
+        $payload = $variant->toStorefrontArray();
+        $payload['audience'] = $audience;
+        $payload['tiers'] = array_map(fn (array $tier) => ['minQuantity' => $tier['min_quantity'], 'ratePaisa' => $tier['rate_paisa']], $tiers);
+
+        if ($payload['weight'] !== null && $tiers !== []) {
+            $payload['weight']['tiers'] = [
+                $audience => array_map(fn (array $tier) => ['fromGrams' => $tier['min_quantity'], 'perKgPaisa' => $tier['rate_paisa']], $tiers),
+            ];
+        }
+
+        return $payload;
     }
 
     /**

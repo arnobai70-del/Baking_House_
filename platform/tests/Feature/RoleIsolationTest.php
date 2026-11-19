@@ -37,9 +37,9 @@ class RoleIsolationTest extends TestCase
         $owner = User::factory()->create();
         $organization = Organization::factory()->business()->approved()->withMember($owner)->create(['name' => 'Spice Garden']);
 
-        $this->actingAs($owner)->get('/business/dashboard')->assertOk()->assertSee('Spice Garden');
-        $this->actingAs($owner)->get('/reseller/dashboard')->assertForbidden();
-        $this->actingAs($owner)->get('/admin')->assertForbidden();
+        $this->actingAsStaff($owner)->get('/business/dashboard')->assertOk()->assertSee('Spice Garden');
+        $this->actingAsStaff($owner)->get('/reseller/dashboard')->assertForbidden();
+        $this->actingAsStaff($owner)->get('/admin')->assertForbidden();
     }
 
     public function test_reseller_does_not_automatically_get_business_access(): void
@@ -105,9 +105,9 @@ class RoleIsolationTest extends TestCase
         $admin = User::factory()->admin()->create();
         $target = User::factory()->create();
 
-        $this->actingAs($admin)->get('/admin')->assertOk();
-        $this->actingAs($admin)->get('/admin/audit')->assertOk();
-        $this->actingAs($admin)
+        $this->actingAsStaff($admin)->get('/admin')->assertOk();
+        $this->actingAsStaff($admin)->get('/admin/audit')->assertOk();
+        $this->actingAsStaff($admin)
             ->put("/admin/users/{$target->id}/roles", ['roles' => ['admin'], 'reason' => 'Trying to escalate'])
             ->assertForbidden();
 
@@ -119,7 +119,7 @@ class RoleIsolationTest extends TestCase
         $owner = User::factory()->superAdmin()->create();
         $target = User::factory()->create();
 
-        $this->actingAs($owner)
+        $this->actingAsStaff($owner)
             ->put("/admin/users/{$target->id}/roles", ['roles' => ['admin'], 'reason' => 'New operations staff'])
             ->assertRedirect();
 
@@ -136,7 +136,7 @@ class RoleIsolationTest extends TestCase
     {
         $owner = User::factory()->superAdmin()->create();
 
-        $this->actingAs($owner)
+        $this->actingAsStaff($owner)
             ->put("/admin/users/{$owner->id}/roles", ['roles' => [], 'reason' => 'Self change attempt'])
             ->assertForbidden();
     }
@@ -146,7 +146,7 @@ class RoleIsolationTest extends TestCase
         $owner = User::factory()->superAdmin()->create();
         $target = User::factory()->create();
 
-        $this->actingAs($owner)
+        $this->actingAsStaff($owner)
             ->put("/admin/users/{$target->id}/roles", ['roles' => ['admin']])
             ->assertSessionHasErrors('reason');
     }

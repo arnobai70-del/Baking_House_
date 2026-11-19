@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\EnsureOrganizationAccess;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\RequireStaffMfa;
+use App\Http\Middleware\SetStorefrontLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,7 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->web(append: [EnsureUserIsActive::class]);
+        $middleware->web(append: [SetStorefrontLocale::class, EnsureUserIsActive::class, RequireStaffMfa::class]);
         $middleware->alias([
             'organization' => EnsureOrganizationAccess::class,
             'active' => EnsureUserIsActive::class,

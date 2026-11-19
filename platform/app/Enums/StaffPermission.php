@@ -12,6 +12,7 @@ enum StaffPermission: string
     case AccessAdmin = 'admin.access';
     case ManageCatalog = 'catalog.manage';
     case ManagePrices = 'prices.manage';
+    case ManageInventory = 'inventory.manage';
     case ApprovePriceChanges = 'prices.approve';
     case ManageOrders = 'orders.manage';
     case ManageCustomers = 'customers.manage';

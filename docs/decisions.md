@@ -29,20 +29,26 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-022 | 2026-11-20 | First price on a new variant logs `product.price_set`; later edits log `product.price_changed` with a required reason | Readable audit trail |
 | D-023 | 2026-11-20 | Product photos render only when `review_status = approved`; otherwise a labelled placeholder | Real-images-only policy |
 | D-024 | 2026-11-20 | Category tree limited to two levels | Simple navigation and queries |
+| D-025 | 2026-11-20 | Staff MFA: TOTP only (no SMS), per-session verification newer than enrollment, staff API tokens need a fresh code | Owner security requirements |
+| D-026 | 2026-11-20 | Price precedence contract → business/reseller → campaign → retail volume → standard; tiers on total quantity | Blueprint §05–06, same as tested engine |
+| D-027 | 2026-11-20 | Stock changes only via single conditional SQL UPDATEs (no read-then-write); ledger is append-only | Race-safe on SQLite and MySQL |
+| D-028 | 2026-11-20 | Reservations hold stock for 15 minutes by default, then auto-release | Abandoned checkouts must not lock stock |
+| D-029 | 2026-11-20 | One non-stackable promotion per order (best for customer); trade-priced and bundle lines excluded; only super admin may mark stackable | Prevent unauthorised discount combinations |
+| D-030 | 2026-11-20 | Storefront language chosen per session, limited to admin-enabled languages; before enabling search indexing with Bangla, move to URL-prefixed locales with hreflang | Avoid duplicate-content SEO issues |
+| D-031 | 2026-11-20 | Prices display with Western digits in both languages | Common in BD e-commerce; owner to confirm |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
-## Open (owner input required)
+## Engineering assumptions for open business inputs
+Commercial decisions (partners, hosting, policies, budget) are tracked privately by the owner, not in this public repository.
+Until they are confirmed, engineering uses these safe defaults:
 
-| Decision | Status | Safe assumption |
-|----------|--------|-----------------|
-| Domain and hosting | not chosen | local + staging first |
-| Launch catalog, prices, brand assets | not supplied | mock data only, never published |
-| Bilingual UI (EN/BN) | not confirmed | localization-ready architecture |
-| Weight precision / steps / rounding / packs | custom grams confirmed, details open | integer grams, configurable min/step |
-| Tax / VAT invoice rules | unconfirmed | configurable |
-| Business / reseller eligibility | concept approved | manual approval + protected tiers |
-| Payment / courier partners | not selected | provider-neutral adapters, sandbox |
-| Refunds / returns / shipping zones | not finalized | draft with owner + legal review |
-| Optional AI | requested if feasible | isolated opt-in after core release |
-| Budget / team / timeline | undecided | phase gates, no fabricated dates |
-| Photo sources & licensing | not decided | Phase 0 must list SKU photo sources |
+- Develop locally and on staging only; no production deployment without explicit owner approval.
+- Mock catalog data only, clearly labelled, never indexed or published.
+- Localization-ready (English + Bangla fields); languages switchable in admin.
+- Integer grams with configurable minimum/step; explicit rounding policy (D-005).
+- Tax / VAT handling configurable, not hard-coded.
+- Business / reseller access by manual approval with protected price lists.
+- Payment and courier integrations through provider-neutral adapters in sandbox mode; shipping charges are placeholders.
+- Refund, returns and delivery policies shown as "pending" until approved.
+- Optional AI features isolated, opt-in, after the core release.
+- Real licensed photography only; placeholders until approved.
