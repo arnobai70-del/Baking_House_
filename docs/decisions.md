@@ -22,6 +22,13 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-015 | 2026-11-20 | Phone is the primary login (normalised `01XXXXXXXXX`), email optional | Bangladesh buyers |
 | D-016 | 2026-11-20 | No `Gate::before` super-admin bypass; super admin holds all permissions as data | Every check explicit and auditable |
 | D-017 | 2026-11-20 | Users with several approved orgs must pick a context explicitly | §07 explicit context switch |
+| D-018 | 2026-11-20 | Sanctum tokens: abilities clamped server-side; 30-day customer / 8-hour staff expiry | Owner-approved API auth |
+| D-019 | 2026-11-20 | Storefront reuses the approved prototype CSS design system; Tailwind/Vite bundling deferred to Phase 8 | Preserves the approved UI exactly; no build step yet |
+| D-020 | 2026-11-20 | Search indexing off by default (`SEO_INDEXING_ENABLED`); filtered/sorted/search pages always noindex | Mock data must never be indexed |
+| D-021 | 2026-11-20 | Weight variants use selling unit `gram`; pack/box/carton carry `pack_size` | Blueprint §04 units |
+| D-022 | 2026-11-20 | First price on a new variant logs `product.price_set`; later edits log `product.price_changed` with a required reason | Readable audit trail |
+| D-023 | 2026-11-20 | Product photos render only when `review_status = approved`; otherwise a labelled placeholder | Real-images-only policy |
+| D-024 | 2026-11-20 | Category tree limited to two levels | Simple navigation and queries |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Open (owner input required)

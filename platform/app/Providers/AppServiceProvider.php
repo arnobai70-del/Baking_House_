@@ -57,6 +57,8 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('register', fn (Request $request): Limit => Limit::perHour(10)->by($request->ip()));
 
+        RateLimiter::for('catalog', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));
+
         RateLimiter::for('api', fn (Request $request): Limit => Limit::perMinute(60)->by($request->user()?->getKey() ?: $request->ip()));
     }
 }

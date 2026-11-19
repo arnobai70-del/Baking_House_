@@ -1,6 +1,6 @@
-@extends('layouts.app', ['title' => 'Admin'])
+@extends('layouts.admin', ['title' => 'Admin'])
 
-@section('content')
+@section('admin')
     <div class="admin-top">
         <h1>Admin dashboard</h1>
         <span class="spacer"></span>
