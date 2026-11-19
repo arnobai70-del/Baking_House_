@@ -31,18 +31,17 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-024 | 2026-11-20 | Category tree limited to two levels | Simple navigation and queries |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
-## Open (owner input required)
+## Engineering assumptions for open business inputs
+Commercial decisions (partners, hosting, policies, budget) are tracked privately by the owner, not in this public repository.
+Until they are confirmed, engineering uses these safe defaults:
 
-| Decision | Status | Safe assumption |
-|----------|--------|-----------------|
-| Domain and hosting | not chosen | local + staging first |
-| Launch catalog, prices, brand assets | not supplied | mock data only, never published |
-| Bilingual UI (EN/BN) | not confirmed | localization-ready architecture |
-| Weight precision / steps / rounding / packs | custom grams confirmed, details open | integer grams, configurable min/step |
-| Tax / VAT invoice rules | unconfirmed | configurable |
-| Business / reseller eligibility | concept approved | manual approval + protected tiers |
-| Payment / courier partners | not selected | provider-neutral adapters, sandbox |
-| Refunds / returns / shipping zones | not finalized | draft with owner + legal review |
-| Optional AI | requested if feasible | isolated opt-in after core release |
-| Budget / team / timeline | undecided | phase gates, no fabricated dates |
-| Photo sources & licensing | not decided | Phase 0 must list SKU photo sources |
+- Develop locally and on staging only; no production deployment without explicit owner approval.
+- Mock catalog data only, clearly labelled, never indexed or published.
+- Localization-ready (English + Bangla fields); languages switchable in admin.
+- Integer grams with configurable minimum/step; explicit rounding policy (D-005).
+- Tax / VAT handling configurable, not hard-coded.
+- Business / reseller access by manual approval with protected price lists.
+- Payment and courier integrations through provider-neutral adapters in sandbox mode; shipping charges are placeholders.
+- Refund, returns and delivery policies shown as "pending" until approved.
+- Optional AI features isolated, opt-in, after the core release.
+- Real licensed photography only; placeholders until approved.

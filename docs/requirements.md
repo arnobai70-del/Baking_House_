@@ -13,15 +13,15 @@ the site must **not** read as a cake-only shop.
 |---|----------|----------|
 | 1 | Name | Baking House |
 | 2 | Goal | Sell baking, cake-making, Chinese restaurant, café and commercial kitchen tools, ingredients, equipment and supplies |
-| 3 | Type | E-commerce; marketplace-ready architecture; third-party vendor onboarding **not yet approved** |
+| 3 | Type | E-commerce; marketplace-ready architecture (single seller at launch) |
 | 4 | Audience | Bangladesh nationwide: home buyers, bakeries, restaurants/cafés, resellers |
 | 5 | Features | Auth, search, catalog, pricing, discounts, bundles, cart, checkout, payment, notifications, order tracking, CRM, API, SEO |
 | 6 | Roles | Guest, retail customer, commercial account, reseller, admin, super admin (no moderator) |
 | 7 | Design | Modern, premium, animated — per approved screenshot |
 | 8 | Technology | Laravel modular monolith (see architecture.md) |
 | 9 | Admin | CMS, CRM, inventory, orders, price, discount, bundle, business accounts, SEO, analytics, integrations, settings |
-| 10 | Storage | Server-based DB + storage; domain/hosting **not yet selected** |
-| 11 | Budget | Undecided; cost-aware, scalable stages |
+| 10 | Storage | Server-based database and storage |
+| 11 | Delivery | Cost-aware, scalable stages |
 | 12 | Timeline | Phased with release gates |
 | 13 | Special | SEO, page speed, secure backend, API-ready, optional AI |
 

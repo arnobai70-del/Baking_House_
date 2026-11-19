@@ -4,7 +4,7 @@ Each phase: code review, tests, role checks, mobile review, docs, accessibility,
 
 | Phase | Scope | Status |
 |-------|-------|--------|
-| 0 | Discovery & business rules, docs package | 🟡 docs drafted — owner sign-off pending (see decisions.md) |
+| 0 | Discovery & business rules, docs package | 🟡 docs drafted — owner sign-off pending |
 | 1 | UX/UI system & interactive prototype | 🟡 prototype built — 13 screens, owner review + real sample photos pending |
 | 2 | Repo, DevOps, core Laravel backend, RBAC, audit | 🟡 core built — 62 tests green; staging, backups, error tracker, MFA pending |
 | 3 | CMS, catalog, SEO foundation | 🟡 built — awaiting owner review, real photos and catalog data |
@@ -48,7 +48,7 @@ Laravel 13 on PHP 8.3, SQLite locally / in tests (MySQL 8 available via Laragon)
 
 ## Phase 2 remaining (gate)
 - **Needs approval:** Laravel Sanctum for scoped API tokens (`/api/v1`), MFA package for staff.
-- Staging environment + hosting decision, MySQL in CI, queue worker, error tracker, nightly backup job with a restore drill.
+- Staging environment, MySQL in CI, queue worker, error tracker, nightly backup job with a restore drill.
 - Password reset (needs mail/SMS provider), phone OTP verification.
 - Media disks (private originals + public derivatives) for the image-provenance workflow.
 
