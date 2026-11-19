@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Track Order — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container section">
+    <div class="card card-pad" style="max-width:640px;margin:0 auto">
+      <h1 style="font-size:var(--bh-fs-2xl)">Track your order</h1>
+      <p class="muted small">For security, enter both the order reference and the mobile number used at checkout.</p>
+      <form id="track" novalidate class="form-grid">
+        <div class="field"><label for="t-ref">Order reference</label><input class="input tnum" id="t-ref" placeholder="BH-24-000123" required></div>
+        <div class="field"><label for="t-phone">Mobile number</label><input class="input" id="t-phone" inputmode="tel" placeholder="01XXXXXXXXX" required></div>
+        <div class="full"><button class="btn btn-primary" type="submit">Track order</button></div>
+      </form>
+      <div id="out" aria-live="polite" style="margin-top:16px"></div>
+    </div>
+  </main>
+  <div id="app-footer"></div>
+  <script type="module">
+    import { initShell, icon, esc } from './assets/js/app.js';
+    initShell();
+    const ref = new URLSearchParams(location.search).get('ref');
+    if (ref) document.getElementById('t-ref').value = ref;
+    const STEPS = ['Confirmed', 'Processing', 'Packed', 'Shipped', 'Delivered'];
+    document.getElementById('track').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const r = document.getElementById('t-ref').value.trim().toUpperCase();
+      const ph = document.getElementById('t-phone').value.replace(/[\s-]/g, '');
+      const out = document.getElementById('out');
+      if (!/^BH-\d{2}-\d{6}$/.test(r) || !/^(\+?88)?01[3-9]\d{8}$/.test(ph)) {
+        out.innerHTML = `<div class="alert alert-error">${icon('alert')}<span>Check the order reference (format BH-24-000123) and mobile number.</span></div>`; return;
+      }
+      // Prototype: deterministic sample status. Real: verified lookup, generic error if ref+phone don't match.
+      const at = Number(r.slice(-1)) % STEPS.length;
+      out.innerHTML = `<h2 style="font-size:var(--bh-fs-lg)">Order ${esc(r)}</h2>
+        <ol class="steps" aria-label="Order progress">${STEPS.map((s, i) => `<li class="${i < at ? 'done' : i === at ? 'current' : ''}" ${i === at ? 'aria-current="step"' : ''}>${s}</li>`).join('')}</ol>
+        <p class="hint">Sample status (prototype). Courier tracking events appear here once a courier partner is integrated.</p>`;
+    });
+  </script>
+</body>
+</html>

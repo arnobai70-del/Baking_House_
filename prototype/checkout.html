@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkout — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container section">
+    <h1 style="font-size:var(--bh-fs-2xl)">Checkout</h1>
+    <ol class="steps" id="steps" aria-label="Checkout progress">
+      <li>Cart</li><li>Delivery</li><li>Payment</li><li>Confirmation</li>
+    </ol>
+    <div id="co-root"></div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script type="module">
+    import { initShell, icon, cart, esc, formatTaka, getRole, ROLES } from './assets/js/app.js';
+    import { SHIPPING_PLACEHOLDER } from './assets/js/cart-core.js';
+
+    initShell({ tabbar: false });
+    const root = document.getElementById('co-root');
+    const state = { step: 1, address: null, zone: 'inside_dhaka', pay: null, seenTotal: null };
+    const DISTRICTS = ['Dhaka', 'Chattogram', 'Gazipur', 'Narayanganj', 'Sylhet', 'Rajshahi', 'Khulna', 'Barishal', 'Rangpur', 'Mymensingh', 'Cumilla', 'Other'];
+
+    function setSteps(n) {
+      document.querySelectorAll('#steps li').forEach((li, i) => {
+        li.className = i < n ? 'done' : i === n ? 'current' : '';
+        if (i === n) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+      });
+    }
+
+    function summary(priced) {
+      const ship = SHIPPING_PLACEHOLDER[state.zone].paisa;
+      return `<aside class="card summary" aria-label="Order summary">
+        <h2 style="font-size:var(--bh-fs-lg)">Order summary</h2>
+        ${priced.lines.map((l) => `<div class="sum-row"><span>${esc(l.name)} <span class="muted">${esc(l.qtyLabel ?? '')}</span></span><span class="tnum">${l.ok ? formatTaka(l.linePaisa) : '—'}</span></div>`).join('')}
+        <div class="sum-row" style="border-top:1px solid var(--bh-border);margin-top:6px;padding-top:10px"><span>Subtotal</span><span class="tnum">${formatTaka(priced.subtotalPaisa)}</span></div>
+        <div class="sum-row"><span>Delivery (${SHIPPING_PLACEHOLDER[state.zone].label})</span><span class="tnum">${formatTaka(ship)}</span></div>
+        <div class="sum-row total"><span>Total</span><span class="tnum">${formatTaka(priced.subtotalPaisa + ship)}</span></div>
+        <p class="hint">Delivery charge is a <strong>placeholder</strong> until courier rates are confirmed.</p>
+        <p class="hint">${icon('lock', 'icon')} Secure payment · totals computed on the server</p>
+      </aside>`;
+    }
+
+    function render() {
+      const priced = cart.priced();
+      if (!priced.lines.length && state.step < 4) {
+        setSteps(0);
+        root.innerHTML = `<div class="card empty-state">${icon('cart')}<h2 style="font-size:var(--bh-fs-lg)">Nothing to check out</h2><a class="btn btn-primary" href="shop.html">Browse products</a></div>`;
+        return;
+      }
+      if (!priced.valid && state.step < 4) {
+        setSteps(0);
+        root.innerHTML = `<div class="card card-pad"><div class="alert alert-error">${icon('alert')}<span>Some cart items changed (stock or availability). Please review your cart.</span></div><p style="margin-top:12px"><a class="btn btn-primary" href="cart.html">Review cart</a></p></div>`;
+        return;
+      }
+      setSteps(state.step);
+      if (state.step === 1) root.innerHTML = `<div class="cart-layout">${deliveryForm()}${summary(priced)}</div>`;
+      if (state.step === 2) root.innerHTML = `<div class="cart-layout">${paymentForm()}${summary(priced)}</div>`;
+      if (state.step === 2) state.seenTotal = priced.subtotalPaisa + SHIPPING_PLACEHOLDER[state.zone].paisa;
+      bind();
+    }
+
+    function deliveryForm() {
+      const a = state.address ?? {};
+      return `<form class="card card-pad" id="addr" novalidate>
+        <h2 style="font-size:var(--bh-fs-lg)">Delivery details</h2>
+        ${getRole() === 'guest' ? `<div class="alert alert-info" style="margin-bottom:14px">${icon('info')}<span>Checking out as guest. <a href="login.html">Log in</a> to save addresses and track orders.</span></div>` : `<p class="muted small">Signed in as ${esc(ROLES[getRole()])} (prototype)</p>`}
+        <div class="form-grid">
+          <div class="field"><label for="a-name">Full name</label><input class="input" id="a-name" autocomplete="name" value="${esc(a.name ?? '')}" required></div>
+          <div class="field"><label for="a-phone">Mobile number</label><input class="input" id="a-phone" inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX" value="${esc(a.phone ?? '')}" required></div>
+          <div class="field full"><label for="a-line">Address</label><input class="input" id="a-line" autocomplete="street-address" placeholder="House, road, area" value="${esc(a.line ?? '')}" required></div>
+          <div class="field"><label for="a-dist">District</label><select class="input" id="a-dist">${DISTRICTS.map((d) => `<option ${a.dist === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
+          <div class="field"><label for="a-note">Delivery note (optional)</label><input class="input" id="a-note" value="${esc(a.note ?? '')}"></div>
+        </div>
+        <div id="a-err" aria-live="polite"></div>
+        <div class="row"><a class="btn btn-ghost" href="cart.html">← Back to cart</a><span class="spacer"></span><button class="btn btn-primary" type="submit">Continue to payment</button></div>
+      </form>`;
+    }
+
+    function paymentForm() {
+      const opts = [
+        ['bkash', 'bKash', 'Gateway sandbox — provider agreement pending'],
+        ['nagad', 'Nagad', 'Gateway sandbox — provider agreement pending'],
+        ['card', 'Card (Visa / Mastercard)', 'Via approved payment gateway — TBD'],
+        ['bank', 'Bank transfer', 'Order held until transfer verified'],
+        ['cod', 'Cash on delivery', 'If enabled by owner for this zone'],
+      ];
+      return `<form class="card card-pad" id="pay" novalidate>
+        <h2 style="font-size:var(--bh-fs-lg)">Payment method</h2>
+        <p class="small muted">Deliver to: <strong>${esc(state.address.name)}</strong>, ${esc(state.address.line)}, ${esc(state.address.dist)} · <button type="button" class="btn btn-ghost btn-sm" id="edit-addr" style="min-height:auto;padding:0">Change</button></p>
+        <fieldset style="border:0;padding:0;margin:0"><legend class="sr-only">Payment method</legend>
+        ${opts.map(([v, l, t]) => `<label class="pay-opt"><input type="radio" name="pm" value="${v}" ${state.pay === v ? 'checked' : ''}><strong>${l}</strong><span class="tag">${t}</span></label>`).join('')}
+        </fieldset>
+        <div id="p-err" aria-live="polite"></div>
+        <label class="check" style="margin:8px 0"><input type="checkbox" id="terms"> I agree to the terms, delivery and returns policies (drafts).</label>
+        <div class="row"><button type="button" class="btn btn-ghost" id="back">← Back</button><span class="spacer"></span><button class="btn btn-primary" type="submit" id="place">Place order</button></div>
+        <p class="hint">An order is only marked paid after a verified server-side payment callback — never from a browser redirect.</p>
+      </form>`;
+    }
+
+    function confirmation(order) {
+      setSteps(3);
+      document.querySelectorAll('#steps li').forEach((li) => { li.className = 'done'; });
+      root.innerHTML = `<div class="card card-pad empty-state" style="max-width:640px;margin:0 auto">
+        <div style="width:64px;height:64px;border-radius:50%;background:var(--bh-success-soft);display:grid;place-items:center;margin:0 auto 12px;color:var(--bh-success)">${icon('check', 'icon icon-lg')}</div>
+        <h2>Order placed</h2>
+        <p>Order reference <strong class="tnum">${order.ref}</strong></p>
+        <p class="muted">Status: <span class="status ${order.status === 'confirmed' ? 'ok' : 'warn'}">${order.status.replace('_', ' ')}</span></p>
+        <p class="muted small">${order.status === 'pending_payment' ? 'In the real system you would be redirected to the payment provider; the order confirms only after a verified callback.' : 'Cash on delivery — our team confirms by phone before dispatch.'}</p>
+        <p class="tnum"><strong>Total ${formatTaka(order.total)}</strong></p>
+        <div class="row" style="justify-content:center"><a class="btn btn-primary" href="order-track.html?ref=${order.ref}">Track order</a><a class="btn btn-outline" href="shop.html">Continue shopping</a></div>
+        <p class="hint" style="margin-top:12px">Prototype — no order or payment was created.</p>
+      </div>`;
+    }
+
+    function bind() {
+      document.getElementById('addr')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const g = (id) => document.getElementById(id);
+        const vals = { name: g('a-name').value.trim(), phone: g('a-phone').value.replace(/[\s-]/g, ''), line: g('a-line').value.trim(), dist: g('a-dist').value, note: g('a-note').value.trim() };
+        const errs = [];
+        if (!vals.name) errs.push(['a-name', 'Enter your name']);
+        if (!/^(\+?88)?01[3-9]\d{8}$/.test(vals.phone)) errs.push(['a-phone', 'Enter a valid Bangladesh mobile number (01XXXXXXXXX)']);
+        if (vals.line.length < 6) errs.push(['a-line', 'Enter a full delivery address']);
+        ['a-name', 'a-phone', 'a-line'].forEach((id) => g(id).setAttribute('aria-invalid', String(errs.some(([x]) => x === id))));
+        if (errs.length) {
+          g('a-err').innerHTML = `<div class="alert alert-error" style="margin-bottom:12px">${icon('alert')}<ul style="margin:0;padding-left:16px">${errs.map(([, m]) => `<li>${m}</li>`).join('')}</ul></div>`;
+          g(errs[0][0]).focus(); return;
+        }
+        state.address = vals;
+        state.zone = vals.dist === 'Dhaka' ? 'inside_dhaka' : 'outside_dhaka';
+        state.step = 2; render(); window.scrollTo(0, 0);
+      });
+      document.getElementById('back')?.addEventListener('click', () => { state.step = 1; render(); });
+      document.getElementById('edit-addr')?.addEventListener('click', () => { state.step = 1; render(); });
+      document.getElementById('pay')?.addEventListener('change', (e) => { if (e.target.name === 'pm') state.pay = e.target.value; });
+      document.getElementById('pay')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const err = document.getElementById('p-err');
+        if (!state.pay) { err.innerHTML = `<div class="alert alert-error" style="margin:8px 0">${icon('alert')}<span>Choose a payment method.</span></div>`; return; }
+        if (!document.getElementById('terms').checked) { err.innerHTML = `<div class="alert alert-error" style="margin:8px 0">${icon('alert')}<span>Please accept the terms to continue.</span></div>`; return; }
+        // Server-side re-pricing before payment (blueprint §05: promo expires mid-checkout → explicit acceptance)
+        const priced = cart.priced();
+        const total = priced.subtotalPaisa + SHIPPING_PLACEHOLDER[state.zone].paisa;
+        if (!priced.valid) { render(); return; }
+        if (total !== state.seenTotal) {
+          err.innerHTML = `<div class="alert alert-error" style="margin:8px 0">${icon('alert')}<div>Your total changed from ${formatTaka(state.seenTotal)} to <strong>${formatTaka(total)}</strong> (price or offer update).
+            <div class="suggest-btns"><button type="button" class="btn btn-primary btn-sm" id="accept">Accept new total</button></div></div></div>`;
+          document.getElementById('accept').addEventListener('click', () => { state.seenTotal = total; err.innerHTML = ''; });
+          return;
+        }
+        const btn = document.getElementById('place');
+        btn.disabled = true; btn.textContent = 'Placing order…'; // idempotent: one submit only
+        setTimeout(() => {
+          const order = { ref: `BH-${new Date().getFullYear().toString().slice(-2)}-${String(Date.now()).slice(-6)}`, total, status: state.pay === 'cod' ? 'confirmed' : 'pending_payment' };
+          cart.clear();
+          state.step = 4;
+          confirmation(order);
+        }, 600);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>

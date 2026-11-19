@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container section">
+    <h1 style="font-size:var(--bh-fs-2xl)">Contact &amp; support</h1>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px">
+      <div class="card card-pad">
+        <h2 style="font-size:var(--bh-fs-lg)">Reach us</h2>
+        <div class="alert alert-info"><span>Phone, email, WhatsApp and address will be added once the owner verifies company contact details (Phase 0 decision).</span></div>
+        <p class="muted small" style="margin-top:12px">Business hours: to be confirmed.</p>
+      </div>
+      <form class="card card-pad" id="cf" novalidate>
+        <h2 style="font-size:var(--bh-fs-lg)">Send a message</h2>
+        <div class="field"><label for="c-name">Name</label><input class="input" id="c-name" required></div>
+        <div class="field"><label for="c-phone">Mobile</label><input class="input" id="c-phone" inputmode="tel" placeholder="01XXXXXXXXX" required></div>
+        <div class="field"><label for="c-topic">Topic</label><select class="input" id="c-topic"><option>Order help</option><option>Product question</option><option>Business / bulk</option><option>Reseller</option><option>Other</option></select></div>
+        <div class="field"><label for="c-msg">Message</label><textarea class="input" id="c-msg" required></textarea></div>
+        <div id="c-out" aria-live="polite"></div>
+        <button class="btn btn-primary" type="submit">Send</button>
+      </form>
+    </div>
+  </main>
+  <div id="app-footer"></div>
+  <script type="module">
+    import { initShell, icon } from './assets/js/app.js';
+    initShell();
+    document.querySelector('.alert-info').insertAdjacentHTML('afterbegin', icon('info'));
+    document.getElementById('cf').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const ok = document.getElementById('c-name').value.trim() && document.getElementById('c-msg').value.trim()
+        && /^(\+?88)?01[3-9]\d{8}$/.test(document.getElementById('c-phone').value.replace(/[\s-]/g, ''));
+      document.getElementById('c-out').innerHTML = ok
+        ? `<div class="alert alert-success" style="margin-bottom:12px">${icon('check')}<span>Message received (prototype). In production this creates a CRM lead/ticket.</span></div>`
+        : `<div class="alert alert-error" style="margin-bottom:12px">${icon('alert')}<span>Please fill in your name, a valid BD mobile number and a message.</span></div>`;
+      if (ok) e.target.reset();
+    });
+  </script>
+</body>
+</html>

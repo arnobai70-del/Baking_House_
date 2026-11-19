@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Product — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container">
+    <nav class="crumbs" aria-label="Breadcrumb"><ol id="crumbs"></ol></nav>
+    <div id="pdp"></div>
+    <section class="section" aria-labelledby="rel-title">
+      <div class="section-head"><h2 id="rel-title">Related products</h2></div>
+      <div class="grid" id="related"></div>
+    </section>
+  </main>
+  <div id="app-footer"></div>
+
+  <script type="module">
+    import { initShell, icon, placeholder, productCard, PRODUCTS, CATEGORIES, cart, toast, esc, pricingRole, isInStock } from './assets/js/app.js';
+    import { parseQuantity, formatWeight, formatTaka, quoteWeightLine } from './assets/js/weight-pricing.js';
+    import { productBySlug } from './assets/js/data.js';
+
+    const slug = new URLSearchParams(location.search).get('slug') ?? 'dark-compound-chocolate';
+    const p = productBySlug(slug);
+    initShell({ active: p?.category });
+    const root = document.getElementById('pdp');
+
+    if (!p) {
+      root.innerHTML = `<div class="card empty-state">${icon('search')}<h1 style="font-size:var(--bh-fs-xl)">Product not found</h1>
+        <p class="muted">It may have been removed or the link is wrong.</p><a class="btn btn-primary" href="shop.html">Browse all products</a></div>`;
+      document.getElementById('rel-title').closest('section').remove();
+    } else {
+      render();
+    }
+
+    function render() {
+      const cat = CATEGORIES.find((c) => c.slug === p.category);
+      document.title = `${p.name} — Baking House`;
+      document.getElementById('crumbs').innerHTML = `<li><a href="index.html">Home</a></li><li><a href="shop.html?cat=${cat.slug}">${esc(cat.name)}</a></li><li aria-current="page">${esc(p.name)}</li>`;
+      const role = pricingRole();
+
+      let buyBox;
+      if (p.pricingMode === 'WEIGHT') buyBox = weightBox(role);
+      else if (p.pricingMode === 'QUOTE_ONLY') buyBox = quoteBox();
+      else buyBox = fixedBox();
+
+      root.innerHTML = `
+      <div class="pdp">
+        <section aria-label="Product photos">
+          <div class="gallery-main" id="g-main">${placeholder(p.icon, 'Real product photo pending')}</div>
+          <div class="thumbs">${['Main', 'Angle', 'Label', 'Pack'].map((t, i) => `<button aria-label="Show ${t} photo" aria-pressed="${i === 0}">${placeholder(p.icon, t)}</button>`).join('')}</div>
+          <p class="hint" style="margin-top:8px">${icon('info', 'icon')} Approved photography of the exact SKU will replace these placeholders (image policy).</p>
+        </section>
+        <section aria-labelledby="p-title">
+          <div class="muted small">${esc(cat.name)} · SKU ${esc(p.sku)} · ${esc(p.brand)}</div>
+          <h1 id="p-title">${esc(p.name)}</h1>
+          <p class="muted small">No reviews yet</p>
+          ${buyBox}
+        </section>
+      </div>
+      <section class="card" style="margin-top:28px">
+        <div class="tabs" role="tablist" aria-label="Product information" style="padding:14px 16px 0">
+          <button class="tab" role="tab" id="t-desc" aria-controls="tp-desc" aria-selected="true">Description</button>
+          <button class="tab" role="tab" id="t-spec" aria-controls="tp-spec" aria-selected="false" tabindex="-1">Specifications</button>
+          <button class="tab" role="tab" id="t-ship" aria-controls="tp-ship" aria-selected="false" tabindex="-1">Delivery & returns</button>
+        </div>
+        <div class="tabpanel" role="tabpanel" id="tp-desc" aria-labelledby="t-desc"><p>${esc(p.desc)}</p></div>
+        <div class="tabpanel" role="tabpanel" id="tp-spec" aria-labelledby="t-spec" hidden>
+          <table class="specs"><tbody>${Object.entries({ SKU: p.sku, Brand: p.brand, ...p.specs }).map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</tbody></table></div>
+        <div class="tabpanel" role="tabpanel" id="tp-ship" aria-labelledby="t-ship" hidden>
+          <p>Delivery charges and timelines depend on the courier partner and zone — <strong>to be confirmed before launch</strong>. Returns follow the store returns policy (draft, under owner and legal review).</p></div>
+      </section>`;
+
+      bindTabs();
+      bindGallery();
+      if (p.pricingMode === 'WEIGHT') bindWeight(role);
+      if (p.pricingMode === 'FIXED') bindFixed();
+      bindQuote();
+
+      const related = PRODUCTS.filter((x) => x.id !== p.id && (x.category === p.category || x.tags.some((t) => p.tags.includes(t)))).slice(0, 5);
+      document.getElementById('related').innerHTML = related.map(productCard).join('');
+    }
+
+    function stockLine(ok, text) {
+      return ok ? `<span class="stock-ok">${icon('check')} ${text}</span>` : `<span class="stock-low">${text}</span>`;
+    }
+
+    // ---------- WEIGHT ----------
+    function weightBox(role) {
+      const r = p.weight;
+      const inCart = cart.lines().find((l) => l.key === `p:${p.id}`)?.grams ?? 0;
+      const tiers = r.tiers?.[role] ?? [];
+      return `
+        <div class="rate tnum" id="rate">${formatTaka(r.perKgPaisa)} <small>/ kg</small></div>
+        <div class="rate-src muted" id="rate-src"></div>
+        ${tiers.length ? `<div class="alert alert-info" style="margin:10px 0">${icon('store')}<span><strong>${role === 'business' ? 'Business' : 'Reseller'} pricing:</strong> ${tiers.map((t) => `${formatTaka(t.perKgPaisa)}/kg from ${formatWeight(t.fromGrams)}`).join(' · ')}. Applied on total weight in your cart.</span></div>` : ''}
+        <p style="margin:10px 0">${stockLine(r.stockGrams >= r.minGrams, r.stockGrams >= r.minGrams ? `In stock — ${formatWeight(r.stockGrams)} available` : 'Out of stock')}
+          ${inCart ? `<span class="muted small"> · ${formatWeight(inCart)} already in your cart</span>` : ''}</p>
+        <div class="card card-pad stack">
+          <div>
+            <h2 class="small" style="font-size:var(--bh-fs-sm);margin-bottom:8px" id="chips-label">Select quantity <span class="muted">(weight-based pricing)</span></h2>
+            <div class="chips" role="group" aria-labelledby="chips-label" id="chips">
+              ${r.presets.map((g) => `<button class="wchip" data-g="${g}" aria-pressed="false"><strong>${formatWeight(g)}</strong><span class="tnum" data-chip-price="${g}"></span></button>`).join('')}
+            </div>
+          </div>
+          <div>
+            <label class="small" for="custom" style="font-weight:600;color:var(--bh-navy)">Or set a custom quantity</label>
+            <div class="custom-qty" style="margin-top:6px">
+              <input class="input tnum" id="custom" inputmode="decimal" placeholder="e.g. 1250" aria-describedby="qty-hint qty-err">
+              <label class="sr-only" for="unit">Unit</label>
+              <select class="input" id="unit"><option value="g">g</option><option value="kg">kg</option></select>
+            </div>
+            <p class="hint" id="qty-hint">Min ${formatWeight(r.minGrams)} · steps of ${formatWeight(r.stepGrams)} · max ${formatWeight(r.maxGrams)}</p>
+            <div id="qty-err" aria-live="polite"></div>
+          </div>
+          <div class="calc-box" aria-live="polite">
+            <div class="label">Calculated price</div>
+            <div class="total tnum" id="total">—</div>
+            <div class="muted small" id="total-for">Choose a quantity</div>
+          </div>
+          <div class="row">
+            <button class="btn btn-primary" style="flex:1" id="add" disabled>${icon('cart')} Add to cart</button>
+            <button class="btn btn-navy" id="buy" disabled>Buy now</button>
+            <a class="btn btn-outline" href="#quote">${icon('quote')} Request a quote (bulk)</a>
+          </div>
+          <p class="hint">Preview only — the server recalculates price and stock when you add to cart and again at checkout.</p>
+        </div>
+        ${quoteForm(true)}`;
+    }
+
+    function bindWeight(role) {
+      const r = p.weight;
+      const input = document.getElementById('custom');
+      const unit = document.getElementById('unit');
+      const err = document.getElementById('qty-err');
+      const totalEl = document.getElementById('total');
+      const inCart = () => cart.lines().find((l) => l.key === `p:${p.id}`)?.grams ?? 0;
+      let current = null;
+
+      // Chip prices (per chip, at the role rate)
+      r.presets.forEach((g) => {
+        const q = quoteWeightLine(r, g, { role });
+        document.querySelector(`[data-chip-price="${g}"]`).textContent = q.ok ? formatTaka(q.linePaisa) : '—';
+      });
+
+      function show(grams) {
+        const avail = r.stockGrams - inCart();
+        const q = Number.isInteger(grams) ? quoteWeightLine(r, grams, { role, stockGrams: avail }) : null;
+        document.querySelectorAll('.wchip').forEach((c) => c.setAttribute('aria-pressed', String(Number(c.dataset.g) === grams)));
+        if (!q) { current = null; totalEl.textContent = '—'; document.getElementById('total-for').textContent = 'Choose a quantity'; setBtns(false); err.innerHTML = ''; input.removeAttribute('aria-invalid'); return; }
+        if (!q.ok) {
+          current = null;
+          input.setAttribute('aria-invalid', 'true');
+          const msg = q.code === 'stock' && inCart() ? `${q.error.replace('in stock', 'more available')} (you already have ${formatWeight(inCart())} in your cart).` : q.error;
+          err.innerHTML = `<div class="alert alert-error" style="margin-top:6px">${icon('alert')}<div>${esc(msg)}
+            ${q.suggestions.length ? `<div class="suggest-btns">${q.suggestions.map((s) => `<button class="btn btn-outline btn-sm" data-use="${s}">Use ${formatWeight(s)}</button>`).join('')}</div>` : ''}</div></div>`;
+          totalEl.textContent = '—';
+          document.getElementById('total-for').textContent = 'Not added — fix the quantity above';
+          setBtns(false);
+          return;
+        }
+        current = grams;
+        input.removeAttribute('aria-invalid');
+        err.innerHTML = '';
+        totalEl.textContent = formatTaka(q.linePaisa);
+        totalEl.classList.remove('tick'); void totalEl.offsetWidth; totalEl.classList.add('tick');
+        document.getElementById('total-for').textContent = `for ${formatWeight(grams)}${grams >= 1000 && grams % 1000 ? ` (${formatWeight(grams, 'mixed')})` : ''} at ${formatTaka(q.perKgPaisa)}/kg`;
+        document.getElementById('rate').innerHTML = `${formatTaka(q.perKgPaisa)} <small>/ kg</small>`;
+        document.getElementById('rate-src').textContent = q.rateSource === 'standard' ? '' : `Rate source: ${q.rateSource.replace('-', ' ')}`;
+        setBtns(true);
+      }
+      const setBtns = (on) => { document.getElementById('add').disabled = !on; document.getElementById('buy').disabled = !on; };
+
+      document.getElementById('chips').addEventListener('click', (e) => {
+        const c = e.target.closest('.wchip'); if (!c) return;
+        const g = Number(c.dataset.g);
+        unit.value = 'g'; input.value = String(g);
+        show(g);
+      });
+      const fromInput = () => {
+        if (input.value.trim() === '') return show(null);
+        const parsed = parseQuantity(input.value, unit.value);
+        if (!parsed.ok) {
+          current = null; setBtns(false); input.setAttribute('aria-invalid', 'true');
+          err.innerHTML = `<div class="alert alert-error" style="margin-top:6px">${icon('alert')}<span>${esc(parsed.error)}</span></div>`;
+          totalEl.textContent = '—';
+          return;
+        }
+        show(parsed.grams);
+      };
+      input.addEventListener('input', fromInput);
+      unit.addEventListener('change', fromInput);
+      err.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-use]'); if (!b) return;
+        unit.value = 'g'; input.value = b.dataset.use; show(Number(b.dataset.use)); input.focus();
+      });
+      const add = (go) => {
+        if (current == null) return;
+        cart.add({ type: 'product', productId: p.id, grams: current });
+        toast(`${formatWeight(current)} of ${p.name} added`, { href: 'cart.html', label: 'View cart' });
+        if (go) location.href = 'checkout.html';
+        else show(current); // re-validate against new in-cart amount
+      };
+      document.getElementById('add').addEventListener('click', () => add(false));
+      document.getElementById('buy').addEventListener('click', () => add(true));
+
+      // Default: 700 g if valid (blueprint example), else min
+      const def = r.presets.includes(700) ? 700 : r.minGrams;
+      unit.value = 'g'; input.value = String(def); show(def);
+    }
+
+    // ---------- FIXED ----------
+    function fixedBox() {
+      const ok = p.stock > 0;
+      return `
+        <div class="rate tnum">${formatTaka(p.pricePaisa)} ${p.compareAtPaisa ? `<small><s>${formatTaka(p.compareAtPaisa)}</s></small> <span class="save-pill">Save ${formatTaka(p.compareAtPaisa - p.pricePaisa)}</span>` : ''}</div>
+        <p style="margin:10px 0">${stockLine(ok, ok ? `In stock${p.stock <= 5 ? ` — only ${p.stock} left` : ''}` : 'Out of stock')}</p>
+        <div class="card card-pad stack">
+          <div class="row">
+            <div class="stepper" role="group" aria-label="Quantity">
+              <button id="dec" aria-label="Decrease quantity">${icon('minus')}</button>
+              <input id="qty" class="tnum" value="1" inputmode="numeric" aria-label="Quantity">
+              <button id="inc" aria-label="Increase quantity">${icon('plus')}</button>
+            </div>
+            <div class="muted small" aria-live="polite">Total: <strong class="tnum" id="ftotal">${formatTaka(p.pricePaisa)}</strong></div>
+          </div>
+          <div id="qty-err" aria-live="polite"></div>
+          <div class="row">
+            <button class="btn btn-primary" style="flex:1" id="add" ${ok ? '' : 'disabled'}>${icon('cart')} Add to cart</button>
+            <button class="btn btn-navy" id="buy" ${ok ? '' : 'disabled'}>Buy now</button>
+            <a class="btn btn-outline" href="#quote">${icon('quote')} Bulk quote</a>
+          </div>
+        </div>
+        ${quoteForm(true)}`;
+    }
+    function bindFixed() {
+      const qty = document.getElementById('qty');
+      const err = document.getElementById('qty-err');
+      const read = () => Number.parseInt(qty.value, 10);
+      const sync = () => {
+        const n = read();
+        const inCart = cart.lines().find((l) => l.key === `p:${p.id}`)?.qty ?? 0;
+        const avail = p.stock - inCart;
+        let msg = '';
+        if (!Number.isInteger(n) || n < 1) msg = 'Enter a quantity of at least 1.';
+        else if (n > avail) msg = avail > 0 ? `Only ${avail} more available${inCart ? ` (${inCart} in your cart)` : ''}.` : 'No more stock available.';
+        err.innerHTML = msg ? `<div class="alert alert-error">${icon('alert')}<span>${esc(msg)}</span></div>` : '';
+        document.getElementById('ftotal').textContent = msg ? '—' : formatTaka(p.pricePaisa * n);
+        document.getElementById('add').disabled = !!msg || p.stock === 0;
+        document.getElementById('buy').disabled = !!msg || p.stock === 0;
+        return !msg;
+      };
+      document.getElementById('dec').addEventListener('click', () => { qty.value = Math.max(1, (read() || 1) - 1); sync(); });
+      document.getElementById('inc').addEventListener('click', () => { qty.value = (read() || 0) + 1; sync(); });
+      qty.addEventListener('input', sync);
+      const add = (go) => {
+        if (!sync()) return;
+        cart.add({ type: 'product', productId: p.id, qty: read() });
+        toast(`${p.name} × ${read()} added`, { href: 'cart.html', label: 'View cart' });
+        if (go) location.href = 'checkout.html'; else sync();
+      };
+      document.getElementById('add').addEventListener('click', () => add(false));
+      document.getElementById('buy').addEventListener('click', () => add(true));
+      sync();
+    }
+
+    // ---------- QUOTE ----------
+    function quoteBox() {
+      return `<div class="rate" style="font-size:var(--bh-fs-xl)">Price on request</div>
+        <p class="muted">${esc(p.desc)}</p>
+        <p>${stockLine(isInStock(p), isInStock(p) ? 'Available to order' : 'Currently unavailable')}</p>
+        ${quoteForm(false)}`;
+    }
+    function quoteForm(collapsed) {
+      return `<details class="card" id="quote" style="margin-top:16px" ${collapsed ? '' : 'open'}>
+        <summary class="card-pad" style="cursor:pointer;font-weight:700;color:var(--bh-navy)">${icon('quote', 'icon')} Request a quote for ${esc(p.name)}</summary>
+        <form class="card-pad" id="quote-form" style="padding-top:0" novalidate>
+          <div class="form-grid">
+            <div class="field"><label for="qf-name">Your name</label><input class="input" id="qf-name" required autocomplete="name"></div>
+            <div class="field"><label for="qf-phone">Phone</label><input class="input" id="qf-phone" required inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX"></div>
+            <div class="field"><label for="qf-biz">Business name (optional)</label><input class="input" id="qf-biz" autocomplete="organization"></div>
+            <div class="field"><label for="qf-qty">Quantity needed</label><input class="input" id="qf-qty" required placeholder="${p.pricingMode === 'WEIGHT' ? 'e.g. 25 kg / month' : 'e.g. 10 units'}"></div>
+            <div class="field full"><label for="qf-note">Details</label><textarea class="input" id="qf-note" placeholder="Delivery area, timeline, recurring need…"></textarea></div>
+          </div>
+          <div id="qf-msg" aria-live="polite"></div>
+          <button class="btn btn-primary" type="submit">${icon('quote')} Send quote request</button>
+          <p class="hint">Creates a CRM lead for the sales team (Phase 6–7). Prototype: nothing is sent.</p>
+        </form>
+      </details>`;
+    }
+    function bindQuote() {
+      const f = document.getElementById('quote-form'); if (!f) return;
+      if (location.hash === '#quote') document.getElementById('quote').open = true;
+      document.querySelectorAll('a[href="#quote"]').forEach((a) => a.addEventListener('click', () => { document.getElementById('quote').open = true; }));
+      f.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = f.querySelector('#qf-name'), phone = f.querySelector('#qf-phone'), q = f.querySelector('#qf-qty');
+        const bad = [];
+        [name, q].forEach((el) => { const b = !el.value.trim(); el.setAttribute('aria-invalid', String(b)); if (b) bad.push(el); });
+        const phoneOk = /^(\+?88)?01[3-9]\d{8}$/.test(phone.value.replace(/[\s-]/g, ''));
+        phone.setAttribute('aria-invalid', String(!phoneOk)); if (!phoneOk) bad.push(phone);
+        const msg = f.querySelector('#qf-msg');
+        if (bad.length) {
+          msg.innerHTML = `<div class="alert alert-error" style="margin-bottom:12px">${icon('alert')}<span>Please complete the highlighted fields${!phoneOk ? ' — phone must be a valid Bangladesh mobile number' : ''}.</span></div>`;
+          bad[0].focus(); return;
+        }
+        msg.innerHTML = `<div class="alert alert-success" style="margin-bottom:12px">${icon('check')}<span>Quote request received (prototype). Reference <strong>RFQ-${Date.now().toString().slice(-6)}</strong>. Our team would contact you to confirm price and availability.</span></div>`;
+        f.reset();
+      });
+    }
+
+    function bindTabs() {
+      const tabs = [...document.querySelectorAll('[role=tab][aria-controls^="tp-"]')];
+      const select = (t) => {
+        tabs.forEach((x) => { const on = x === t; x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1; document.getElementById(x.getAttribute('aria-controls')).hidden = !on; });
+        t.focus();
+      };
+      tabs.forEach((t, i) => {
+        t.addEventListener('click', () => select(t));
+        t.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowRight') select(tabs[(i + 1) % tabs.length]);
+          if (e.key === 'ArrowLeft') select(tabs[(i - 1 + tabs.length) % tabs.length]);
+        });
+      });
+    }
+    function bindGallery() {
+      const btns = [...document.querySelectorAll('.thumbs button')];
+      const labels = ['Real product photo pending', 'Alternate angle pending', 'Label close-up pending', 'Pack shot pending'];
+      btns.forEach((b, i) => b.addEventListener('click', () => {
+        btns.forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+        document.getElementById('g-main').innerHTML = placeholder(p.icon, labels[i]);
+      }));
+    }
+  </script>
+</body>
+</html>

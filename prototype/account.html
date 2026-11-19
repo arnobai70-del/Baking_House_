@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Account — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container"><div id="root"></div></main>
+  <div id="app-footer"></div>
+  <script type="module">
+    import { initShell, getRole, ROLES, icon, productCard, PRODUCTS, toast } from './assets/js/app.js';
+    import { renderDashboard, panel, kpis, ordersTable, emptyBlock, deniedHtml } from './assets/js/dash.js';
+
+    initShell();
+    const root = document.getElementById('root');
+    const role = getRole();
+
+    if (role === 'guest') {
+      root.innerHTML = `<div class="card denied" style="margin:24px 0">${icon('user')}<h1 style="font-size:var(--bh-fs-xl)">Sign in to your account</h1>
+        <p class="muted">Track orders, save addresses and reorder in one click.</p><a class="btn btn-primary" href="login.html">Login / Register</a></div>`;
+    } else if (role !== 'retail') {
+      const dest = { business: 'business.html', reseller: 'reseller.html', admin: 'admin.html' }[role];
+      root.innerHTML = deniedHtml('Retail dashboard', `<p class="small">You're signed in as <strong>${ROLES[role]}</strong>. Accounts keep separate contexts.</p><a class="btn btn-primary" href="${dest}">Go to my ${ROLES[role]} dashboard</a>`);
+    } else {
+      renderDashboard(root, {
+        theme: 'role-retail', initials: 'RC', name: 'Retail Customer', sub: 'Sample account',
+        headTitle: 'Customer dashboard', headText: 'Standard public prices. Orders, wishlist, addresses and profile.',
+        sections: [
+          { id: 'orders', label: 'My orders', icon: 'cart', render: () => kpis([['Orders', '3', 'sample'], ['In progress', '2', ''], ['Saved addresses', '1', ''], ['Wishlist', '3', '']]) + panel('Recent orders', ordersTable()),
+            bind: (el) => el.addEventListener('click', (e) => { if (e.target.closest('[data-reorder]')) toast('Reorder adds available items back to cart (Phase 5)'); }) },
+          { id: 'wishlist', label: 'Wishlist', icon: 'heart', render: () => panel('Wishlist', `<div class="grid grid-4" style="padding:16px">${PRODUCTS.filter((p) => [1, 7, 14].includes(p.id)).map(productCard).join('')}</div>`) },
+          { id: 'addresses', label: 'Saved addresses', icon: 'map', render: () => panel('Saved addresses', `<div class="card-pad"><div class="card card-pad"><strong>Home</strong><p class="muted small" style="margin:4px 0 0">Sample address, Dhaka · 01XXXXXXXXX</p></div></div>`, '<button class="btn btn-outline btn-sm">Add address</button>') },
+          { id: 'notifications', label: 'Notifications', icon: 'info', render: () => panel('Notifications', emptyBlock('info', 'You’re all caught up', 'Order and delivery updates will appear here.')) },
+          { id: 'profile', label: 'Profile & settings', icon: 'settings', render: () => panel('Profile', `<form class="card-pad form-grid" onsubmit="event.preventDefault()">
+              <div class="field"><label for="pn">Name</label><input class="input" id="pn" value="Retail Customer"></div>
+              <div class="field"><label for="pp">Mobile</label><input class="input" id="pp" value="01XXXXXXXXX"></div>
+              <div class="field full"><label for="pe">Email</label><input class="input" id="pe" type="email" placeholder="you@example.com"></div>
+              <div class="full"><button class="btn btn-primary">Save changes</button> <a class="btn btn-ghost" href="business.html">Upgrade to a business account →</a></div></form>`) },
+        ],
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cart — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container section">
+    <h1 style="font-size:var(--bh-fs-2xl)">Shopping cart</h1>
+    <div id="cart-root"></div>
+  </main>
+  <div id="app-footer"></div>
+
+  <script type="module">
+    import { initShell, icon, placeholder, cart, esc, formatTaka, formatWeight, toast } from './assets/js/app.js';
+    import { parseQuantity } from './assets/js/weight-pricing.js';
+
+    initShell();
+    const root = document.getElementById('cart-root');
+
+    function render() {
+      const priced = cart.priced();
+      if (!priced.lines.length) {
+        root.innerHTML = `<div class="card empty-state">${icon('cart')}<h2 style="font-size:var(--bh-fs-lg)">Your cart is empty</h2>
+          <p class="muted">Ingredients, tools, restaurant supplies and equipment — all in one place.</p>
+          <div class="row" style="justify-content:center"><a class="btn btn-primary" href="shop.html">Start shopping</a><a class="btn btn-outline" href="combos.html">See combo offers</a></div></div>`;
+        return;
+      }
+      root.innerHTML = `<div class="cart-layout">
+        <section class="card card-pad" aria-label="Cart items">
+          ${priced.lines.map((l) => lineHtml(l)).join('')}
+          <div class="row" style="margin-top:12px"><a class="btn btn-ghost" href="shop.html">← Continue shopping</a><span class="spacer"></span><button class="btn btn-ghost" id="clear">Clear cart</button></div>
+        </section>
+        <aside class="card summary" aria-label="Order summary">
+          <h2 style="font-size:var(--bh-fs-lg)">Order summary</h2>
+          <div class="sum-row"><span>Subtotal (${priced.itemCount} item${priced.itemCount === 1 ? '' : 's'})</span><span class="tnum">${formatTaka(priced.subtotalPaisa)}</span></div>
+          <div class="sum-row"><span>Delivery</span><span class="muted">At checkout</span></div>
+          <div class="field" style="margin-top:10px"><label for="coupon">Coupon code</label>
+            <div class="row" style="flex-wrap:nowrap"><input class="input" id="coupon" placeholder="Enter code"><button class="btn btn-outline" id="apply-coupon">Apply</button></div>
+            <div id="coupon-msg" aria-live="polite"></div></div>
+          <div class="sum-row total"><span>Total</span><span class="tnum">${formatTaka(priced.subtotalPaisa)}</span></div>
+          ${priced.valid ? '' : `<div class="alert alert-error" style="margin:10px 0">${icon('alert')}<span>Fix the highlighted items before checkout.</span></div>`}
+          <a class="btn btn-primary btn-block" href="checkout.html" ${priced.valid ? '' : 'aria-disabled="true" style="pointer-events:none;opacity:.5"'}>Proceed to checkout</a>
+          <p class="hint" style="margin-top:8px">${icon('lock', 'icon')} Prices and stock are re-checked by the server before payment.</p>
+        </aside>
+      </div>`;
+    }
+
+    function lineHtml(l) {
+      const p = l.product;
+      const isWeight = p?.pricingMode === 'WEIGHT';
+      let qtyCtl;
+      if (l.type === 'combo') qtyCtl = stepper(l.key, l.qty);
+      else if (isWeight) qtyCtl = `<div class="custom-qty" style="max-width:240px"><label class="sr-only" for="w-${l.key}">Weight for ${esc(l.name)}</label>
+          <input class="input tnum" id="w-${l.key}" data-weight="${l.key}" value="${l.grams}" inputmode="numeric" ${l.ok ? '' : 'aria-invalid="true"'}>
+          <span class="muted small" style="align-self:center">g</span></div>
+          <div class="hint">${formatWeight(l.grams)} at ${l.ok ? `${formatTaka(l.perKgPaisa)}/kg${l.rateSource !== 'standard' ? ` (${esc(l.rateSource.replace('-', ' '))})` : ''}` : '—'}</div>`;
+      else qtyCtl = stepper(l.key, l.qty);
+      return `<div class="line">
+        ${placeholder(p?.icon ?? 'gift', 'Photo pending')}
+        <div>
+          <h3>${p ? `<a href="product.html?slug=${p.slug}">${esc(l.name)}</a>` : esc(l.name)}</h3>
+          ${l.type === 'combo' && l.ok ? `<div class="small muted">Bundle · was <s>${formatTaka(l.normalPaisa)}</s> <span class="save-pill">Save ${formatTaka(l.discountPaisa)}</span></div>` : ''}
+          ${p && !isWeight ? `<div class="small muted">${formatTaka(p.pricePaisa)} each</div>` : ''}
+          <div style="margin-top:8px">${qtyCtl}</div>
+          ${l.ok ? '' : `<div class="alert alert-error" style="margin-top:8px">${icon('alert')}<div>${esc(l.error)}
+            ${l.suggestions?.length ? `<div class="suggest-btns">${l.suggestions.map((s) => `<button class="btn btn-outline btn-sm" data-fix="${l.key}" data-val="${s}">Use ${isWeight ? formatWeight(s) : s}</button>`).join('')}</div>` : ''}</div></div>`}
+          <button class="btn btn-ghost btn-sm" data-remove="${l.key}" style="margin-top:6px;padding-left:0">Remove</button>
+        </div>
+        <div class="line-total tnum">${l.ok ? formatTaka(l.linePaisa) : '—'}</div>
+      </div>`;
+    }
+    const stepper = (key, qty) => `<div class="stepper" role="group" aria-label="Quantity">
+      <button data-step="${key}" data-d="-1" aria-label="Decrease">${icon('minus')}</button>
+      <input class="tnum" value="${qty}" data-qty="${key}" inputmode="numeric" aria-label="Quantity">
+      <button data-step="${key}" data-d="1" aria-label="Increase">${icon('plus')}</button></div>`;
+
+    root.addEventListener('click', (e) => {
+      const t = e.target.closest('button'); if (!t) return;
+      if (t.dataset.remove) { cart.remove(t.dataset.remove); toast('Item removed'); }
+      if (t.dataset.step) {
+        const l = cart.lines().find((x) => x.key === t.dataset.step);
+        const n = l.qty + Number(t.dataset.d);
+        if (n < 1) cart.remove(l.key); else cart.update(l.key, { qty: n });
+      }
+      if (t.dataset.fix) {
+        const l = cart.lines().find((x) => x.key === t.dataset.fix);
+        cart.update(l.key, l.grams != null ? { grams: Number(t.dataset.val) } : { qty: Number(t.dataset.val) });
+      }
+      if (t.id === 'clear') cart.clear();
+      if (t.id === 'apply-coupon') {
+        const code = document.getElementById('coupon').value.trim();
+        document.getElementById('coupon-msg').innerHTML = code
+          ? `<div class="alert alert-info" style="margin-top:6px">${icon('info')}<span>Coupons arrive in Phase 4 (eligibility, limits, expiry). “${esc(code)}” was not applied.</span></div>` : '';
+      }
+    });
+    root.addEventListener('change', (e) => {
+      const t = e.target;
+      if (t.dataset.weight) {
+        const parsed = parseQuantity(t.value, 'g');
+        if (parsed.ok) cart.update(t.dataset.weight, { grams: parsed.grams });
+        else { t.setAttribute('aria-invalid', 'true'); toast(parsed.error); }
+      }
+      if (t.dataset.qty) {
+        const n = Number.parseInt(t.value, 10);
+        if (Number.isInteger(n) && n >= 1) cart.update(t.dataset.qty, { qty: n }); else render();
+      }
+    });
+    cart.onChange(render);
+    render();
+  </script>
+</body>
+</html>

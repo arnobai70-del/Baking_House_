@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reseller Program — Baking House</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="assets/css/tokens.css">
+  <link rel="stylesheet" href="assets/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main id="main" class="container"><div id="root"></div></main>
+  <div id="app-footer"></div>
+  <script type="module">
+    import { initShell, getRole, icon, esc, PRODUCTS, formatTaka, formatWeight, toast } from './assets/js/app.js';
+    import { renderDashboard, panel, kpis, ordersTable, emptyBlock } from './assets/js/dash.js';
+
+    initShell();
+    const root = document.getElementById('root');
+    const role = getRole();
+
+    if (role !== 'reseller') {
+      root.innerHTML = `
+        <section class="section">
+          <div class="card card-pad" style="border-top:4px solid var(--bh-navy)">
+            <span class="eyebrow">Reseller program</span>
+            <h1 style="margin-top:8px">Resell Baking House supplies</h1>
+            <p class="muted" style="max-width:720px">Approved resellers receive an assigned rate card, optional minimum order quantities, bulk reorder tools and statements. Commission or affiliate payouts are <strong>not</strong> part of the program unless separately approved.</p>
+            ${role === 'business' ? `<div class="alert alert-info" style="margin-bottom:12px">${icon('info')}<span>Business accounts don't automatically get reseller access — reseller pricing requires its own approval.</span></div>` : ''}
+          </div>
+        </section>
+        <section class="section" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;padding-top:0">
+          <div class="card card-pad"><h2 style="font-size:var(--bh-fs-lg)">Eligibility (draft — owner to confirm)</h2>
+            <ul class="small">${['Registered shop, online store or distribution business', 'Valid contact and delivery address in Bangladesh', 'Expected monthly purchase volume', 'Agreement to resale pricing and brand-use policy'].map((t) => `<li style="margin:6px 0">${t}</li>`).join('')}</ul></div>
+          <form class="card card-pad" id="apply" novalidate><h2 style="font-size:var(--bh-fs-lg)">Apply</h2>
+            <div class="field"><label for="s-name">Shop / business name</label><input class="input" id="s-name" required></div>
+            <div class="field"><label for="s-phone">Mobile</label><input class="input" id="s-phone" inputmode="tel" placeholder="01XXXXXXXXX" required></div>
+            <div class="field"><label for="s-area">Area served</label><input class="input" id="s-area" placeholder="e.g. Chattogram city"></div>
+            <div id="s-msg" aria-live="polite"></div>
+            <button class="btn btn-navy" type="submit">Submit application</button></form>
+        </section>`;
+      document.getElementById('apply').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const n = document.getElementById('s-name'), ph = document.getElementById('s-phone');
+        const ok = n.value.trim() && /^(\+?88)?01[3-9]\d{8}$/.test(ph.value.replace(/[\s-]/g, ''));
+        n.setAttribute('aria-invalid', String(!n.value.trim()));
+        document.getElementById('s-msg').innerHTML = ok
+          ? `<div class="alert alert-success" style="margin-bottom:12px">${icon('check')}<span>Application received — pending review (prototype).</span></div>`
+          : `<div class="alert alert-error" style="margin-bottom:12px">${icon('alert')}<span>Enter your business name and a valid BD mobile number.</span></div>`;
+        if (ok) e.target.reset();
+      });
+    } else {
+      const rateItems = PRODUCTS.filter((p) => p.pricingMode === 'WEIGHT' && p.weight.tiers?.reseller);
+      renderDashboard(root, {
+        theme: 'role-reseller', initials: 'SS', name: 'Sample Supplies', sub: 'Reseller · approved (sample)',
+        headTitle: 'Reseller dashboard', headText: 'Your assigned rate card, bulk reorders and statements. Not visible to any other account.',
+        sections: [
+          { id: 'overview', label: 'Overview', icon: 'chart', render: () => kpis([['Orders (30 days)', '3', 'sample'], ['MOQ', '৳10,000', 'per order (sample)'], ['Rate card items', String(rateItems.length), ''], ['Statement due', '—', '']]) + panel('Recent orders', ordersTable()),
+            bind: (el) => el.addEventListener('click', (e) => { if (e.target.closest('[data-reorder]')) toast('Reorder re-prices at your current rate card'); }) },
+          { id: 'rates', label: 'My rate card', icon: 'tag', render: () => panel('Assigned reseller prices', `<div class="table-wrap"><table class="table"><thead><tr><th>Product</th><th>Public price</th><th>Your rate</th></tr></thead><tbody>
+              ${rateItems.map((p) => `<tr><td>${esc(p.name)}<div class="muted small">${p.sku}</div></td><td class="tnum">${formatTaka(p.weight.perKgPaisa)}/kg</td><td class="tnum">${p.weight.tiers.reseller.map((t) => `<strong>${formatTaka(t.perKgPaisa)}/kg</strong> from ${formatWeight(t.fromGrams)}`).join('<br>')}</td></tr>`).join('')}
+              </tbody></table></div>`) },
+          { id: 'bulk', label: 'Bulk upload order', icon: 'pallet', render: () => panel('Bulk upload', emptyBlock('file', 'Upload a CSV of SKU, quantity', 'Validated line by line before anything is added (Phase 6).', '<button class="btn btn-navy" disabled>Upload CSV</button>')) },
+          { id: 'catalog', label: 'Catalog tools', icon: 'grid', render: () => panel('Catalog tools', emptyBlock('grid', 'Shareable product list', 'Export product info and approved photos for your shop (Phase 6).')) },
+          { id: 'statements', label: 'Statements', icon: 'file', render: () => panel('Statements', emptyBlock('file', 'No statements yet', 'Monthly statements appear here.')) },
+        ],
+      });
+    }
+  </script>
+</body>
+</html>
