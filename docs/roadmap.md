@@ -8,7 +8,7 @@ Each phase: code review, tests, role checks, mobile review, docs, accessibility,
 | 1 | UX/UI system & interactive prototype | 🟡 prototype built — 13 screens, owner review + real sample photos pending |
 | 2 | Repo, DevOps, core Laravel backend, RBAC, audit | 🟡 core built — 62 tests green; staging, backups, error tracker, MFA pending |
 | 3 | CMS, catalog, SEO foundation | 🟡 built — awaiting owner review, real photos and catalog data |
-| 4 | Pricing, weight engine, promotions, stock | 🟡 weight engine in JS **and** PHP (same matrix); DB-backed rules pending |
+| 4 | Pricing, weight engine, promotions, stock | 🟡 built — awaiting owner review |
 | 5 | Retail checkout & operations (MVP gate) | ⬜ |
 | 6 | Business & reseller portals | ⬜ |
 | 7 | CRM, advanced admin, analytics | ⬜ |
@@ -76,3 +76,32 @@ Customer tokens last 30 days and staff tokens 8 hours. Tokens can be listed and 
 - Bangla storefront copy once the launch language is decided (`name_bn` fields exist).
 - OpenAPI spec for `/api/v1`.
 - CMS-editable home sections and banners (home copy is in templates for now).
+
+## Staff MFA (owner-approved 2026-11-20)
+TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into the existing login.
+- **Login:** a password alone never logs staff in. Verification is per session and must be newer than the current enrollment.
+- **Secrets and codes:** secrets are encrypted at rest and codes cannot be replayed. There are 8 single-use recovery codes, stored hashed.
+- **Limits and resets:** MFA attempts are rate-limited. A reset needs the password plus a current code, and revokes the user's API tokens.
+- **API tokens:** a staff token needs a fresh code for every token.
+- **Audit:** enrollment, failures, recovery, resets and token issuance are logged, with secrets redacted.
+
+## Phase 4 — built (platform/)
+- **Pricing:** price lists for retail volume, campaign, business, reseller and contract (one organization).
+  - Volume tiers apply on total grams or units. Precedence: contract → business/reseller → campaign → retail → standard.
+  - Minimum order quantities. Scheduled standard-price changes applied by `pricing:apply-scheduled`, with audit.
+  - Server quote API `POST /api/v1/pricing/quote`. Admin price simulator.
+- **Inventory:**
+  - Append-only stock ledger and reservations with expiry (`inventory:release-expired`).
+  - All changes are single guarded SQL `UPDATE`s, so overselling is impossible; a **real multi-process concurrency test** proves it.
+  - Low-stock alerts, physical-count reconciliation, and a ledger integrity check (`inventory:verify`, nightly).
+- **Promotions:**
+  - Coupons and automatic promotions with audience eligibility, schedules, minimum spend, caps, usage and per-customer limits (atomic redemption).
+  - Bundles with per-item stock checks.
+  - Combination rules: one non-stackable discount; no coupons on trade-priced or bundle lines unless a super admin marks a promotion stackable.
+- **Language:** English/Bangla set in Admin → Languages. Bangla lives in `*_bn` columns on the same rows (never duplicated), loads Noto Sans Bengali, and falls back to English.
+
+## Phase 4 remaining (gate)
+- Owner review of pricing rules, combination rules and stock workflows.
+- Final BDT rounding policy (D-005 still provisional).
+- Bangla copy review by a native editor. Admin screens remain English.
+- Cart, checkout and order commit of reservations is Phase 5.

@@ -29,6 +29,13 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-022 | 2026-11-20 | First price on a new variant logs `product.price_set`; later edits log `product.price_changed` with a required reason | Readable audit trail |
 | D-023 | 2026-11-20 | Product photos render only when `review_status = approved`; otherwise a labelled placeholder | Real-images-only policy |
 | D-024 | 2026-11-20 | Category tree limited to two levels | Simple navigation and queries |
+| D-025 | 2026-11-20 | Staff MFA: TOTP only (no SMS), per-session verification newer than enrollment, staff API tokens need a fresh code | Owner security requirements |
+| D-026 | 2026-11-20 | Price precedence contract → business/reseller → campaign → retail volume → standard; tiers on total quantity | Blueprint §05–06, same as tested engine |
+| D-027 | 2026-11-20 | Stock changes only via single conditional SQL UPDATEs (no read-then-write); ledger is append-only | Race-safe on SQLite and MySQL |
+| D-028 | 2026-11-20 | Reservations hold stock for 15 minutes by default, then auto-release | Abandoned checkouts must not lock stock |
+| D-029 | 2026-11-20 | One non-stackable promotion per order (best for customer); trade-priced and bundle lines excluded; only super admin may mark stackable | Prevent unauthorised discount combinations |
+| D-030 | 2026-11-20 | Storefront language chosen per session, limited to admin-enabled languages; before enabling search indexing with Bangla, move to URL-prefixed locales with hreflang | Avoid duplicate-content SEO issues |
+| D-031 | 2026-11-20 | Prices display with Western digits in both languages | Common in BD e-commerce; owner to confirm |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Engineering assumptions for open business inputs

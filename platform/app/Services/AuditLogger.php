@@ -23,11 +23,12 @@ class AuditLogger
     /**
      * @param  array<string, mixed>  $before
      * @param  array<string, mixed>  $after
+     * @param  int|null  $actorId  explicit actor for background jobs (defaults to the signed-in user)
      */
-    public function record(string $action, ?Model $subject = null, array $before = [], array $after = [], ?string $reason = null): AuditLog
+    public function record(string $action, ?Model $subject = null, array $before = [], array $after = [], ?string $reason = null, ?int $actorId = null): AuditLog
     {
         return AuditLog::create([
-            'actor_id' => Auth::id(),
+            'actor_id' => $actorId ?? Auth::id(),
             'action' => $action,
             'subject_type' => $subject?->getMorphClass(),
             'subject_id' => $subject?->getKey(),

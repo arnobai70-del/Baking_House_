@@ -12,11 +12,11 @@
 
 @section('content')
     <nav class="crumbs" aria-label="Breadcrumb"><ol>
-        <li><a href="{{ route('home') }}">Home</a></li>
+        <li><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
         @foreach ($trail as $crumb)
-            <li><a href="{{ $crumb->url() }}">{{ $crumb->name }}</a></li>
+            <li><a href="{{ $crumb->url() }}">{{ $crumb->localized('name') }}</a></li>
         @endforeach
-        <li aria-current="page">{{ $product->name }}</li>
+        <li aria-current="page">{{ $product->localized('name') }}</li>
     </ol></nav>
 
     <div class="pdp">
@@ -25,30 +25,30 @@
                 @if ($images->isNotEmpty())
                     <img src="{{ $images->first()->url() }}" alt="{{ $images->first()->alt_text }}" width="800" height="800" style="aspect-ratio:1;object-fit:cover;border-radius:var(--bh-radius-sm)">
                 @else
-                    <x-photo-placeholder :icon="$icon" label="Real product photo pending" />
+                    <x-photo-placeholder :icon="$icon" :label="__('Real product photo pending')" />
                 @endif
             </div>
             @if ($images->isEmpty())
-                <p class="hint" style="margin-top:8px"><x-icon name="info" /> Approved photography of this exact SKU will replace the placeholder (real-images-only policy).</p>
+                <p class="hint" style="margin-top:8px"><x-icon name="info" /> {{ __('Approved photography of this exact SKU will replace the placeholder (real-images-only policy).') }}</p>
             @endif
         </section>
 
         <section aria-labelledby="p-title">
             <div class="muted small">
-                {{ $product->primaryCategory->name }}
+                {{ $product->primaryCategory->localized('name') }}
                 @if ($first) · SKU <span id="p-sku">{{ $first->sku }}</span>@endif
                 @if ($product->brand) · {{ $product->brand->name }}@endif
             </div>
-            <h1 id="p-title">{{ $product->name }}</h1>
-            @if ($product->short_description)<p class="muted">{{ $product->short_description }}</p>@endif
+            <h1 id="p-title">{{ $product->localized('name') }}</h1>
+            @if ($product->localized('short_description'))<p class="muted">{{ $product->localized('short_description') }}</p>@endif
 
             @if ($variants->isEmpty())
-                <div class="alert alert-info"><x-icon name="info" /><span>This product is not available to order right now.</span></div>
+                <div class="alert alert-info"><x-icon name="info" /><span>{{ __('This product is not available to order right now.') }}</span></div>
             @else
-                <div id="buy-box" data-product='@json($variants->map->toStorefrontArray()->values())'>
+                <div id="buy-box" data-product='@json($buyerPayload)'>
                     @if ($variants->count() > 1)
                         <fieldset class="variant-picker">
-                            <legend class="small" style="font-weight:600;color:var(--bh-navy)">Choose an option</legend>
+                            <legend class="small" style="font-weight:600;color:var(--bh-navy)">{{ __('Choose an option') }}</legend>
                             <div class="chips">
                                 @foreach ($variants as $variant)
                                     <label class="wchip variant-chip">
@@ -64,27 +64,45 @@
                     {{-- Server-rendered first variant; storefront.js takes over for live previews. --}}
                     <div class="rate tnum" id="rate">
                         @if ($first->pricing_mode === PricingMode::QuoteOnly)
-                            <span style="font-size:var(--bh-fs-xl)">Price on request</span>
+                            <span style="font-size:var(--bh-fs-xl)">{{ __('Price on request') }}</span>
                         @else
                             {{ $first->displayPrice() }} <small>{{ $first->unitLabel() }}</small>
                             @if ($first->isDiscounted())<small><s>{{ Taka::format($first->compare_at_paisa) }}</s></small>@endif
                         @endif
                     </div>
+                    @php $firstTiers = $tiersByVariant[$first->id] ?? []; @endphp
+                    @if ($firstTiers !== [])
+                        <div class="alert alert-info tier-box" style="margin:10px 0">
+                            <x-icon name="store" />
+                            <div>
+                                <strong>{{ $audience === \App\Enums\CustomerAudience::Retail ? __('Buy more, pay less') : __('Your '.strtolower($audience->label()).' price') }}</strong>
+                                <ul class="tier-list">
+                                    @foreach ($firstTiers as $tier)
+                                        <li>{{ $first->isWeight() ? \App\Support\Weight::format($tier['min_quantity']) : $tier['min_quantity'] }}+ : <strong class="tnum">{{ Taka::format($tier['rate_paisa']) }}</strong> {{ $first->unitLabel() }}</li>
+                                    @endforeach
+                                </ul>
+                                <span class="hint">{{ __('Applied automatically on the total quantity.') }}</span>
+                            </div>
+                        </div>
+                    @endif
+                    @if (! $first->isWeight() && $first->minimumQuantity() > 1)
+                        <p class="small" style="margin:6px 0"><strong>{{ __('Minimum order') }}:</strong> {{ $first->minimumQuantity() }}</p>
+                    @endif
                     <p id="stock-line" style="margin:10px 0">
                         @if ($first->isInStock())
-                            <span class="stock-ok"><x-icon name="check" /> In stock{{ $first->isWeight() ? ' — '.Weight::format($first->stock_quantity).' available' : '' }}</span>
+                            <span class="stock-ok"><x-icon name="check" /> {{ __('In stock') }}{{ $first->isWeight() ? ' — '.__(':qty available', ['qty' => Weight::format($first->availableQuantity())]) : '' }}</span>
                         @else
-                            <span class="stock-low">Out of stock</span>
+                            <span class="stock-low">{{ __('Out of stock') }}</span>
                         @endif
                     </p>
 
                     <div class="card card-pad stack" id="weight-box" @if (! $first->isWeight()) hidden @endif>
                         <div>
-                            <h2 class="small" id="chips-label" style="font-size:var(--bh-fs-sm);margin-bottom:8px">Select quantity <span class="muted">(weight-based pricing)</span></h2>
+                            <h2 class="small" id="chips-label" style="font-size:var(--bh-fs-sm);margin-bottom:8px">{{ __('Select quantity') }} <span class="muted">{{ __('(weight-based pricing)') }}</span></h2>
                             <div class="chips" role="group" aria-labelledby="chips-label" id="weight-chips"></div>
                         </div>
                         <div>
-                            <label class="small" for="custom-qty" style="font-weight:600;color:var(--bh-navy)">Or set a custom quantity</label>
+                            <label class="small" for="custom-qty" style="font-weight:600;color:var(--bh-navy)">{{ __('Or set a custom quantity') }}</label>
                             <div class="custom-qty" style="margin-top:6px">
                                 <input class="input tnum" id="custom-qty" inputmode="decimal" placeholder="e.g. 1250" aria-describedby="qty-hint qty-error">
                                 <label class="sr-only" for="qty-unit">Unit</label>
@@ -94,9 +112,9 @@
                             <div id="qty-error" aria-live="polite"></div>
                         </div>
                         <div class="calc-box" aria-live="polite">
-                            <div class="label">Calculated price</div>
+                            <div class="label">{{ __('Calculated price') }}</div>
                             <div class="total tnum" id="calc-total">—</div>
-                            <div class="muted small" id="calc-for">Choose a quantity</div>
+                            <div class="muted small" id="calc-for">{{ __('Choose a quantity') }}</div>
                         </div>
                     </div>
 
@@ -107,21 +125,21 @@
                                 <input id="fixed-qty" class="tnum" value="1" inputmode="numeric" aria-label="Quantity">
                                 <button type="button" data-step="1" aria-label="Increase quantity"><x-icon name="plus" /></button>
                             </div>
-                            <div class="muted small" aria-live="polite">Total: <strong class="tnum" id="fixed-total">—</strong></div>
+                            <div class="muted small" aria-live="polite">{{ __('Total') }}: <strong class="tnum" id="fixed-total">—</strong></div>
                         </div>
                         <div id="fixed-error" aria-live="polite"></div>
                     </div>
 
                     <div class="row" style="margin-top:14px" id="buy-actions" @if ($first->pricing_mode === PricingMode::QuoteOnly) hidden @endif>
-                        <button class="btn btn-primary" style="flex:1" disabled title="Cart and checkout open in Phase 5"><x-icon name="cart" /> Add to cart</button>
-                        <a class="btn btn-outline" href="#quote"><x-icon name="quote" /> Bulk quote</a>
+                        <button class="btn btn-primary" style="flex:1" disabled title="Cart and checkout open in Phase 5"><x-icon name="cart" /> {{ __('Add to cart') }}</button>
+                        <a class="btn btn-outline" href="#quote"><x-icon name="quote" /> {{ __('Bulk quote') }}</a>
                     </div>
-                    <p class="hint">Cart and checkout open in Phase 5. Prices shown are previews; the server recalculates price and stock at checkout.</p>
+                    <p class="hint">{{ __('Cart and checkout open in Phase 5. Prices shown are previews; the server recalculates price and stock at checkout.') }}</p>
                 </div>
             @endif
 
             <details class="card" id="quote" style="margin-top:16px" @if ($product->isQuoteOnly()) open @endif>
-                <summary class="card-pad" style="cursor:pointer;font-weight:700;color:var(--bh-navy)"><x-icon name="quote" /> Request a quote for {{ $product->name }}</summary>
+                <summary class="card-pad" style="cursor:pointer;font-weight:700;color:var(--bh-navy)"><x-icon name="quote" /> {{ __('Request a quote for :name', ['name' => $product->localized('name')]) }}</summary>
                 <div class="card-pad" style="padding-top:0">
                     <p class="muted small">Quotations are handled by our sales team (business portal, Phase 6). Until then, business buyers can
                         <a href="{{ route('organizations.apply', 'business') }}">apply for a business account</a>.</p>
@@ -132,12 +150,12 @@
 
     <section class="card" style="margin-top:28px" data-tabs>
         <div class="tabs" role="tablist" aria-label="Product information" style="padding:14px 16px 0">
-            <button class="tab" role="tab" id="t-desc" aria-controls="tp-desc" aria-selected="true">Description</button>
-            <button class="tab" role="tab" id="t-spec" aria-controls="tp-spec" aria-selected="false" tabindex="-1">Specifications</button>
-            <button class="tab" role="tab" id="t-ship" aria-controls="tp-ship" aria-selected="false" tabindex="-1">Delivery &amp; returns</button>
+            <button class="tab" role="tab" id="t-desc" aria-controls="tp-desc" aria-selected="true">{{ __('Description') }}</button>
+            <button class="tab" role="tab" id="t-spec" aria-controls="tp-spec" aria-selected="false" tabindex="-1">{{ __('Specifications') }}</button>
+            <button class="tab" role="tab" id="t-ship" aria-controls="tp-ship" aria-selected="false" tabindex="-1">{{ __('Delivery & returns') }}</button>
         </div>
         <div class="tabpanel" role="tabpanel" id="tp-desc" aria-labelledby="t-desc">
-            <p>{!! nl2br(e($product->description ?: $product->short_description)) !!}</p>
+            <p>{!! nl2br(e($product->localized('description') ?: $product->localized('short_description'))) !!}</p>
         </div>
         <div class="tabpanel" role="tabpanel" id="tp-spec" aria-labelledby="t-spec" hidden>
             <table class="specs"><tbody>
@@ -158,7 +176,7 @@
 
     @if ($related->isNotEmpty())
         <section class="section" aria-labelledby="rel-title">
-            <div class="section-head"><h2 id="rel-title">Related products</h2></div>
+            <div class="section-head"><h2 id="rel-title">{{ __('Related products') }}</h2></div>
             <div class="grid">
                 @foreach ($related as $item)
                     <x-product-card :product="$item" />

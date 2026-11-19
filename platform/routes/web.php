@@ -26,6 +26,9 @@ Route::get('/search', [Storefront\ShopController::class, 'search'])->name('catal
 Route::get('/product/{slug}', [Storefront\ProductController::class, 'show'])->name('catalog.product');
 Route::get('/sitemap.xml', Storefront\SitemapController::class)->name('sitemap');
 Route::get('/robots.txt', Storefront\RobotsController::class)->name('robots');
+Route::get('/combos', [Storefront\BundleController::class, 'index'])->name('bundles.index');
+Route::get('/combo/{slug}', [Storefront\BundleController::class, 'show'])->name('bundles.show');
+Route::post('/language', Storefront\LanguageController::class)->name('language');
 
 /*
 | Authentication
@@ -84,6 +87,29 @@ Route::middleware('auth')->group(function (): void {
             Route::resource('categories', Admin\CategoryController::class)->except(['show', 'destroy']);
             Route::resource('brands', Admin\BrandController::class)->only(['index', 'store', 'update']);
             Route::resource('products', Admin\ProductController::class)->except(['show', 'destroy']);
+        });
+
+        Route::middleware('can:'.StaffPermission::ManagePrices->value)->group(function (): void {
+            Route::resource('price-lists', Admin\PriceListController::class)->except(['show', 'destroy']);
+            Route::get('/scheduled-prices', [Admin\ScheduledPriceChangeController::class, 'index'])->name('scheduled-prices.index');
+            Route::post('/scheduled-prices', [Admin\ScheduledPriceChangeController::class, 'store'])->name('scheduled-prices.store');
+            Route::delete('/scheduled-prices/{scheduledPriceChange}', [Admin\ScheduledPriceChangeController::class, 'destroy'])->name('scheduled-prices.destroy');
+            Route::get('/price-simulator', Admin\PriceSimulatorController::class)->name('price-simulator');
+            Route::resource('promotions', Admin\PromotionController::class)->except(['show', 'destroy']);
+            Route::resource('bundles', Admin\BundleController::class)->except(['show', 'destroy']);
+        });
+
+        Route::middleware('can:'.StaffPermission::ManageInventory->value)->prefix('inventory')->name('inventory.')->group(function (): void {
+            Route::get('/', [Admin\InventoryController::class, 'index'])->name('index');
+            Route::get('/verify', [Admin\InventoryController::class, 'verify'])->name('verify');
+            Route::get('/{variant}', [Admin\InventoryController::class, 'show'])->name('show');
+            Route::post('/{variant}/movements', [Admin\InventoryController::class, 'storeMovement'])->name('movements.store');
+            Route::post('/{variant}/reconcile', [Admin\InventoryController::class, 'reconcile'])->name('reconcile');
+        });
+
+        Route::middleware('can:'.StaffPermission::ManageCms->value)->group(function (): void {
+            Route::get('/settings/storefront', [Admin\StorefrontSettingsController::class, 'edit'])->name('settings.storefront');
+            Route::put('/settings/storefront', [Admin\StorefrontSettingsController::class, 'update'])->name('settings.storefront.update');
         });
     });
 });

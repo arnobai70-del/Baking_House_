@@ -49,3 +49,15 @@
   .category-head { flex-direction: column; }
   .variant-grid { grid-template-columns: 1fr; }
 }
+
+.tier-list { list-style: none; padding: 0; margin: 6px 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--bh-fs-sm); }
+.lang-switch { display: inline-flex; gap: 4px; align-items: center; }
+.lang-switch button { background: transparent; border: 1px solid rgba(255, 255, 255, 0.35); color: #fff; border-radius: 4px; padding: 1px 8px; font-size: var(--bh-fs-xs); cursor: pointer; }
+.lang-switch button[aria-pressed="true"] { background: var(--bh-orange); color: var(--bh-navy-deep); border-color: var(--bh-orange); }
+.bundle-items { list-style: none; padding: 0; margin: 0 0 12px; }
+.bundle-items li { display: flex; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--bh-border); font-size: var(--bh-fs-sm); }
+.bundle-items li:last-child { border-bottom: 0; }
+@media (max-width: 960px) {
+  .topbar .links { display: flex; }
+  .topbar .links > a { display: none; }
+}

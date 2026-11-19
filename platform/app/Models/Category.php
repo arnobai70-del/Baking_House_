@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasTranslations;
 use Database\Factories\CategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -14,11 +15,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['parent_id', 'name', 'name_bn', 'slug', 'summary', 'description', 'icon', 'sort_order', 'is_active', 'seo_title', 'seo_description'])]
+#[Fillable(['parent_id', 'name', 'name_bn', 'slug', 'summary', 'summary_bn', 'description', 'description_bn', 'icon', 'sort_order', 'is_active', 'seo_title', 'seo_description'])]
 class Category extends Model
 {
     /** @use HasFactory<CategoryFactory> */
-    use HasFactory, SoftDeletes;
+    use HasFactory, HasTranslations, SoftDeletes;
 
     /**
      * UI icons a category may use (simple stroke icons — not product photography).

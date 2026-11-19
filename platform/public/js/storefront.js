@@ -173,7 +173,7 @@ function initBuyBox() {
   const showWeight = (grams) => {
     $$('.wchip[data-g]', els.chips).forEach((chip) => chip.setAttribute('aria-pressed', String(Number(chip.dataset.g) === grams)));
     if (!Number.isInteger(grams)) { els.total.textContent = '—'; els.totalFor.textContent = 'Choose a quantity'; showError(els.error, ''); return; }
-    const quote = quoteWeightLine(rule(), grams, { stockGrams: variant.weight.stockGrams });
+    const quote = quoteWeightLine(rule(), grams, { stockGrams: variant.weight.stockGrams, role: variant.audience });
     if (!quote.ok) {
       els.input.setAttribute('aria-invalid', 'true');
       showError(els.error, quote.error, quote.suggestions);
@@ -196,13 +196,19 @@ function initBuyBox() {
     showWeight(parsed.grams);
   };
 
+  /* Unit price for a quantity: the caller's own highest tier not above qty, else the standard price. */
+  const unitRate = (qty) => (variant.tiers ?? [])
+    .filter((tier) => qty >= tier.minQuantity)
+    .sort((a, b) => b.minQuantity - a.minQuantity)[0]?.ratePaisa ?? variant.pricePaisa;
+
   const showFixed = () => {
     const qty = Number.parseInt(els.fixedQty.value, 10);
+    const min = variant.minQuantity ?? 1;
     let message = '';
-    if (!Number.isInteger(qty) || qty < 1) message = 'Enter a quantity of at least 1.';
-    else if (qty > variant.stock) message = variant.stock > 0 ? `Only ${variant.stock} in stock.` : 'Out of stock.';
-    showError(els.fixedError, message);
-    els.fixedTotal.textContent = message ? '—' : formatTaka(variant.pricePaisa * qty);
+    if (!Number.isInteger(qty) || qty < min) message = `Minimum order is ${min}.`;
+    else if (qty > variant.stock) message = variant.stock > 0 ? `Only ${variant.stock} available.` : 'Out of stock.';
+    showError(els.fixedError, message, []);
+    els.fixedTotal.textContent = message ? '—' : formatTaka(unitRate(qty) * qty);
     if (!message) tick(els.fixedTotal);
   };
 
@@ -229,7 +235,7 @@ function initBuyBox() {
       const w = variant.weight;
       els.hint.textContent = `Min ${formatWeight(w.minGrams)} · steps of ${formatWeight(w.stepGrams)} · max ${formatWeight(w.maxGrams)}`;
       els.chips.innerHTML = (w.presets ?? []).map((g) => {
-        const q = quoteWeightLine(w, g);
+        const q = quoteWeightLine(w, g, { role: variant.audience });
         return `<button type="button" class="wchip" data-g="${g}" aria-pressed="false"><strong>${esc(formatWeight(g))}</strong><span class="tnum">${q.ok ? esc(formatTaka(q.linePaisa)) : '—'}</span></button>`;
       }).join('');
       const initial = (w.presets ?? []).includes(700) ? 700 : w.minGrams;
@@ -237,7 +243,7 @@ function initBuyBox() {
       els.input.value = String(initial);
       showWeight(initial);
     }
-    if (isFixed) { els.fixedQty.value = '1'; showFixed(); }
+    if (isFixed) { els.fixedQty.value = String(variant.minQuantity ?? 1); showFixed(); }
   };
 
   els.chips?.addEventListener('click', (event) => {
@@ -258,7 +264,8 @@ function initBuyBox() {
     els.input.focus();
   });
   $$('[data-step]', els.fixedBox).forEach((button) => button.addEventListener('click', () => {
-    els.fixedQty.value = String(Math.max(1, (Number.parseInt(els.fixedQty.value, 10) || 1) + Number(button.dataset.step)));
+    const min = variant.minQuantity ?? 1;
+    els.fixedQty.value = String(Math.max(min, (Number.parseInt(els.fixedQty.value, 10) || min) + Number(button.dataset.step)));
     showFixed();
   }));
   els.fixedQty?.addEventListener('input', showFixed);

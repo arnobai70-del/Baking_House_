@@ -15,6 +15,7 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::get('/products', [V1\CatalogController::class, 'products'])->name('products.index');
         Route::get('/products/{slug}', [V1\CatalogController::class, 'product'])->name('products.show');
         Route::get('/search', [V1\CatalogController::class, 'search'])->name('search');
+        Route::post('/pricing/quote', V1\PricingController::class)->name('pricing.quote');
     });
 
     Route::post('/auth/tokens', [V1\TokenController::class, 'store'])->middleware('throttle:login')->name('tokens.store');

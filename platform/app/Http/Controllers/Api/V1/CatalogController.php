@@ -35,7 +35,7 @@ class CatalogController extends Controller
     public function product(string $slug): ProductResource
     {
         $product = Product::query()->visible()->where('slug', $slug)
-            ->with(['primaryCategory:id,name,slug,icon', 'brand:id,name', 'variants' => fn ($query) => $query->where('is_active', true)])
+            ->with(['primaryCategory:id,name,name_bn,slug,icon', 'brand:id,name', 'variants' => fn ($query) => $query->where('is_active', true)])
             ->firstOrFail();
 
         return new ProductResource($product);

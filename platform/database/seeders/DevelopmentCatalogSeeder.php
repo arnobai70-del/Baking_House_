@@ -2,12 +2,18 @@
 
 namespace Database\Seeders;
 
+use App\Enums\DiscountType;
+use App\Enums\PriceListAudience;
 use App\Enums\PricingMode;
 use App\Enums\ProductStatus;
 use App\Enums\SellingUnit;
 use App\Models\Brand;
+use App\Models\Bundle;
 use App\Models\Category;
+use App\Models\PriceList;
 use App\Models\Product;
+use App\Models\ProductVariant;
+use App\Models\Promotion;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -109,5 +115,55 @@ class DevelopmentCatalogSeeder extends Seeder
                 $product->variants()->create(['sku' => $sku, 'name' => $variantName, 'sort_order' => $order, 'is_active' => true] + $attributes);
             }
         }
+
+        $this->seedTranslationsAndOffers();
+    }
+
+    /**
+     * Illustrative Bangla names, a business price list, a coupon and a bundle so Phase 4
+     * features can be exercised locally. All mock data.
+     */
+    private function seedTranslationsAndOffers(): void
+    {
+        $categoryNames = [
+            'baking-tools' => ['বেকিং টুলস', 'কেক ও বেকিং সরঞ্জাম'], 'ingredients' => ['উপকরণ', 'ময়দা, চিনি, চকলেট'],
+            'cake-decoration' => ['কেক ডেকোরেশন', 'চকলেট, ফন্ড্যান্ট, স্প্রিংকলস'], 'restaurant-supply' => ['রেস্টুরেন্ট ও চাইনিজ কিচেন', 'ওক, জিএন প্যান, পরিবেশন সামগ্রী'],
+            'kitchen-equipment' => ['কমার্শিয়াল কিচেন সরঞ্জাম', 'মিক্সার, ওভেন, ফ্রায়ার'], 'packaging' => ['প্যাকেজিং ও টেকঅ্যাওয়ে', 'বক্স, ব্যাগ, কাপ'],
+            'bulk-wholesale' => ['বাল্ক ও পাইকারি', 'ব্যবসায়ী ক্রেতাদের জন্য'],
+        ];
+        foreach ($categoryNames as $slug => [$name, $summary]) {
+            Category::query()->where('slug', $slug)->update(['name_bn' => $name, 'summary_bn' => $summary]);
+        }
+        foreach (['dark-compound-chocolate' => 'ডার্ক কম্পাউন্ড চকলেট', 'premium-all-purpose-flour' => 'প্রিমিয়াম ময়দা', 'carbon-steel-wok-14' => 'কার্বন স্টিল ওক ১৪"', 'gn-pan-stainless-steel' => 'জিএন প্যান (স্টেইনলেস স্টিল)'] as $slug => $name) {
+            Product::query()->where('slug', $slug)->update(['name_bn' => $name, 'short_description_bn' => 'পরীক্ষামূলক তালিকা — আসল পণ্য বা মূল্য নয়।']);
+        }
+
+        $chocolate = ProductVariant::query()->where('sku', 'BH-ING-0001')->first();
+        $flour = ProductVariant::query()->where('sku', 'BH-ING-0002')->first();
+        $mixer = ProductVariant::query()->where('sku', 'BH-EQP-0001')->first();
+        $turntable = ProductVariant::query()->where('sku', 'BH-BKT-0001')->first();
+
+        $trade = PriceList::query()->create(['name' => 'Demo business tiers', 'audience' => PriceListAudience::Business, 'is_active' => true, 'notes' => 'Illustrative']);
+        $trade->items()->create(['product_variant_id' => $chocolate->id, 'min_quantity' => 1, 'per_kg_paisa' => 63000]);
+        $trade->items()->create(['product_variant_id' => $chocolate->id, 'min_quantity' => 5000, 'per_kg_paisa' => 60000]);
+        $trade->items()->create(['product_variant_id' => $flour->id, 'min_quantity' => 25000, 'per_kg_paisa' => 10200]);
+
+        $retail = PriceList::query()->create(['name' => 'Demo retail volume', 'audience' => PriceListAudience::Retail, 'is_active' => true]);
+        $retail->items()->create(['product_variant_id' => $chocolate->id, 'min_quantity' => 2000, 'per_kg_paisa' => 64000]);
+
+        Promotion::query()->create([
+            'name' => 'Demo welcome 5%', 'code' => 'WELCOME5', 'discount_type' => DiscountType::Percentage, 'discount_value' => 500,
+            'scope' => 'order', 'min_subtotal_paisa' => 100000, 'audiences' => ['retail'], 'per_customer_limit' => 1, 'is_active' => true,
+        ]);
+
+        $bundle = Bundle::query()->create([
+            'name' => 'Professional Bakery Starter Bundle', 'name_bn' => 'প্রফেশনাল বেকারি স্টার্টার বান্ডেল', 'slug' => 'bakery-starter',
+            'description' => 'Illustrative development bundle.', 'discount_type' => DiscountType::Percentage, 'discount_value' => 1000,
+            'audiences' => ['retail', 'business', 'reseller'], 'is_active' => true,
+        ]);
+        $bundle->items()->create(['product_variant_id' => $mixer->id, 'quantity' => 1]);
+        $bundle->items()->create(['product_variant_id' => $turntable->id, 'quantity' => 1]);
+        $bundle->items()->create(['product_variant_id' => $flour->id, 'quantity' => 5000]);
+        $bundle->items()->create(['product_variant_id' => $chocolate->id, 'quantity' => 1000]);
     }
 }

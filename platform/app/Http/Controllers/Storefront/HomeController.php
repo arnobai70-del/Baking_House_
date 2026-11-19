@@ -31,7 +31,7 @@ class HomeController extends Controller
             'seo' => $seo,
             'categories' => Category::navigation(),
             'featured' => Product::query()->visible()
-                ->with(['primaryCategory:id,name,slug,icon', 'variants' => fn ($query) => $query->where('is_active', true)])
+                ->with(['primaryCategory:id,name,name_bn,slug,icon', 'variants' => fn ($query) => $query->where('is_active', true)])
                 ->orderByDesc('is_featured')->orderByDesc('in_stock')->orderBy('id')
                 ->limit(10)->get(),
         ]);
