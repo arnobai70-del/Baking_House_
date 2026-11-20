@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -17,6 +18,7 @@ class AccountController extends Controller
         return view('account.index', [
             'user' => $user,
             'memberships' => $user->organizations()->orderBy('name')->get(),
+            'orders' => Order::query()->where('user_id', $user->id)->latest('id')->limit(20)->get(),
         ]);
     }
 }

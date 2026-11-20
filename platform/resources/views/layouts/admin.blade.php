@@ -5,6 +5,12 @@
         <nav class="card admin-nav" aria-label="Admin navigation">
             <h4>Overview</h4>
             <a href="{{ route('admin.dashboard') }}" @if (request()->routeIs('admin.dashboard')) aria-current="page" @endif><x-icon name="chart" /> Dashboard</a>
+            @can('orders.manage')
+                <h4>Orders</h4>
+                <a href="{{ route('admin.orders.index') }}" @if (request()->routeIs('admin.orders.index', 'admin.orders.show')) aria-current="page" @endif><x-icon name="cart" /> Orders</a>
+                <a href="{{ route('admin.orders.reconciliation') }}" @if (request()->routeIs('admin.orders.reconciliation')) aria-current="page" @endif><x-icon name="card" /> Payment reconciliation</a>
+                <a href="{{ route('admin.zones.index') }}" @if (request()->routeIs('admin.zones.*')) aria-current="page" @endif><x-icon name="truck" /> Delivery zones</a>
+            @endcan
             @can('catalog.manage')
                 <h4>Catalog</h4>
                 <a href="{{ route('admin.products.index') }}" @if (request()->routeIs('admin.products.*')) aria-current="page" @endif><x-icon name="tag" /> Products &amp; prices</a>

@@ -4,13 +4,19 @@ namespace App\Providers;
 
 use App\Enums\StaffPermission;
 use App\Models\User;
+use App\Services\Cart\CartService;
+use App\Services\Notifications\LogSmsGateway;
+use App\Services\Notifications\SmsGateway;
+use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
+use RuntimeException;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -19,7 +25,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(SmsGateway::class, fn () => match (config('commerce.notifications.sms_driver')) {
+            'log' => new LogSmsGateway,
+            default => throw new RuntimeException('No SMS provider is configured. Only the "log" driver is available until a provider is contracted.'),
+        });
     }
 
     /**
@@ -31,6 +40,13 @@ class AppServiceProvider extends ServiceProvider
 
         $this->registerStaffGates();
         $this->registerRateLimiters();
+
+        /* Bring the guest cart along when a customer signs in. */
+        Event::listen(Login::class, function (Login $event): void {
+            if ($event->user instanceof User && $this->app->bound('request')) {
+                app(CartService::class)->mergeGuestCart(request()->cookie(CartService::COOKIE), $event->user);
+            }
+        });
     }
 
     /**
@@ -65,6 +81,10 @@ class AppServiceProvider extends ServiceProvider
                 Limit::perMinute(20)->by('mfa-ip:'.$request->ip()),
             ];
         });
+
+        RateLimiter::for('checkout', fn (Request $request): Limit => Limit::perMinute(10)->by(($request->user()?->getKey() ?? 'guest').'|'.$request->ip()));
+
+        RateLimiter::for('webhooks', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));
 
         RateLimiter::for('catalog', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));
 

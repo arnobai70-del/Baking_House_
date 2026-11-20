@@ -36,6 +36,14 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-029 | 2026-11-20 | One non-stackable promotion per order (best for customer); trade-priced and bundle lines excluded; only super admin may mark stackable | Prevent unauthorised discount combinations |
 | D-030 | 2026-11-20 | Storefront language chosen per session, limited to admin-enabled languages; before enabling search indexing with Bangla, move to URL-prefixed locales with hreflang | Avoid duplicate-content SEO issues |
 | D-031 | 2026-11-20 | Prices display with Western digits in both languages | Common in BD e-commerce; owner to confirm |
+| D-032 | 2026-11-20 | Rounding: ROUND_HALF_UP to the paisa per order line; order total = sum(rounded lines) − discount + delivery; integer paisa everywhere | Owner instruction (Phase 5) |
+| D-033 | 2026-11-20 | Online payments hold stock 15 min; COD and bank transfer allocate stock at placement | Bank transfers need time for staff verification |
+| D-034 | 2026-11-20 | Late payment: reallocate if stock exists, else "payment review"; payment after cancellation → refund due | Never confirm against unavailable stock |
+| D-035 | 2026-11-20 | Checkout re-confirms when price, stock, offer or delivery changes (fingerprint) | Explicit acceptance before payment (§05) |
+| D-036 | 2026-11-20 | Payment adapters are test-mode only; live mode refuses to run | No unverified production endpoints |
+| D-037 | 2026-11-20 | Guest order access via a one-time key (hash stored) plus order-number + phone tracking | Guest privacy |
+| D-038 | 2026-11-20 | Cancelling an order restores promotion usage | Fair usage limits |
+| D-039 | 2026-11-20 | Order transactions start with the stock UPDATE and retry concurrency errors | Found by multi-process checkout test |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Engineering assumptions for open business inputs

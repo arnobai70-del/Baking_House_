@@ -17,7 +17,11 @@
             <div class="muted small">{{ __('Normal price') }} <s>{{ Taka::format($quote['normal_paisa']) }}</s></div>
             <div class="big tnum">{{ Taka::format($quote['line_paisa']) }}</div>
             <p><span class="save-pill">{{ __('Save') }} {{ Taka::format($quote['discount_paisa']) }}</span></p>
-            <button class="btn btn-primary btn-block" disabled title="{{ __('Cart and checkout open in Phase 5') }}"><x-icon name="cart" /> {{ __('Add combo to cart') }}</button>
+            <form method="POST" action="{{ route('cart.bundles.store') }}">
+                @csrf
+                <input type="hidden" name="bundle" value="{{ $bundle->id }}">
+                <button class="btn btn-primary btn-block" type="submit"><x-icon name="cart" /> {{ __('Add combo to cart') }}</button>
+            </form>
         @else
             <div class="alert alert-error"><x-icon name="alert" /><span>{{ $quote['error'] }}</span></div>
         @endif
