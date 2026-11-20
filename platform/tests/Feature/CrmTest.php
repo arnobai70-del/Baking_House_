@@ -168,6 +168,7 @@ class CrmTest extends TestCase
 
     public function test_segments_filter_by_type_tag_orders_and_inactivity(): void
     {
+        $boss = User::factory()->superAdmin()->create();
         [$organization, $owner] = $this->businessWith();
         $repeat = User::factory()->create(['name' => 'Repeat Retail']);
         $once = User::factory()->create(['name' => 'One Order']);
@@ -188,6 +189,8 @@ class CrmTest extends TestCase
         $this->actingAsStaff($this->admin)->get('/admin/crm/customers?inactive_days=60')->assertDontSee('One Order');
 
         $csv = $this->actingAsStaff($this->admin)->get('/admin/crm/customers?tag=vip&format=csv')->assertOk()->streamedContent();
+        $this->assertStringNotContainsString('Spent (BDT)', $csv, 'A plain admin does not get financial data by default.');
+        $csv = $this->actingAsStaff($boss)->get('/admin/crm/customers?tag=vip&format=csv')->assertOk()->streamedContent();
         $this->assertStringContainsString('Repeat Retail', $csv);
         $this->assertStringContainsString('Spent (BDT)', $csv);
         $this->assertStringContainsString('2160', $csv, 'Two orders of ৳1,080.');

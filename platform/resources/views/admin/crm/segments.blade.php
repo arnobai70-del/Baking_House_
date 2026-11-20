@@ -42,5 +42,5 @@
         </tbody>
     </table></div></div>
     <div style="margin-top:12px">{{ $customers->links() }}</div>
-    <p class="hint">Customers are accounts without staff roles. Orders and spend count non-cancelled orders.@unless ($canSeeMoney) Spend figures need the financial-reports or order-management permission.@endunless</p>
+    <p class="hint">Customers are accounts without staff roles. Orders and spend count non-cancelled orders.@unless ($canSeeMoney) Spend figures need the financial reports permission (super admin or the Finance role).@endunless</p>
 @endsection

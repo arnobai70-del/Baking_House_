@@ -57,6 +57,31 @@ class CrmService
         return $lead;
     }
 
+    /**
+     * A contact / support message from the website becomes a queued lead with the message on its timeline.
+     *
+     * @param  array{name: string, phone: string, email: ?string, topic: string, order_number: ?string, message: string}  $data
+     */
+    public function captureContact(array $data, ?User $user): CrmLead
+    {
+        $lead = new CrmLead;
+        $lead->forceFill([
+            'title' => 'Contact: '.$data['topic'].($data['order_number'] ? ' ('.mb_strtoupper(trim($data['order_number'])).')' : ''),
+            'source' => LeadSource::Contact,
+            'stage' => LeadStage::New,
+            'contact_name' => $data['name'],
+            'contact_phone' => $data['phone'],
+            'contact_email' => $data['email'],
+            'user_id' => $user?->id,
+        ])->save();
+
+        $this->write($lead, ActivityType::Note, "Message from the website:\n".$data['message'], null);
+        $this->notifier->direct('contact_received', $data['phone'], $data['email'], 'Baking House: we received your message',
+            'Baking House: thank you, we received your message and will reply soon.');
+
+        return $lead;
+    }
+
     public function captureApplication(Organization $organization, User $applicant): CrmLead
     {
         $lead = new CrmLead;

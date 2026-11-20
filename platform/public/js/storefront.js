@@ -73,7 +73,7 @@ function initDrawers() {
 /* ---------------- Search suggestions (debounced, keyboard navigable) ---------------- */
 function initSearch() {
   const box = $('#search');
-  const input = $('#q');
+  const input = $('#site-q');
   const list = $('#suggest-list');
   if (!box || !input || !list) return;
   let timer;
@@ -88,9 +88,12 @@ function initSearch() {
       if (term.length < 2) { close(); return; }
       controller?.abort();
       controller = new AbortController();
+      /* Skeleton rows while suggestions load (fixed height: no layout shift). */
+      list.innerHTML = '<div class="suggest-skeleton" aria-hidden="true"><span class="skeleton"></span><span class="skeleton"></span><span class="skeleton"></span></div>';
+      list.classList.add('open');
       try {
         const response = await fetch(`${box.dataset.suggestUrl}?q=${encodeURIComponent(term)}`, { headers: { Accept: 'application/json' }, signal: controller.signal });
-        if (!response.ok) return;
+        if (!response.ok) { close(); return; }
         const { data, all_results_url: allUrl } = await response.json();
         list.innerHTML = (data.length
           ? data.map((item, i) => `<a id="sg-${i}" role="option" aria-selected="false" href="${esc(item.url)}"><span>${esc(item.name)}</span><span class="cat">${esc(item.category)}</span></a>`).join('')
@@ -99,7 +102,7 @@ function initSearch() {
         list.classList.add('open');
         input.setAttribute('aria-expanded', 'true');
         active = -1;
-      } catch { /* aborted or offline: the form still submits normally */ }
+      } catch (error) { if (error.name !== 'AbortError') close(); /* offline: the form still submits normally */ }
     }, 180);
   });
   input.addEventListener('keydown', (event) => {
@@ -120,9 +123,37 @@ function initSearch() {
   document.addEventListener('click', (event) => { if (!event.target.closest('#search')) close(); });
 }
 
+/* ---------------- Form feedback: busy state + double-submit guard ----------------
+   The pressed button shows a spinner (it is NOT disabled, so its name/value is still sent), a
+   second submit of the same POST form is ignored, and filter forms dim the results they replace.
+   Everything resets when the page is restored from the back/forward cache. */
+function initBusyForms() {
+  document.addEventListener('submit', (event) => {
+    const form = event.target;
+    if (!(form instanceof HTMLFormElement) || event.defaultPrevented) return;
+    if (form.dataset.submitting === '1' && form.method.toLowerCase() === 'post') {
+      event.preventDefault();
+      return;
+    }
+    form.dataset.submitting = '1';
+    const button = event.submitter;
+    if (button) {
+      button.classList.add('is-busy');
+      button.setAttribute('aria-busy', 'true');
+    }
+    const target = form.dataset.busyTarget ? $(form.dataset.busyTarget) : null;
+    target?.setAttribute('aria-busy', 'true');
+  });
+  window.addEventListener('pageshow', () => {
+    $$('form[data-submitting]').forEach((form) => delete form.dataset.submitting);
+    $$('.is-busy').forEach((el) => { el.classList.remove('is-busy'); el.removeAttribute('aria-busy'); });
+    $$('[aria-busy="true"]').forEach((el) => el.removeAttribute('aria-busy'));
+  });
+}
+
 /* ---------------- Sort select auto-submit ---------------- */
 function initAutoSubmit() {
-  $$('form[data-autosubmit] select').forEach((select) => select.addEventListener('change', () => select.form.submit()));
+  $$('form[data-autosubmit] select').forEach((select) => select.addEventListener('change', () => select.form.requestSubmit()));
 }
 
 /* ---------------- Tabs (keyboard arrows) ---------------- */
@@ -281,6 +312,7 @@ function initBuyBox() {
 initMegaMenu();
 initDrawers();
 initSearch();
+initBusyForms();
 initAutoSubmit();
 initTabs();
 initBuyBox();

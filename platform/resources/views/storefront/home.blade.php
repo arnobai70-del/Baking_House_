@@ -33,7 +33,7 @@
         </div>
     </section>
 
-    <section class="section" aria-label="Shop by business type" style="padding-top:8px">
+    <section class="section" aria-label="{{ __('Shop by business type') }}" style="padding-top:8px">
         <div class="audience">
             @php
                 $restaurant = $categories->firstWhere('slug', 'restaurant-supply');

@@ -26,5 +26,5 @@
     </form>
 @endunless
 @unless ($money)
-    <div class="alert alert-info" style="margin-bottom:16px"><x-icon name="lock" /><span>Money figures are hidden: they need the financial reports permission.</span></div>
+    <div class="alert alert-info" style="margin-bottom:16px"><x-icon name="lock" /><span>Money figures are hidden: financial reports are limited to the super admin and staff given the Finance role.</span></div>
 @endunless

@@ -38,6 +38,17 @@ enum StaffPermission: string
         return [self::ApprovePriceChanges, self::ManageRoles, self::ManageIntegrations];
     }
 
+    /**
+     * Permissions the built-in "admin" role does NOT get: the super-admin-only set plus financial
+     * reports, which other staff receive only through an explicit role (e.g. "finance").
+     *
+     * @return list<self>
+     */
+    public static function notInAdminRole(): array
+    {
+        return [...self::superAdminOnly(), self::ViewFinancialReports];
+    }
+
     public function label(): string
     {
         return ucfirst(str_replace(['.', '_'], ' ', $this->value));

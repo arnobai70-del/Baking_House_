@@ -54,6 +54,7 @@
             @can('cms.manage')
                 <h4>Storefront</h4>
                 <a href="{{ route('admin.settings.storefront') }}" @if (request()->routeIs('admin.settings.*')) aria-current="page" @endif><x-icon name="settings" /> Languages</a>
+                <a href="{{ route('admin.pages.index') }}" @if (request()->routeIs('admin.pages.*')) aria-current="page" @endif><x-icon name="file" /> Information pages</a>
             @endcan
             <h4>Account</h4>
             <a href="{{ route('account.security') }}" @if (request()->routeIs('account.security')) aria-current="page" @endif><x-icon name="lock" /> Security &amp; MFA</a>
@@ -61,8 +62,11 @@
                 <h4>System</h4>
                 <a href="{{ route('admin.audit') }}" @if (request()->routeIs('admin.audit')) aria-current="page" @endif><x-icon name="lock" /> Audit log</a>
             @endcan
+            @can('roles.manage')
+                <a href="{{ route('admin.staff') }}" @if (request()->routeIs('admin.staff')) aria-current="page" @endif><x-icon name="users" /> Staff &amp; roles</a>
+            @endcan
         </nav>
-        <div style="min-width:0">
+        <div class="admin-main reveal" style="min-width:0">
             @yield('admin')
         </div>
     </div>

@@ -58,6 +58,11 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-051 | 2026-11-20 | Money in CRM / reports requires reports.financial (or orders.manage for customer spend) | Restricted financial records |
 | D-052 | 2026-11-20 | Unassigned RFQ and application leads form a shared CRM queue; claims are conditional | Owner default: shared follow-up queue |
 | D-053 | 2026-11-20 | Business credit, spending-limit approvals and VAT invoices stay disabled | Owner defaults (Phase 7) |
+| D-054 | 2026-11-20 | Financial reports: super admin only by default; staff via the explicit Finance role; CRM spend needs the same permission | Owner instruction (Phase 8) |
+| D-055 | 2026-11-20 | Information pages (about, policies, contact details) are staff-written from owner content and public only when published; nothing is pre-filled | No invented legal text |
+| D-056 | 2026-11-20 | Contact & support messages become CRM leads in the shared queue | One follow-up process |
+| D-057 | 2026-11-20 | Muted text #5a6c79 and teal text-on-tint #076f79 (same hues, darker step) | WCAG 2.2 AA contrast |
+| D-058 | 2026-11-20 | X-Robots-Tag noindex on all responses while indexing is off; on private paths when on | Covers non-HTML responses |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Engineering assumptions for open business inputs

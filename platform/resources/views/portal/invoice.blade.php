@@ -9,9 +9,9 @@
     @if (app()->getLocale() === 'bn')
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap">
     @endif
-    <link rel="stylesheet" href="{{ asset('css/tokens.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/storefront.css') }}">
+    <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/tokens.css') }}">
+    <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
+    <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/storefront.css') }}">
 </head>
 <body class="invoice-page">
 <main class="invoice card card-pad">

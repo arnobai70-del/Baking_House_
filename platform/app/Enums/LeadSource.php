@@ -6,6 +6,7 @@ enum LeadSource: string
 {
     case Rfq = 'rfq';
     case Application = 'application';
+    case Contact = 'contact';
     case Phone = 'phone';
     case WalkIn = 'walk_in';
     case Referral = 'referral';
@@ -16,6 +17,7 @@ enum LeadSource: string
         return match ($this) {
             self::Rfq => 'Quotation request (RFQ)',
             self::Application => 'Business / reseller application',
+            self::Contact => 'Website contact form',
             self::Phone => 'Phone call',
             self::WalkIn => 'Walk-in',
             self::Referral => 'Referral',

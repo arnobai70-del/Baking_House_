@@ -1,5 +1,5 @@
 @if ($paginator->hasPages())
-    <nav class="pagination" aria-label="Pagination">
+    <nav class="pagination" aria-label="{{ __('Page navigation') }}">
         @if ($paginator->onFirstPage())
             <span class="page disabled" aria-disabled="true">‹ Prev</span>
         @else

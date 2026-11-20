@@ -199,7 +199,7 @@ class CrmCustomerController extends Controller
 
     private function canSeeMoney(Request $request): bool
     {
-        return $request->user()->can(StaffPermission::ViewFinancialReports->value) || $request->user()->can(StaffPermission::ManageOrders->value);
+        return $request->user()->can(StaffPermission::ViewFinancialReports->value);
     }
 
     /**

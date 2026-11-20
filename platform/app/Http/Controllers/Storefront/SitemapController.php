@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Page;
 use App\Models\Product;
 use Illuminate\Http\Response;
 
@@ -20,6 +21,12 @@ class SitemapController extends Controller
             ['loc' => route('business.landing'), 'lastmod' => null],
             ['loc' => route('reseller.landing'), 'lastmod' => null],
         ];
+
+        $urls[] = ['loc' => route('contact'), 'lastmod' => null];
+        Page::query()->where('is_published', true)->orderBy('id')->get(['slug', 'updated_at'])
+            ->each(function (Page $page) use (&$urls): void {
+                $urls[] = ['loc' => $page->url(), 'lastmod' => $page->updated_at];
+            });
 
         Category::query()->active()->orderBy('id')->get(['slug', 'parent_id', 'updated_at'])
             ->each(function (Category $category) use (&$urls): void {

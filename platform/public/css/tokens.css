@@ -5,6 +5,7 @@
   --bh-navy: #103b56;
   --bh-navy-deep: #082d46;
   --bh-teal: #087d88;
+  --bh-teal-text: #076f79; /* Phase 8: teal for TEXT on --bh-teal-soft (5.2:1, WCAG AA); same hue */
   --bh-teal-soft: #e3f3f4;
   --bh-orange: #f18b0a;
   --bh-orange-hover: #d97b06;
@@ -16,7 +17,7 @@
   --bh-border: #dbe4ea;
   --bh-border-strong: #b9c8d2;
   --bh-text: #192b39;
-  --bh-muted: #617481;
+  --bh-muted: #5a6c79; /* Phase 8: stepped from #617481 to reach WCAG AA 4.5:1 on white and on the teal / orange tints */
   --bh-on-navy: #ffffff;
   --bh-on-navy-muted: #b7cad7;
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\StaffPermission;
+use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\SecurityController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\Admin;
@@ -29,6 +30,11 @@ Route::get('/robots.txt', Storefront\RobotsController::class)->name('robots');
 Route::get('/combos', [Storefront\BundleController::class, 'index'])->name('bundles.index');
 Route::get('/combo/{slug}', [Storefront\BundleController::class, 'show'])->name('bundles.show');
 Route::post('/language', Storefront\LanguageController::class)->name('language');
+
+/* Owner-supplied information pages and contact / support (messages go to the CRM queue). */
+Route::get('/page/{slug}', Storefront\PageController::class)->name('pages.show');
+Route::get('/contact', [Storefront\ContactController::class, 'show'])->name('contact');
+Route::post('/contact', [Storefront\ContactController::class, 'store'])->middleware('throttle:quotations')->name('contact.store');
 
 /* B2B landing pages and the single RFQ entry point (product page, /business, business portal). */
 Route::get('/business', Storefront\PortalLandingController::class)->defaults('type', 'business')->name('business.landing');
@@ -80,6 +86,9 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/account', AccountController::class)->name('account');
     Route::post('/account/context', OrganizationContextController::class)->name('account.context');
+    Route::get('/account/profile', [ProfileController::class, 'edit'])->name('account.profile');
+    Route::put('/account/profile', [ProfileController::class, 'update'])->name('account.profile.update');
+    Route::put('/account/password', [ProfileController::class, 'password'])->middleware('throttle:login')->name('account.password');
 
     Route::middleware('can:'.StaffPermission::AccessAdmin->value)->group(function (): void {
         Route::get('/account/security', [SecurityController::class, 'show'])->name('account.security');
@@ -228,7 +237,10 @@ Route::middleware('auth')->group(function (): void {
             Route::post('/{variant}/reconcile', [Admin\InventoryController::class, 'reconcile'])->name('reconcile');
         });
 
+        Route::get('/staff', Admin\StaffController::class)->middleware('can:'.StaffPermission::ManageRoles->value)->name('staff');
+
         Route::middleware('can:'.StaffPermission::ManageCms->value)->group(function (): void {
+            Route::resource('pages', Admin\PageController::class)->except(['show', 'destroy']);
             Route::get('/settings/storefront', [Admin\StorefrontSettingsController::class, 'edit'])->name('settings.storefront');
             Route::put('/settings/storefront', [Admin\StorefrontSettingsController::class, 'update'])->name('settings.storefront.update');
         });
