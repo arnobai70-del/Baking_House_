@@ -11,6 +11,15 @@
                 <a href="{{ route('admin.orders.reconciliation') }}" @if (request()->routeIs('admin.orders.reconciliation')) aria-current="page" @endif><x-icon name="card" /> Payment reconciliation</a>
                 <a href="{{ route('admin.zones.index') }}" @if (request()->routeIs('admin.zones.*')) aria-current="page" @endif><x-icon name="truck" /> Delivery zones</a>
             @endcan
+            @canany(['quotations.manage', 'customers.manage'])
+                <h4>Business &amp; resellers</h4>
+                @can('quotations.manage')
+                    <a href="{{ route('admin.quotations.index') }}" @if (request()->routeIs('admin.quotations.*')) aria-current="page" @endif><x-icon name="quote" /> Quotations (RFQ)</a>
+                @endcan
+                @can('customers.manage')
+                    <a href="{{ route('admin.organizations.index') }}" @if (request()->routeIs('admin.organizations.index', 'admin.organizations.show')) aria-current="page" @endif><x-icon name="users" /> Organizations</a>
+                @endcan
+            @endcanany
             @can('catalog.manage')
                 <h4>Catalog</h4>
                 <a href="{{ route('admin.products.index') }}" @if (request()->routeIs('admin.products.*')) aria-current="page" @endif><x-icon name="tag" /> Products &amp; prices</a>

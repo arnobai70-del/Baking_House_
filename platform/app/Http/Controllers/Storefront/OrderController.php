@@ -39,6 +39,7 @@ class OrderController extends Controller
     public function cancel(Request $request, Order $order, OrderService $orders): RedirectResponse
     {
         $this->authorizeView($request, $order);
+        abort_unless($this->mayCancel($request, $order), 403);
         $validated = $request->validate(['reason' => ['required', 'string', 'min:3', 'max:500']]);
 
         $orders->cancel($order, $validated['reason'], $request->user(), byCustomer: true);
@@ -64,7 +65,7 @@ class OrderController extends Controller
         $sessionKey = $request->session()->get('guest_orders.'.$order->number);
         $key = $request->query('key', $sessionKey);
 
-        if ($order->belongsToUser($request->user())) {
+        if ($order->belongsToUser($request->user()) || $order->isVisibleToMember($request->user())) {
             return;
         }
 
@@ -73,5 +74,20 @@ class OrderController extends Controller
         if ($request->query('key') !== null) {
             $request->session()->put('guest_orders.'.$order->number, (string) $request->query('key'));
         }
+    }
+
+    /**
+     * The customer who placed it, or a member of its organization who may place orders (not viewers).
+     */
+    private function mayCancel(Request $request, Order $order): bool
+    {
+        $user = $request->user();
+        if ($order->belongsToUser($user) || ($user === null && $order->user_id === null)) {
+            return true;
+        }
+
+        $organization = $order->organization_id === null ? null : $order->organization()->first();
+
+        return $organization !== null && ($user?->roleIn($organization)?->canPlaceOrders() ?? false);
     }
 }

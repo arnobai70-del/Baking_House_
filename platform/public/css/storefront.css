@@ -61,3 +61,25 @@
   .topbar .links { display: flex; }
   .topbar .links > a { display: none; }
 }
+
+/* Phase 6: business & reseller portals */
+.eyebrow { display: inline-block; font-size: var(--bh-fs-xs); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.portal-main { min-width: 0; }
+.portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.portal-shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.portal-shortcuts a { display: flex; flex-direction: column; gap: 6px; color: var(--bh-text); text-decoration: none; transition: transform var(--bh-dur-fast) ease, box-shadow var(--bh-dur-fast) ease; }
+.portal-shortcuts a .icon { color: var(--bh-teal); }
+.portal-shortcuts a:hover, .portal-shortcuts a:focus-visible { transform: translateY(-2px); box-shadow: var(--bh-shadow-lg); }
+.portal-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.portal-steps .icon { color: var(--bh-teal); width: 28px; height: 28px; }
+.table tfoot th, .table tfoot td { padding: 10px 12px; border-top: 1px solid var(--bh-border); }
+.invoice-page { background: var(--bh-bg); padding: 24px 16px; }
+.invoice { max-width: 860px; margin: 0 auto; }
+.invoice-head { display: flex; justify-content: space-between; gap: 16px; border-bottom: 2px solid var(--bh-navy); padding-bottom: 12px; margin-bottom: 16px; }
+.invoice-parties { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px; }
+@media (prefers-reduced-motion: reduce) { .portal-shortcuts a { transition: none; } .portal-shortcuts a:hover { transform: none; } }
+@media print {
+  .invoice-page { background: #fff; padding: 0; }
+  .invoice { box-shadow: none; border: 0; }
+  .no-print { display: none !important; }
+}

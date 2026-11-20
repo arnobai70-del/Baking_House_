@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -48,6 +49,48 @@ class Organization extends Model
     public function approver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'approved_by');
+    }
+
+    /**
+     * @return HasMany<OrganizationAddress, $this>
+     */
+    public function addresses(): HasMany
+    {
+        return $this->hasMany(OrganizationAddress::class)->orderByDesc('is_default')->orderBy('label');
+    }
+
+    /**
+     * @return HasMany<OrganizationInvitation, $this>
+     */
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(OrganizationInvitation::class)->latest('id');
+    }
+
+    /**
+     * @return HasMany<Quotation, $this>
+     */
+    public function quotations(): HasMany
+    {
+        return $this->hasMany(Quotation::class)->latest('id');
+    }
+
+    /**
+     * @return HasMany<Order, $this>
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class)->latest('id');
+    }
+
+    /**
+     * Contract price lists that belong to this organization only.
+     *
+     * @return HasMany<PriceList, $this>
+     */
+    public function contractPriceLists(): HasMany
+    {
+        return $this->hasMany(PriceList::class);
     }
 
     public function isApproved(): bool

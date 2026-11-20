@@ -17,6 +17,8 @@ class SitemapController extends Controller
         $urls = [
             ['loc' => route('home'), 'lastmod' => null],
             ['loc' => route('catalog.shop'), 'lastmod' => null],
+            ['loc' => route('business.landing'), 'lastmod' => null],
+            ['loc' => route('reseller.landing'), 'lastmod' => null],
         ];
 
         Category::query()->active()->orderBy('id')->get(['slug', 'parent_id', 'updated_at'])

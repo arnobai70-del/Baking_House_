@@ -84,6 +84,12 @@ class AppServiceProvider extends ServiceProvider
 
         RateLimiter::for('checkout', fn (Request $request): Limit => Limit::perMinute(10)->by(($request->user()?->getKey() ?? 'guest').'|'.$request->ip()));
 
+        /* Public RFQ form and team invitations: low volume, abuse would spam staff / inboxes. */
+        RateLimiter::for('quotations', fn (Request $request): array => [
+            Limit::perMinute(5)->by(($request->user()?->getKey() ?? 'guest').'|'.$request->ip()),
+            Limit::perDay(40)->by($request->ip()),
+        ]);
+
         RateLimiter::for('webhooks', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));
 
         RateLimiter::for('catalog', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));

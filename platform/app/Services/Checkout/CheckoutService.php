@@ -3,11 +3,13 @@
 namespace App\Services\Checkout;
 
 use App\Enums\CustomerAudience;
+use App\Enums\OrganizationRole;
 use App\Enums\PaymentMethod;
 use App\Models\Cart;
 use App\Models\DeliveryZone;
 use App\Services\Cart\CartService;
 use App\Services\Pricing\PricingContext;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Builds the authoritative checkout summary: re-priced cart (Phase 4 rules), delivery charge for
@@ -33,6 +35,10 @@ class CheckoutService
             $errors[] = 'Your cart is empty.';
         } elseif (! $quote['valid']) {
             $errors[] = 'Some items in your cart need attention (stock, quantity or availability changed).';
+        }
+
+        if (! $this->mayOrderFor($context)) {
+            $errors[] = __('Your role in :organization is view-only, so you cannot place orders for it. Ask the account owner to change your role.', ['organization' => $context->organization?->name]);
         }
 
         $zone = $district !== null && in_array($district, DeliveryZone::DISTRICTS, true) ? DeliveryZone::forDistrict($district) : null;
@@ -83,12 +89,29 @@ class CheckoutService
     }
 
     /**
+     * Orders for an organization need a member role that may place orders (owner / buyer).
+     */
+    public function mayOrderFor(PricingContext $context): bool
+    {
+        if ($context->organization === null) {
+            return true;
+        }
+
+        $role = $context->userId === null ? null : DB::table('organization_user')
+            ->where('organization_id', $context->organization->id)
+            ->where('user_id', $context->userId)
+            ->value('role');
+
+        return $role !== null && OrganizationRole::from($role)->canPlaceOrders();
+    }
+
+    /**
      * @param  array<string, mixed>  $quote
      */
     private function fingerprint(array $quote, int $delivery, int $total, PricingContext $context): string
     {
         $lines = array_map(fn (array $line) => [
-            $line['type'], $line['sku'] ?? $line['slug'] ?? null, $line['base_quantity'] ?? null, $line['line_paisa'] ?? null, $line['rate_source'] ?? null,
+            $line['type'], $line['sku'] ?? $line['slug'] ?? $line['number'] ?? null, $line['base_quantity'] ?? null, $line['line_paisa'] ?? null, $line['rate_source'] ?? null,
         ], $quote['lines']);
 
         return hash('sha256', json_encode([

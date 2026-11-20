@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\CustomerAudience;
 use App\Enums\OrderStatus;
+use App\Enums\OrganizationStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -126,6 +127,16 @@ class Order extends Model
     public function belongsToUser(?User $user): bool
     {
         return $user !== null && $this->user_id === $user->id;
+    }
+
+    /**
+     * Organization orders are visible to every current member of that approved organization
+     * (any role) and to nobody else.
+     */
+    public function isVisibleToMember(?User $user): bool
+    {
+        return $user !== null && $this->organization_id !== null
+            && $user->organizations()->whereKey($this->organization_id)->where('status', OrganizationStatus::Approved->value)->exists();
     }
 
     public function matchesGuestKey(?string $key): bool

@@ -173,7 +173,8 @@
                 @endforeach
             </ul></div>
             <div><h3>{{ __('Business') }}</h3><ul>
-                <li><a href="{{ route('organizations.apply', 'business') }}">{{ __('Business accounts') }}</a></li>
+                <li><a href="{{ route('business.landing') }}">{{ __('Business accounts') }}</a></li>
+                <li><a href="{{ route('reseller.landing') }}">{{ __('Reseller accounts') }}</a></li>
                 <li><a href="{{ route('organizations.apply', 'reseller') }}">Reseller program</a></li>
             </ul></div>
             <div><h3>{{ __('Help') }}</h3><ul>

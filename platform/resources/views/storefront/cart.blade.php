@@ -5,6 +5,11 @@
 @section('content')
     <h1 style="font-size:var(--bh-fs-2xl)">{{ __('Shopping cart') }}</h1>
 
+    @if (session('bulk_skipped'))
+        <div class="alert alert-error" style="margin-bottom:12px"><x-icon name="alert" /><div>{{ __('Not added') }}:
+            <ul class="small" style="margin:4px 0 0;padding-left:18px">@foreach (session('bulk_skipped') as $skipped)<li>{{ $skipped }}</li>@endforeach</ul></div></div>
+    @endif
+
     @if ($quote === null || ($quote['item_count'] ?? 0) === 0)
         <div class="card empty-state">
             <x-icon name="cart" />
@@ -23,18 +28,29 @@
                 @endif
                 @foreach ($quote['lines'] as $line)
                     <div class="line">
-                        <x-photo-placeholder :icon="$line['type'] === 'bundle' ? 'gift' : 'box'" />
+                        <x-photo-placeholder :icon="match ($line['type']) { 'bundle' => 'gift', 'quotation' => 'quote', default => 'box' }" />
                         <div>
                             <h3>{{ $line['name'] ?? $line['sku'] ?? $line['slug'] }}</h3>
                             <div class="small muted">
-                                @if ($line['type'] === 'bundle')
+                                @if ($line['type'] === 'quotation')
+                                    @if ($line['ok'])
+                                        {{ __('Quoted price, valid until :date', ['date' => \Illuminate\Support\Carbon::parse($line['valid_until'])->timezone('Asia/Dhaka')->format('d M Y')]) }}
+                                        <ul style="margin:4px 0 0;padding-left:16px">@foreach ($line['items'] as $component)<li>{{ $component['name'] }} — {{ $component['quantity_label'] }}</li>@endforeach</ul>
+                                    @endif
+                                @elseif ($line['type'] === 'bundle')
                                     {{ __('Bundle') }} · {{ __('Normal price') }} <s>{{ Taka::format($line['normal_paisa'] ?? 0) }}</s>
                                 @elseif ($line['ok'])
                                     {{ $line['quantity_label'] }} · {{ Taka::format($line['per_kg_paisa'] ?? $line['unit_paisa']) }} {{ $line['per_kg_paisa'] ? __('per kg') : __('each') }}
                                     @if (! in_array($line['rate_source'], ['standard', null], true))<span class="status info">{{ __($line['rate_source']) }}</span>@endif
                                 @endif
                             </div>
-                            @if ($line['cart_item_id'])
+                            @if ($line['cart_item_id'] && $line['type'] === 'quotation')
+                                <form method="POST" action="{{ route('cart.items.destroy', $line['cart_item_id']) }}" style="margin-top:4px">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="btn btn-ghost btn-sm" type="submit" style="padding-left:0">{{ __('Remove') }}</button>
+                                </form>
+                            @elseif ($line['cart_item_id'])
                                 <form method="POST" action="{{ route('cart.items.update', $line['cart_item_id']) }}" class="row" style="margin-top:8px;gap:6px" novalidate>
                                     @csrf
                                     @method('PATCH')

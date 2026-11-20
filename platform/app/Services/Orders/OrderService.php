@@ -6,10 +6,12 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentRecordStatus;
 use App\Enums\PaymentStatus;
+use App\Enums\QuotationStatus;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Promotion;
 use App\Models\PromotionRedemption;
+use App\Models\Quotation;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\Notifications\OrderNotifier;
@@ -86,6 +88,7 @@ class OrderService
             }
 
             $this->releasePromotions($order);
+            $this->reopenQuotations($order);
 
             $this->audit->record('order.cancelled', $order, ['status' => $from->value], [
                 'status' => OrderStatus::Cancelled->value,
@@ -184,6 +187,19 @@ class OrderService
         Order::query()->whereKey($order->id)->update(['payment_status' => $to->value, 'updated_at' => now()]);
         $order->forceFill(['payment_status' => $to])->syncOriginal();
         $order->events()->forceCreate(['kind' => 'payment', 'from_status' => $from->value, 'to_status' => $to->value, 'actor_id' => $actor?->id, 'note' => $note]);
+    }
+
+    /**
+     * A cancelled order hands its quotation back to the buyer: accepted again while still valid
+     * (so they can re-order at the quoted price), otherwise expired.
+     */
+    private function reopenQuotations(Order $order): void
+    {
+        foreach (Quotation::query()->where('order_id', $order->id)->where('status', QuotationStatus::Ordered->value)->get() as $quotation) {
+            $status = $quotation->valid_until?->isFuture() ? QuotationStatus::Accepted : QuotationStatus::Expired;
+            $quotation->forceFill(['status' => $status, 'order_id' => null])->save();
+            $this->audit->record('quotation.reopened', $quotation, ['order' => $order->number], ['status' => $status->value]);
+        }
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Models\Bundle;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\ProductVariant;
+use App\Models\Quotation;
 use App\Models\User;
 use App\Services\Pricing\PriceResolver;
 use App\Services\Pricing\PricingContext;
@@ -109,7 +110,25 @@ class CartService
     }
 
     /**
+     * Put an accepted quotation in the cart as one fixed line (quantity always 1).
+     *
+     * @throws ValidationException when the quotation cannot be ordered in this buying context
+     */
+    public function addQuotation(Cart $cart, Quotation $quotation, PricingContext $context): CartItem
+    {
+        if (! $quotation->canBeOrderedBy($context->organization)) {
+            throw ValidationException::withMessages(['quotation' => __('This quotation is not available for the account you are buying for.')]);
+        }
+
+        $item = $cart->items()->firstOrCreate(['quotation_id' => $quotation->id], ['quantity' => 1]);
+        $this->touch($cart);
+
+        return $item;
+    }
+
+    /**
      * Set an exact quantity (0 removes). Invalid quantities are rejected, not adjusted.
+     * Quotation lines can only be removed: their quantities are fixed by the quote.
      *
      * @throws ValidationException
      */
@@ -119,6 +138,10 @@ class CartService
             $item->delete();
 
             return;
+        }
+
+        if ($item->quotation_id !== null) {
+            throw ValidationException::withMessages(['quantity' => __('Quoted quantities are fixed. Request a new quote to change them.')]);
         }
 
         if ($item->product_variant_id !== null) {
@@ -192,22 +215,29 @@ class CartService
      */
     public function quote(Cart $cart, PricingContext $context): array
     {
-        $items = $cart->items()->with(['variant:id,sku,product_id,pricing_mode', 'bundle:id,slug'])->get();
+        $items = $cart->items()->with(['variant:id,sku,product_id,pricing_mode', 'bundle:id,slug', 'quotation:id,number'])->get();
 
         $variantLines = $items->whereNotNull('product_variant_id')->filter(fn (CartItem $item) => $item->variant !== null)
             ->map(fn (CartItem $item) => ['sku' => $item->variant->sku, 'quantity' => $item->quantity])->values()->all();
         $bundleLines = $items->whereNotNull('bundle_id')->filter(fn (CartItem $item) => $item->bundle !== null)
             ->map(fn (CartItem $item) => ['slug' => $item->bundle->slug, 'quantity' => $item->quantity])->values()->all();
+        $quotationNumbers = $items->whereNotNull('quotation_id')->filter(fn (CartItem $item) => $item->quotation !== null)
+            ->map(fn (CartItem $item) => $item->quotation->number)->values()->all();
 
-        $quote = $variantLines === [] && $bundleLines === []
+        $quote = $variantLines === [] && $bundleLines === [] && $quotationNumbers === []
             ? ['lines' => [], 'subtotal_paisa' => 0, 'discount_paisa' => 0, 'total_paisa' => 0, 'promotions' => [], 'coupon' => null, 'valid' => false, 'audience' => $context->audience->value]
-            : $this->quotes->quote($variantLines, $bundleLines, $context, $cart->coupon_code);
+            : $this->quotes->quote($variantLines, $bundleLines, $context, $cart->coupon_code, $quotationNumbers);
 
         $bySku = $items->filter(fn (CartItem $item) => $item->variant !== null)->mapWithKeys(fn (CartItem $item) => [$item->variant->sku => $item]);
         $bySlug = $items->filter(fn (CartItem $item) => $item->bundle !== null)->mapWithKeys(fn (CartItem $item) => [$item->bundle->slug => $item]);
+        $byNumber = $items->filter(fn (CartItem $item) => $item->quotation !== null)->mapWithKeys(fn (CartItem $item) => [$item->quotation->number => $item]);
 
-        $quote['lines'] = array_map(function (array $line) use ($bySku, $bySlug): array {
-            $item = $line['type'] === 'bundle' ? $bySlug->get($line['slug']) : $bySku->get($line['sku']);
+        $quote['lines'] = array_map(function (array $line) use ($bySku, $bySlug, $byNumber): array {
+            $item = match ($line['type']) {
+                'bundle' => $bySlug->get($line['slug']),
+                'quotation' => $byNumber->get($line['number']),
+                default => $bySku->get($line['sku']),
+            };
             $line['cart_item_id'] = $item?->id;
             $line['product_variant_id'] = $item?->product_variant_id;
             $line['bundle_id'] = $item?->bundle_id;

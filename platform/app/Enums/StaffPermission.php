@@ -15,6 +15,7 @@ enum StaffPermission: string
     case ManageInventory = 'inventory.manage';
     case ApprovePriceChanges = 'prices.approve';
     case ManageOrders = 'orders.manage';
+    case ManageQuotations = 'quotations.manage';
     case ManageCustomers = 'customers.manage';
     case ApproveOrganizations = 'organizations.approve';
     case ManageCms = 'cms.manage';

@@ -27,6 +27,6 @@ class RegisterController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('account')->with('status', 'Welcome to Baking House! Your account is ready.');
+        return redirect()->intended(route('account'))->with('status', 'Welcome to Baking House! Your account is ready.');
     }
 }

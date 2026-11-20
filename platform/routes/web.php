@@ -9,10 +9,10 @@ use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\MfaChallengeController;
 use App\Http\Controllers\Auth\MfaSetupController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\BusinessPortalController;
+use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\OrganizationApplicationController;
 use App\Http\Controllers\OrganizationContextController;
-use App\Http\Controllers\ResellerPortalController;
+use App\Http\Controllers\Portal;
 use App\Http\Controllers\Storefront;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +29,11 @@ Route::get('/robots.txt', Storefront\RobotsController::class)->name('robots');
 Route::get('/combos', [Storefront\BundleController::class, 'index'])->name('bundles.index');
 Route::get('/combo/{slug}', [Storefront\BundleController::class, 'show'])->name('bundles.show');
 Route::post('/language', Storefront\LanguageController::class)->name('language');
+
+/* B2B landing pages and the single RFQ entry point (product page, /business, business portal). */
+Route::get('/business', Storefront\PortalLandingController::class)->defaults('type', 'business')->name('business.landing');
+Route::get('/reseller', Storefront\PortalLandingController::class)->defaults('type', 'reseller')->name('reseller.landing');
+Route::post('/quotations', Storefront\QuotationRequestController::class)->middleware('throttle:quotations')->name('quotations.store');
 
 /*
 | Cart, checkout, orders (guests and customers)
@@ -87,13 +92,42 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/apply/{type}', [OrganizationApplicationController::class, 'create'])->name('organizations.apply');
     Route::post('/apply', [OrganizationApplicationController::class, 'store'])->name('organizations.apply.store');
 
-    Route::get('/business/dashboard', BusinessPortalController::class)
-        ->middleware('organization:business')
-        ->name('business.dashboard');
+    Route::get('/invitations/{token}', [InvitationController::class, 'show'])->withoutMiddleware('auth')->name('invitations.show');
+    Route::post('/invitations/{token}', [InvitationController::class, 'accept'])->middleware('throttle:mfa')->name('invitations.accept');
 
-    Route::get('/reseller/dashboard', ResellerPortalController::class)
-        ->middleware('organization:reseller')
-        ->name('reseller.dashboard');
+    /*
+    | Business & reseller portals. Same building blocks, separate contexts: the organization
+    | always comes from an approved membership of THAT type (EnsureOrganizationAccess).
+    */
+    foreach (['business', 'reseller'] as $portal) {
+        Route::prefix($portal)->name($portal.'.')->middleware('organization:'.$portal)->group(function () use ($portal): void {
+            Route::get('/dashboard', Portal\DashboardController::class)->name('dashboard');
+            Route::get('/orders', [Portal\OrderController::class, 'index'])->name('orders');
+            Route::post('/orders/{order}/reorder', [Portal\OrderController::class, 'reorder'])->middleware('throttle:checkout')->name('orders.reorder');
+            Route::get('/orders/{order}/invoice', [Portal\OrderController::class, 'invoice'])->name('orders.invoice');
+            Route::get('/bulk', [Portal\BulkOrderController::class, 'show'])->name('bulk');
+            Route::post('/bulk', [Portal\BulkOrderController::class, 'submit'])->middleware('throttle:checkout')->name('bulk.submit');
+            Route::get('/prices', [Portal\PriceController::class, 'index'])->name('prices');
+            Route::get('/prices/export', [Portal\PriceController::class, 'export'])->name('prices.export');
+            Route::get('/statements', Portal\StatementController::class)->name('statements');
+            Route::get('/addresses', [Portal\AddressController::class, 'index'])->name('addresses');
+            Route::post('/addresses', [Portal\AddressController::class, 'store'])->name('addresses.store');
+            Route::put('/addresses/{address}', [Portal\AddressController::class, 'update'])->name('addresses.update');
+            Route::delete('/addresses/{address}', [Portal\AddressController::class, 'destroy'])->name('addresses.destroy');
+            Route::get('/team', [Portal\TeamController::class, 'index'])->name('team');
+            Route::post('/team/invitations', [Portal\TeamController::class, 'invite'])->middleware('throttle:quotations')->name('team.invite');
+            Route::delete('/team/invitations/{invitation}', [Portal\TeamController::class, 'revoke'])->name('team.revoke');
+            Route::patch('/team/members/{member}', [Portal\TeamController::class, 'updateRole'])->name('team.role');
+            Route::delete('/team/members/{member}', [Portal\TeamController::class, 'remove'])->name('team.remove');
+
+            if ($portal === 'business') {
+                Route::get('/quotations', [Portal\QuotationController::class, 'index'])->name('quotations');
+                Route::get('/quotations/{quotation}', [Portal\QuotationController::class, 'show'])->name('quotations.show');
+                Route::post('/quotations/{quotation}/accept', [Portal\QuotationController::class, 'accept'])->middleware('throttle:checkout')->name('quotations.accept');
+                Route::post('/quotations/{quotation}/decline', [Portal\QuotationController::class, 'decline'])->name('quotations.decline');
+            }
+        });
+    }
 
     /*
     | Admin
@@ -103,6 +137,18 @@ Route::middleware('auth')->group(function (): void {
         Route::patch('/organizations/{organization}/status', Admin\OrganizationApprovalController::class)->name('organizations.status');
         Route::put('/users/{user}/roles', Admin\UserRoleController::class)->name('users.roles');
         Route::post('/users/{user}/mfa-reset', Admin\UserMfaResetController::class)->middleware('throttle:mfa')->name('users.mfa-reset');
+        Route::middleware('can:'.StaffPermission::ManageCustomers->value)->group(function (): void {
+            Route::get('/organizations', [Admin\OrganizationController::class, 'index'])->name('organizations.index');
+            Route::get('/organizations/{organization}', [Admin\OrganizationController::class, 'show'])->name('organizations.show');
+        });
+
+        Route::middleware('can:'.StaffPermission::ManageQuotations->value)->group(function (): void {
+            Route::get('/quotations', [Admin\QuotationController::class, 'index'])->name('quotations.index');
+            Route::get('/quotations/{quotation}', [Admin\QuotationController::class, 'show'])->name('quotations.show');
+            Route::post('/quotations/{quotation}/issue', [Admin\QuotationController::class, 'issue'])->name('quotations.issue');
+            Route::post('/quotations/{quotation}/close', [Admin\QuotationController::class, 'close'])->name('quotations.close');
+        });
+
         Route::get('/audit', Admin\AuditLogController::class)
             ->middleware('can:'.StaffPermission::ViewAuditLog->value)
             ->name('audit');

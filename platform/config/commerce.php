@@ -43,6 +43,17 @@ return [
         'webhook_tolerance_seconds' => 300,
     ],
 
+    // Seller block on portal invoices. Placeholders until the owner confirms legal / VAT details.
+    'seller' => [
+        'name' => env('SELLER_LEGAL_NAME', 'Baking House'),
+        'address' => env('SELLER_ADDRESS', 'Address pending owner confirmation'),
+        'phone' => env('SELLER_PHONE', 'Pending owner confirmation'),
+        'vat_registration' => env('SELLER_VAT_BIN'),
+    ],
+
+    // Team seats per business / reseller organization (members + pending invitations).
+    'organization_max_members' => (int) env('ORGANIZATION_MAX_MEMBERS', 20),
+
     // Shown to customers paying by bank transfer. Placeholders until the owner provides real details.
     'bank_transfer' => [
         'account_name' => env('BANK_ACCOUNT_NAME', 'Pending owner confirmation'),

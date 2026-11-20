@@ -4,14 +4,18 @@ namespace App\Services\Pricing;
 
 use App\Models\Bundle;
 use App\Models\ProductVariant;
+use App\Models\Quotation;
 use App\Services\Promotions\AppliedPromotion;
 use App\Services\Promotions\BundlePricer;
 use App\Services\Promotions\PromotionEngine;
+use App\Services\Quotations\QuotationPricer;
 
 /**
  * Prices a whole basket on the server: variant lines (quantities for the same SKU are merged so
  * volume tiers apply on the total), bundles, then promotions. Used by POST /api/v1/pricing/quote
- * now and by cart / checkout in Phase 5. Client-supplied prices are never read.
+ * now and by cart / checkout in Phase 5. Accepted quotations (Phase 6) are one line each at the quoted
+ * total and, like trade prices, take no coupon unless a promotion is stackable. Client-supplied
+ * prices are never read.
  */
 class QuoteService
 {
@@ -19,14 +23,16 @@ class QuoteService
         private PriceResolver $prices,
         private BundlePricer $bundles,
         private PromotionEngine $promotions,
+        private QuotationPricer $quotations,
     ) {}
 
     /**
      * @param  list<array{sku: string, quantity: int}>  $items
      * @param  list<array{slug: string, quantity: int}>  $bundleLines
+     * @param  list<string>  $quotationNumbers
      * @return array<string, mixed>
      */
-    public function quote(array $items, array $bundleLines, PricingContext $context, ?string $couponCode = null): array
+    public function quote(array $items, array $bundleLines, PricingContext $context, ?string $couponCode = null, array $quotationNumbers = []): array
     {
         $merged = [];
         foreach ($items as $item) {
@@ -79,6 +85,17 @@ class QuoteService
 
             if ($result['ok']) {
                 $promotionLines[] = ['key' => 'bundle:'.$line['slug'], 'product_id' => null, 'line_paisa' => $result['line_paisa'], 'trade_priced' => false, 'is_bundle' => true];
+            } else {
+                $valid = false;
+            }
+        }
+
+        foreach (array_values(array_unique($quotationNumbers)) as $number) {
+            $line = $this->quotations->line(Quotation::query()->where('number', $number)->first(), $number, $context);
+            $lines[] = $line;
+
+            if ($line['ok']) {
+                $promotionLines[] = ['key' => 'quotation:'.$number, 'product_id' => null, 'line_paisa' => $line['line_paisa'], 'trade_priced' => true, 'is_bundle' => false];
             } else {
                 $valid = false;
             }

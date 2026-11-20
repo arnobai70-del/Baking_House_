@@ -9,6 +9,15 @@
 | Admin | catalog, orders, support, CMS, CRM as granted | owner-only secrets, role escalation |
 | Super admin | system settings, roles, approvals, integrations | still audited; cannot bypass logs |
 
+## Organization roles (Phase 6)
+| Role | Can |
+|------|-----|
+| Owner | everything in the portal, including team (invite, change roles, remove; one owner always remains) |
+| Buyer | order for the organization, bulk orders, accept / decline quotations, manage delivery addresses |
+| Viewer | read-only: orders, prices / rate card, invoices, statements; cannot order |
+
+Staff: `quotations.manage` (issue / close quotations), `customers.manage` (organization directory).
+
 ## Enforcement
 - RBAC **plus** policy/ownership checks (`organization_id`, `reseller_account_id`, memberships). Never menu visibility alone.
 - Role upgrades are requested, then reviewed. One login with multiple account types → explicit context switch.

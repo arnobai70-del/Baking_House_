@@ -41,6 +41,8 @@ Local demo logins (local environment only, password `password`):
 | Payments (test mode) | `PaymentService`, `TestPaymentGateway`, `/payments/test/*`, `POST /api/v1/webhooks/payments/{provider}` |
 | Order management | `OrderService`, `OrderStock`, `/admin/orders`, `/admin/zones`, `/admin/orders/reconciliation` |
 | Notifications | `OrderNotifier`, `SmsGateway` (log driver), `notification_logs` |
+| Business & reseller portals (Phase 6) | `Portal\*Controller`, `/business/*`, `/reseller/*`, `TeamService`, `BulkOrderService`, `RateCard`, `StatementService` |
+| Quotations (RFQ) | `QuotationService`, `QuotationPricer`, `POST /quotations`, `/admin/quotations`, `quotations:expire` |
 
 The storefront uses the approved design system from the prototype (`public/css/tokens.css`, `app.css`) plus `storefront.css`.
 `public/js/weight-pricing.js` must stay identical to `prototype/assets/js/weight-pricing.js`, which a test enforces.

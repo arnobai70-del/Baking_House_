@@ -44,14 +44,28 @@ class CheckoutController extends Controller
 
         $draft = $request->session()->get(self::DRAFT, []);
         $user = $request->user();
+        $context = $this->contexts->forWeb($request);
+
+        /* Organization buyers can pre-fill from their saved addresses (only their own organization's). */
+        $addresses = $context->organization?->addresses()->get() ?? collect();
+        $chosen = $request->filled('address')
+            ? $addresses->firstWhere('id', (int) $request->query('address'))
+            : ($draft === [] ? $addresses->firstWhere('is_default', true) : null);
+        if ($chosen !== null) {
+            $draft = ['name' => $chosen->recipient_name, 'phone' => $chosen->phone, 'address_line' => $chosen->line, 'area' => $chosen->area, 'district' => $chosen->district] + $draft;
+        }
+
         $district = $request->query('district', $draft['district'] ?? null);
-        $summary = $this->checkout->summarize($cart, $this->contexts->forWeb($request), is_string($district) ? $district : null);
+        $summary = $this->checkout->summarize($cart, $context, is_string($district) ? $district : null);
 
         return view('storefront.checkout.details', [
             'seo' => (new Seo(title: __('Checkout')))->noindex(),
             'summary' => $summary,
             'draft' => $draft + ['name' => $user?->name, 'phone' => $user?->phone, 'email' => $user?->email, 'district' => $district],
             'districts' => DeliveryZone::DISTRICTS,
+            'addresses' => $addresses,
+            'chosenAddress' => $chosen,
+            'buyingFor' => $context->organization,
         ]);
     }
 

@@ -7,6 +7,19 @@
     </ol>
     @error('checkout')<div class="alert alert-error" role="alert" style="margin-bottom:12px"><x-icon name="alert" /><span>{{ $message }}</span></div>@enderror
 
+    @if ($buyingFor)
+        <div class="alert alert-info" style="margin-bottom:12px"><x-icon name="store" /><span>{{ __('You are ordering for :organization', ['organization' => $buyingFor->name]) }}</span></div>
+    @endif
+    @if ($addresses->isNotEmpty())
+        <form method="GET" action="{{ route('checkout.show') }}" class="card card-pad row" style="margin-bottom:12px;align-items:flex-end">
+            <div class="field" style="margin:0;flex:1"><label for="saved-address">{{ __('Use a saved address') }}</label>
+                <select class="input" id="saved-address" name="address">
+                    @foreach ($addresses as $address)<option value="{{ $address->id }}" @selected($chosenAddress?->id === $address->id)>{{ $address->label }} — {{ $address->area }}, {{ $address->district }}</option>@endforeach
+                </select></div>
+            <button class="btn btn-outline" type="submit">{{ __('Use address') }}</button>
+        </form>
+    @endif
+
     <div class="cart-layout">
         <form method="POST" action="{{ route('checkout.review.store') }}" class="card card-pad" novalidate>
             @csrf

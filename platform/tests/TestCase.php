@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\Setting;
 use App\Models\User;
 use Database\Factories\UserFactory;
 use Illuminate\Foundation\Testing\TestCase as BaseTestCase;
@@ -9,6 +10,15 @@ use PragmaRX\Google2FA\Google2FA;
 
 abstract class TestCase extends BaseTestCase
 {
+    /**
+     * Settings are memoised in a static; never let one test's language settings leak into the next.
+     */
+    protected function setUp(): void
+    {
+        parent::setUp();
+        Setting::flushMemo();
+    }
+
     /**
      * Act as a staff member who has passed MFA in this session.
      */

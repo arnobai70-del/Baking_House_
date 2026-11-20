@@ -6,6 +6,7 @@ use App\Enums\OrderStatus;
 use App\Enums\PaymentMethod;
 use App\Enums\PaymentRecordStatus;
 use App\Enums\PaymentStatus;
+use App\Enums\QuotationStatus;
 use App\Exceptions\CheckoutChangedException;
 use App\Exceptions\InsufficientStockException;
 use App\Models\Cart;
@@ -13,6 +14,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\ProductVariant;
 use App\Models\Promotion;
+use App\Models\Quotation;
 use App\Models\User;
 use App\Services\AuditLogger;
 use App\Services\Cart\CartService;
@@ -92,6 +94,9 @@ class OrderPlacer
             if (str_contains($e->getMessage(), 'promotion')) {
                 throw ValidationException::withMessages(['checkout' => 'An offer in your cart is no longer available. Please review your cart.']);
             }
+            if (str_contains($e->getMessage(), 'quotation')) {
+                throw ValidationException::withMessages(['checkout' => __('A quotation in your cart has already been ordered or is no longer valid.')]);
+            }
             throw $e;
         }
 
@@ -151,20 +156,31 @@ class OrderPlacer
 
         foreach ($quote['lines'] as $line) {
             $order->items()->forceCreate([
-                'type' => $line['type'] === 'bundle' ? 'bundle' : 'item',
+                'type' => in_array($line['type'], ['bundle', 'quotation'], true) ? $line['type'] : 'item',
                 'product_variant_id' => $line['product_variant_id'] ?? null,
                 'bundle_id' => $line['bundle_id'] ?? null,
-                'sku' => $line['sku'] ?? null,
+                'sku' => $line['sku'] ?? $line['number'] ?? null,
                 'name' => (string) $line['name'],
                 'quantity' => (int) ($line['base_quantity'] ?? $line['quantity'] ?? 0),
-                'quantity_label' => $line['type'] === 'bundle' ? '× '.$line['quantity'] : (string) $line['quantity_label'],
+                'quantity_label' => $line['type'] === 'item' ? (string) $line['quantity_label'] : '× '.$line['quantity'],
                 'unit_paisa' => $line['unit_paisa'] ?? null,
                 'per_kg_paisa' => $line['per_kg_paisa'] ?? null,
                 'rate_source' => $line['rate_source'] ?? ($line['type'] === 'bundle' ? 'bundle' : null),
                 'line_paisa' => (int) $line['line_paisa'],
                 'standard_line_paisa' => (int) ($line['standard_line_paisa'] ?? $line['normal_paisa'] ?? $line['line_paisa']),
-                'components' => $line['type'] === 'bundle' ? $line['items'] : null,
+                'components' => $line['type'] === 'item' ? null : $line['items'],
             ]);
+
+            if ($line['type'] === 'quotation') {
+                /* Conditional UPDATE: an accepted quotation turns into exactly one order. */
+                $claimed = Quotation::query()->whereKey($line['quotation_id'])->where('status', QuotationStatus::Accepted->value)
+                    ->where('organization_id', $context->organization?->id)
+                    ->update(['status' => QuotationStatus::Ordered->value, 'order_id' => $order->id, 'updated_at' => now()]);
+                if ($claimed !== 1) {
+                    throw new RuntimeException('quotation already ordered');
+                }
+                $this->audit->record('quotation.ordered', Quotation::query()->findOrFail($line['quotation_id']), after: ['order' => $number], actorId: $user?->id);
+            }
         }
 
         foreach ($quote['promotions'] as $applied) {
@@ -210,8 +226,11 @@ class OrderPlacer
     {
         $needs = [];
         foreach ($quote['lines'] as $line) {
-            if ($line['type'] === 'bundle') {
+            if (in_array($line['type'], ['bundle', 'quotation'], true)) {
                 foreach ($line['items'] as $component) {
+                    if ($component['variant_id'] === null) {
+                        continue;
+                    }
                     $needs[$component['variant_id']] = ($needs[$component['variant_id']] ?? 0) + (int) $component['quantity'];
                 }
             } else {
