@@ -48,7 +48,19 @@
     </div>
 
     <div class="card">
-        <div class="panel-title"><h2>My orders</h2></div>
-        <div class="empty-state"><p><strong>No orders yet</strong></p><p class="muted small">Orders arrive with checkout in Phase 5.</p></div>
+        <div class="panel-title"><h2>{{ __('My orders') }}</h2></div>
+        @if ($orders->isEmpty())
+            <div class="empty-state"><p><strong>{{ __('No orders yet') }}</strong></p><a class="btn btn-primary" href="{{ route('catalog.shop') }}">{{ __('Start shopping') }}</a></div>
+        @else
+            <div class="table-wrap"><table class="table">
+                <thead><tr><th>{{ __('Order') }}</th><th>{{ __('Placed') }}</th><th>{{ __('Total') }}</th><th>{{ __('Payment') }}</th><th>{{ __('Status') }}</th><th></th></tr></thead>
+                <tbody>@foreach ($orders as $order)
+                    <tr><td class="tnum"><strong>{{ $order->number }}</strong></td><td class="small">{{ $order->placed_at->timezone('Asia/Dhaka')->format('d M Y') }}</td>
+                        <td class="tnum">{{ \App\Support\Taka::format($order->total_paisa) }}</td>
+                        <td><span class="status {{ $order->isPaid() ? 'ok' : 'warn' }}">{{ __($order->payment_status->label()) }}</span></td>
+                        <td><span class="status {{ $order->status->tone() }}">{{ __($order->status->label()) }}</span></td>
+                        <td><a class="btn btn-outline btn-sm" href="{{ route('orders.show', $order) }}">{{ __('View') }}</a></td></tr>
+                @endforeach</tbody></table></div>
+        @endif
     </div>
 @endsection

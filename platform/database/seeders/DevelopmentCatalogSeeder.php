@@ -10,6 +10,7 @@ use App\Enums\SellingUnit;
 use App\Models\Brand;
 use App\Models\Bundle;
 use App\Models\Category;
+use App\Models\DeliveryZone;
 use App\Models\PriceList;
 use App\Models\Product;
 use App\Models\ProductVariant;
@@ -117,6 +118,19 @@ class DevelopmentCatalogSeeder extends Seeder
         }
 
         $this->seedTranslationsAndOffers();
+
+        DeliveryZone::query()->create([
+            'name' => 'Inside Dhaka (placeholder rate)', 'name_bn' => 'ঢাকার ভিতরে', 'districts' => ['Dhaka'],
+            'charge_paisa' => 8000, 'free_over_paisa' => 500000, 'estimate' => '1–2 days (provisional)', 'cod_available' => true, 'is_active' => true, 'sort_order' => 1,
+        ]);
+        DeliveryZone::query()->create([
+            'name' => 'Dhaka suburbs (placeholder rate)', 'name_bn' => 'ঢাকার আশপাশ', 'districts' => ['Gazipur', 'Narayanganj'],
+            'charge_paisa' => 12000, 'estimate' => '2–3 days (provisional)', 'cod_available' => true, 'is_active' => true, 'sort_order' => 2,
+        ]);
+        DeliveryZone::query()->create([
+            'name' => 'Outside Dhaka (placeholder rate)', 'name_bn' => 'ঢাকার বাইরে', 'districts' => [], 'is_default' => true,
+            'charge_paisa' => 15000, 'estimate' => '3–5 days (provisional)', 'cod_available' => true, 'is_active' => true, 'sort_order' => 3,
+        ]);
     }
 
     /**

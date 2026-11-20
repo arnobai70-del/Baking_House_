@@ -18,6 +18,24 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::post('/pricing/quote', V1\PricingController::class)->name('pricing.quote');
     });
 
+    Route::post('/webhooks/payments/{provider}', V1\PaymentWebhookController::class)->middleware('throttle:webhooks')->name('webhooks.payments');
+
+    Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function (): void {
+        Route::middleware('abilities:orders:read')->group(function (): void {
+            Route::get('/cart', [V1\CartController::class, 'show'])->name('cart.show');
+            Route::get('/orders', [V1\OrderController::class, 'index'])->name('orders.index');
+            Route::get('/orders/{number}', [V1\OrderController::class, 'show'])->name('orders.show');
+        });
+        Route::middleware('abilities:orders:write')->group(function (): void {
+            Route::post('/cart/items', [V1\CartController::class, 'addItem'])->name('cart.items.store');
+            Route::patch('/cart/items/{itemId}', [V1\CartController::class, 'updateItem'])->whereNumber('itemId')->name('cart.items.update');
+            Route::delete('/cart/items/{itemId}', [V1\CartController::class, 'removeItem'])->whereNumber('itemId')->name('cart.items.destroy');
+            Route::post('/cart/coupon', [V1\CartController::class, 'coupon'])->name('cart.coupon');
+            Route::post('/checkout/preview', [V1\CartController::class, 'preview'])->name('checkout.preview');
+            Route::post('/orders', [V1\CartController::class, 'place'])->middleware('throttle:checkout')->name('orders.store');
+        });
+    });
+
     Route::post('/auth/tokens', [V1\TokenController::class, 'store'])->middleware('throttle:login')->name('tokens.store');
 
     Route::middleware(['auth:sanctum', 'active', 'throttle:api'])->group(function (): void {

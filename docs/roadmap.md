@@ -9,7 +9,7 @@ Each phase: code review, tests, role checks, mobile review, docs, accessibility,
 | 2 | Repo, DevOps, core Laravel backend, RBAC, audit | 🟡 core built — 62 tests green; staging, backups, error tracker, MFA pending |
 | 3 | CMS, catalog, SEO foundation | 🟡 built — awaiting owner review, real photos and catalog data |
 | 4 | Pricing, weight engine, promotions, stock | 🟡 built — awaiting owner review |
-| 5 | Retail checkout & operations (MVP gate) | ⬜ |
+| 5 | Retail checkout & operations (MVP gate) | 🟡 built — test-mode payments, awaiting owner review |
 | 6 | Business & reseller portals | ⬜ |
 | 7 | CRM, advanced admin, analytics | ⬜ |
 | 8 | Animation polish, SEO, performance | ⬜ |
@@ -105,3 +105,36 @@ TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into 
 - Final BDT rounding policy (D-005 still provisional).
 - Bangla copy review by a native editor. Admin screens remain English.
 - Cart, checkout and order commit of reservations is Phase 5.
+
+## Phase 5 — built (platform/)
+- **Cart:**
+  - Guest carts use an unguessable cookie token; customers get one cart per account. A guest cart merges into the account cart on sign-in.
+  - Carts store quantities only and are re-priced on the server every time, including business, reseller and contract prices.
+  - Weight items, unit items and bundles are supported, along with coupons.
+- **Checkout:**
+  - Details, then a review page with explicit confirmation, then placement.
+  - Bangladesh phone validation, all 64 districts, and admin-configured delivery zones (placeholder rates) with a free-delivery threshold.
+  - Cash on delivery is limited by order value and zone.
+  - A fingerprint check makes the customer re-confirm if anything changes (price, offer, stock, delivery).
+  - Duplicate submits produce exactly one order, enforced by a unique checkout token and verified by a multi-process test.
+- **Orders:**
+  - Unique numbers, and an immutable line and pricing snapshot (rounded per line, total = sum of lines − discount + delivery).
+  - Fulfillment status is separate from payment status. Guarded transitions, a timeline, and audit entries.
+  - Customer cancellation before processing; staff cancellation before shipping.
+  - Cancellation releases reservations and restocks allocated stock through the ledger. Promotion usage is restored.
+  - `orders:expire-unpaid` cancels stale unpaid orders.
+- **Payments:**
+  - bKash, Nagad and card use **test-mode** adapters only, with a simulated hosted page and HMAC-signed callbacks.
+  - Callbacks are verified on the server, idempotent (per provider event id), and captured at most once. Amount and currency must match.
+  - Bank transfer is confirmed by staff (exact amount); cash on delivery is collected after shipping.
+  - Refunds can be partial or full and never exceed the amount paid. There is a reconciliation report. No card data is stored.
+  - `live` mode fails until real provider documentation and credentials exist.
+- **Late payments:** stock is re-allocated if still available; otherwise the order goes to "payment review", never confirmed against missing stock. A payment that arrives after cancellation is flagged as refund due.
+- **Notifications:** SMS uses the "log" driver until a provider is contracted, plus Laravel mail. Recipients are masked in `notification_logs`, and failures never break orders.
+- **API:** `/api/v1/cart`, `/checkout/preview`, `/orders` (requires `Idempotency-Key`), `/orders/{number}`, `/webhooks/payments/{provider}`.
+
+## Phase 5 remaining (gate)
+- Owner review of the checkout flow and order-handling workflow.
+- **Real payment providers:** bKash, Nagad and card merchant agreements, official API documentation, sandbox credentials, then live adapters.
+- SMS provider contract; courier rates and zones; bank account details; COD limit; policies (refund, delivery, terms).
+- Native Bangla review of the checkout and order text.

@@ -31,6 +31,30 @@ Route::get('/combo/{slug}', [Storefront\BundleController::class, 'show'])->name(
 Route::post('/language', Storefront\LanguageController::class)->name('language');
 
 /*
+| Cart, checkout, orders (guests and customers)
+*/
+Route::get('/cart', [Storefront\CartController::class, 'show'])->name('cart.show');
+Route::post('/cart/items', [Storefront\CartController::class, 'addVariant'])->middleware('throttle:checkout')->name('cart.items.store');
+Route::post('/cart/bundles', [Storefront\CartController::class, 'addBundle'])->middleware('throttle:checkout')->name('cart.bundles.store');
+Route::patch('/cart/items/{item}', [Storefront\CartController::class, 'update'])->name('cart.items.update');
+Route::delete('/cart/items/{item}', [Storefront\CartController::class, 'remove'])->name('cart.items.destroy');
+Route::post('/cart/coupon', [Storefront\CartController::class, 'applyCoupon'])->name('cart.coupon');
+
+Route::get('/checkout', [Storefront\CheckoutController::class, 'show'])->name('checkout.show');
+Route::post('/checkout/review', [Storefront\CheckoutController::class, 'review'])->middleware('throttle:checkout')->name('checkout.review.store');
+Route::get('/checkout/review', [Storefront\CheckoutController::class, 'showReview'])->name('checkout.review');
+Route::post('/checkout/place', [Storefront\CheckoutController::class, 'place'])->middleware('throttle:checkout')->name('checkout.place');
+
+Route::get('/orders/{order}', [Storefront\OrderController::class, 'show'])->name('orders.show');
+Route::post('/orders/{order}/pay', [Storefront\OrderController::class, 'pay'])->middleware('throttle:checkout')->name('orders.pay');
+Route::post('/orders/{order}/cancel', [Storefront\OrderController::class, 'cancel'])->middleware('throttle:checkout')->name('orders.cancel');
+Route::get('/order/track', [Storefront\OrderController::class, 'track'])->middleware('throttle:checkout')->name('orders.track');
+
+/* TEST MODE payment simulator (signed URLs; disabled unless PAYMENTS_MODE=test). */
+Route::get('/payments/test/{reference}', [Storefront\TestPaymentController::class, 'show'])->middleware('signed')->name('payments.test.show');
+Route::post('/payments/test/{reference}', [Storefront\TestPaymentController::class, 'complete'])->middleware('signed')->name('payments.test.complete');
+
+/*
 | Authentication
 */
 Route::middleware('guest')->group(function (): void {
@@ -97,6 +121,19 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/price-simulator', Admin\PriceSimulatorController::class)->name('price-simulator');
             Route::resource('promotions', Admin\PromotionController::class)->except(['show', 'destroy']);
             Route::resource('bundles', Admin\BundleController::class)->except(['show', 'destroy']);
+        });
+
+        Route::middleware('can:'.StaffPermission::ManageOrders->value)->group(function (): void {
+            Route::get('/orders', [Admin\OrderController::class, 'index'])->name('orders.index');
+            Route::get('/orders/reconciliation', [Admin\OrderController::class, 'reconciliation'])->name('orders.reconciliation');
+            Route::get('/orders/{order}', [Admin\OrderController::class, 'show'])->name('orders.show');
+            Route::post('/orders/{order}/status', [Admin\OrderController::class, 'transition'])->name('orders.transition');
+            Route::post('/orders/{order}/cancel', [Admin\OrderController::class, 'cancel'])->name('orders.cancel');
+            Route::post('/orders/{order}/allocate', [Admin\OrderController::class, 'retryAllocation'])->name('orders.allocate');
+            Route::post('/orders/{order}/bank-transfer', [Admin\OrderController::class, 'confirmBankTransfer'])->name('orders.bank-transfer');
+            Route::post('/orders/{order}/cash-collected', [Admin\OrderController::class, 'collectCash'])->name('orders.cash-collected');
+            Route::post('/orders/{order}/refunds', [Admin\OrderController::class, 'refund'])->name('orders.refund');
+            Route::resource('zones', Admin\DeliveryZoneController::class)->except(['show', 'destroy']);
         });
 
         Route::middleware('can:'.StaffPermission::ManageInventory->value)->prefix('inventory')->name('inventory.')->group(function (): void {
