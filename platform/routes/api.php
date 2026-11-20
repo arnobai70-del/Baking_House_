@@ -53,6 +53,23 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
             ->middleware(['abilities:reseller:read', 'organization:reseller'])
             ->name('reseller.organization');
 
+        /* Phase 6 portal API — the same building blocks for both organization types. */
+        foreach (['business', 'reseller'] as $portal) {
+            Route::prefix($portal)->name($portal.'.')->middleware(['abilities:'.$portal.':read', 'organization:'.$portal])->group(function () use ($portal): void {
+                Route::get('/orders', [V1\PortalController::class, 'orders'])->name('orders');
+                Route::get('/prices', [V1\PortalController::class, 'prices'])->name('prices');
+                Route::post('/bulk/check', [V1\PortalController::class, 'bulkCheck'])->name('bulk.check');
+                Route::post('/bulk', [V1\PortalController::class, 'bulkAdd'])->middleware(['abilities:'.$portal.':write', 'throttle:checkout'])->name('bulk.store');
+
+                if ($portal === 'business') {
+                    Route::get('/quotations', [V1\PortalController::class, 'quotations'])->name('quotations.index');
+                    Route::get('/quotations/{number}', [V1\PortalController::class, 'quotation'])->name('quotations.show');
+                    Route::post('/quotations', [V1\PortalController::class, 'requestQuotation'])->middleware(['abilities:business:write', 'throttle:quotations'])->name('quotations.store');
+                    Route::post('/quotations/{number}/accept', [V1\PortalController::class, 'acceptQuotation'])->middleware(['abilities:business:write', 'throttle:checkout'])->name('quotations.accept');
+                }
+            });
+        }
+
         Route::prefix('admin')->name('admin.')->middleware(['abilities:admin:read', 'can:'.StaffPermission::AccessAdmin->value])->group(function (): void {
             Route::get('/organizations', [V1\Admin\OrganizationController::class, 'index'])
                 ->middleware('can:'.StaffPermission::ManageCustomers->value)

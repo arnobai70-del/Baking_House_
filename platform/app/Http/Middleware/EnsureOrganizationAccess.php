@@ -19,6 +19,8 @@ class EnsureOrganizationAccess
 {
     public const REQUEST_ATTRIBUTE = 'organization';
 
+    public const ROLE_ATTRIBUTE = 'organization_role';
+
     public const HEADER = 'X-Organization-Id';
 
     /**
@@ -42,7 +44,15 @@ class EnsureOrganizationAccess
             abort(403, "This area is only for approved {$organizationType->label()} members.");
         }
 
+        /* Web: opening a portal makes that organization the account you are buying for, so cart
+           and checkout prices always match the portal you are working in. */
+        if (! $request->hasHeader(self::HEADER) && $request->hasSession()
+            && (int) $request->session()->get(OrganizationContext::SESSION_KEY) !== $organization->id) {
+            $context->switchTo($request->user(), $organization->id);
+        }
+
         $request->attributes->set(self::REQUEST_ATTRIBUTE, $organization);
+        $request->attributes->set(self::ROLE_ATTRIBUTE, $request->user()->roleIn($organization));
 
         return $next($request);
     }

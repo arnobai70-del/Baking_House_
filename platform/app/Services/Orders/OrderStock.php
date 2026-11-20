@@ -92,8 +92,11 @@ class OrderStock
     {
         $needs = [];
         foreach ($order->items()->get() as $item) {
-            if ($item->type === 'bundle') {
+            if (in_array($item->type, ['bundle', 'quotation'], true)) {
                 foreach ($item->components ?? [] as $component) {
+                    if (($component['variant_id'] ?? null) === null) {
+                        continue;
+                    }
                     $needs[$component['variant_id']] = ($needs[$component['variant_id']] ?? 0) + (int) $component['quantity'];
                 }
             } elseif ($item->product_variant_id !== null) {

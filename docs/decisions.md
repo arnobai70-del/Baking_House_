@@ -44,6 +44,13 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-037 | 2026-11-20 | Guest order access via a one-time key (hash stored) plus order-number + phone tracking | Guest privacy |
 | D-038 | 2026-11-20 | Cancelling an order restores promotion usage | Fair usage limits |
 | D-039 | 2026-11-20 | Order transactions start with the stock UPDATE and retry concurrency errors | Found by multi-process checkout test |
+| D-040 | 2026-11-20 | Organization roles: owner / buyer / viewer; viewers cannot order for the organization | Accounts staff need read access without buying rights |
+| D-041 | 2026-11-20 | Accepted quotation = one fixed cart line (quantity and price locked, no coupons), ordered once; cancellation reopens it while valid | "Changing grams after quote" abuse case |
+| D-042 | 2026-11-20 | Quotes do not reserve stock; stock is reserved at checkout and a short line blocks checkout | Never confirm against unavailable stock |
+| D-043 | 2026-11-20 | Team invitations are one-time, email-bound, 7-day links; only the hash is stored | Forwarded links must be useless |
+| D-044 | 2026-11-20 | Opening a portal switches the buying context to that organization | Users in both a business and a reseller org always see matching prices |
+| D-045 | 2026-11-20 | Portal invoices are order invoices, not VAT (Mushak) invoices, until VAT details are provided | No unverified legal documents |
+| D-046 | 2026-11-20 | No credit terms or approval thresholds online in Phase 6 | Needs owner policy decision |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Engineering assumptions for open business inputs

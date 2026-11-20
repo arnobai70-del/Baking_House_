@@ -14,7 +14,7 @@
                 </ul>
                 <div class="row reveal reveal-3">
                     <a class="btn btn-primary" href="{{ route('catalog.shop') }}">{{ __('Shop now') }}</a>
-                    <a class="btn btn-outline" href="{{ route('organizations.apply', 'business') }}">{{ __('Business & bulk buying') }}</a>
+                    <a class="btn btn-outline" href="{{ route('business.landing') }}">{{ __('Business & bulk buying') }}</a>
                 </div>
             </div>
             <div class="reveal reveal-2"><x-photo-placeholder :label="__('Licensed hero photo pending')" class="ph-wide" /></div>

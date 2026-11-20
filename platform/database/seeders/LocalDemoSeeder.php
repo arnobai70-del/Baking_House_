@@ -2,9 +2,11 @@
 
 namespace Database\Seeders;
 
+use App\Enums\OrganizationRole;
 use App\Models\Organization;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Quotations\QuotationService;
 use Illuminate\Database\Seeder;
 
 /**
@@ -26,7 +28,17 @@ class LocalDemoSeeder extends Seeder
         User::factory()->create(['name' => 'Demo Retail Customer', 'email' => 'retail@example.test', 'phone' => '01700000003']);
 
         $businessOwner = User::factory()->create(['name' => 'Demo Restaurant Owner', 'email' => 'business@example.test', 'phone' => '01700000004']);
-        Organization::factory()->business()->approved()->withMember($businessOwner)->create(['name' => 'Demo Restaurant Ltd.']);
+        $restaurant = Organization::factory()->business()->approved()->withMember($businessOwner)->create(['name' => 'Demo Restaurant Ltd.']);
+        $viewer = User::factory()->create(['name' => 'Demo Accounts (view only)', 'email' => 'accounts@example.test', 'phone' => '01700000007']);
+        $restaurant->members()->attach($viewer->id, ['role' => OrganizationRole::Viewer->value]);
+        $restaurant->addresses()->forceCreate([
+            'label' => 'Main kitchen (demo)', 'recipient_name' => 'Demo Restaurant Owner', 'phone' => '01700000004',
+            'line' => 'House 1, Road 1 (demo)', 'area' => 'Gulshan', 'district' => 'Dhaka', 'is_default' => true,
+        ]);
+        app(QuotationService::class)->request([
+            'contact_name' => 'Demo Restaurant Owner', 'contact_phone' => '01700000004', 'contact_email' => 'business@example.test',
+            'request_text' => "Deck oven 2-deck x 1\nTakeaway boxes x 10 cartons (demo request)", 'customer_note' => null,
+        ], $businessOwner, $restaurant);
 
         $reseller = User::factory()->create(['name' => 'Demo Reseller', 'email' => 'reseller@example.test', 'phone' => '01700000005']);
         Organization::factory()->reseller()->approved()->withMember($reseller)->create(['name' => 'Demo Supplies']);

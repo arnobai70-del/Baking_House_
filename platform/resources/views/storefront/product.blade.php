@@ -145,8 +145,10 @@
             <details class="card" id="quote" style="margin-top:16px" @if ($product->isQuoteOnly()) open @endif>
                 <summary class="card-pad" style="cursor:pointer;font-weight:700;color:var(--bh-navy)"><x-icon name="quote" /> {{ __('Request a quote for :name', ['name' => $product->localized('name')]) }}</summary>
                 <div class="card-pad" style="padding-top:0">
-                    <p class="muted small">Quotations are handled by our sales team (business portal, Phase 6). Until then, business buyers can
-                        <a href="{{ route('organizations.apply', 'business') }}">apply for a business account</a>.</p>
+                    @include('storefront.partials.rfq-form', [
+                        'prefill' => ['name' => auth()->user()?->name, 'phone' => auth()->user()?->phone, 'email' => auth()->user()?->email],
+                        'requestText' => $product->name.' ('.$first->sku.') × ',
+                    ])
                 </div>
             </details>
         </section>

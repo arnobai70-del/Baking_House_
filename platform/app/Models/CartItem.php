@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * A variant (quantity in grams or units) or a bundle (quantity in bundles). One row per
- * variant / bundle per cart, so volume tiers always see the total.
+ * A variant (quantity in grams or units), a bundle (quantity in bundles) or an accepted quotation
+ * (always quantity 1; its lines are fixed by the quote). One row per variant / bundle / quotation
+ * per cart, so volume tiers always see the total.
  */
-#[Fillable(['product_variant_id', 'bundle_id', 'quantity'])]
+#[Fillable(['product_variant_id', 'bundle_id', 'quotation_id', 'quantity'])]
 class CartItem extends Model
 {
     /**
@@ -43,5 +44,13 @@ class CartItem extends Model
     public function bundle(): BelongsTo
     {
         return $this->belongsTo(Bundle::class);
+    }
+
+    /**
+     * @return BelongsTo<Quotation, $this>
+     */
+    public function quotation(): BelongsTo
+    {
+        return $this->belongsTo(Quotation::class);
     }
 }

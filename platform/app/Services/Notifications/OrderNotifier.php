@@ -58,6 +58,23 @@ class OrderNotifier
         return strlen($value) > 5 ? substr($value, 0, 3).str_repeat('*', strlen($value) - 5).substr($value, -2) : '***';
     }
 
+    /**
+     * A customer message that is not about an order (quotations, team invitations). Same
+     * providers, same masked log, and a failure never breaks the caller.
+     */
+    public function direct(string $template, ?string $phone, ?string $email, string $subject, string $message): void
+    {
+        if (config('commerce.notifications.sms_enabled') && $phone !== null && $phone !== '') {
+            $this->attempt(null, 'sms', $this->sms->name(), $template, $phone, fn () => $this->sms->send($phone, $message));
+        }
+
+        if (config('commerce.notifications.email_enabled') && $email !== null && $email !== '') {
+            $this->attempt(null, 'email', (string) config('mail.default'), $template, $email, fn () => Mail::raw($message, function ($mail) use ($email, $subject): void {
+                $mail->to($email)->subject($subject);
+            }));
+        }
+    }
+
     private function send(Order $order, string $template, string $message): void
     {
         if (config('commerce.notifications.sms_enabled')) {
@@ -71,7 +88,7 @@ class OrderNotifier
         }
     }
 
-    private function attempt(Order $order, string $channel, string $driver, string $template, string $recipient, callable $send): void
+    private function attempt(?Order $order, string $channel, string $driver, string $template, string $recipient, callable $send): void
     {
         $status = 'sent';
         $error = null;
@@ -81,11 +98,11 @@ class OrderNotifier
         } catch (Throwable $e) {
             $status = 'failed';
             $error = substr($e->getMessage(), 0, 500);
-            Log::warning("Order notification failed ({$channel}/{$template}) for {$order->number}: {$error}");
+            Log::warning("Notification failed ({$channel}/{$template})".($order === null ? '' : " for {$order->number}").": {$error}");
         }
 
         NotificationLog::query()->forceCreate([
-            'order_id' => $order->id,
+            'order_id' => $order?->id,
             'channel' => $channel,
             'driver' => $driver,
             'template' => $template,

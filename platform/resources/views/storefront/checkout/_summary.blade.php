@@ -2,7 +2,7 @@
 <aside class="card summary" aria-label="{{ __('Order summary') }}">
     <h2 style="font-size:var(--bh-fs-lg)">{{ __('Order summary') }}</h2>
     @foreach ($summary['quote']['lines'] as $line)
-        <div class="sum-row"><span>{{ $line['name'] ?? $line['sku'] ?? $line['slug'] }} <span class="muted">{{ $line['type'] === 'bundle' ? '× '.$line['quantity'] : ($line['quantity_label'] ?? '') }}</span></span>
+        <div class="sum-row"><span>{{ $line['name'] ?? $line['sku'] ?? $line['slug'] }} <span class="muted">{{ $line['type'] === 'item' ? ($line['quantity_label'] ?? '') : '× '.$line['quantity'] }}</span></span>
             <span class="tnum">{{ $line['ok'] ? Taka::format($line['line_paisa']) : '—' }}</span></div>
     @endforeach
     <div class="sum-row" style="border-top:1px solid var(--bh-border);margin-top:6px;padding-top:10px"><span>{{ __('Subtotal') }}</span><span class="tnum">{{ Taka::format($summary['quote']['subtotal_paisa']) }}</span></div>

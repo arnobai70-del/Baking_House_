@@ -128,11 +128,19 @@ class StorefrontPricingAndLanguageTest extends TestCase
     public function test_every_storefront_string_has_a_bangla_translation(): void
     {
         $translations = json_decode((string) file_get_contents(lang_path('bn.json')), true, flags: JSON_THROW_ON_ERROR);
+        /* Every customer-facing view (storefront, checkout, orders, business & reseller portals) and
+           the customer messages raised by portal / quotation code. Admin screens stay English. */
         $files = array_merge(
             glob(resource_path('views/storefront/*.blade.php')),
-            glob(resource_path('views/storefront/bundles/*.blade.php')),
+            glob(resource_path('views/storefront/*/*.blade.php')),
+            glob(resource_path('views/portal/*.blade.php')),
+            glob(resource_path('views/portal/*/*.blade.php')),
             glob(resource_path('views/components/*.blade.php')),
             [resource_path('views/layouts/app.blade.php')],
+            glob(app_path('Services/Quotations/*.php')),
+            glob(app_path('Services/Portal/*.php')),
+            glob(app_path('Http/Controllers/Portal/*.php')),
+            [app_path('Http/Controllers/Storefront/QuotationRequestController.php'), app_path('Http/Controllers/InvitationController.php'), app_path('Support/QuantityInput.php')],
         );
 
         $missing = [];

@@ -10,7 +10,7 @@ Each phase: code review, tests, role checks, mobile review, docs, accessibility,
 | 3 | CMS, catalog, SEO foundation | 🟡 built — awaiting owner review, real photos and catalog data |
 | 4 | Pricing, weight engine, promotions, stock | 🟡 built — awaiting owner review |
 | 5 | Retail checkout & operations (MVP gate) | 🟡 built — test-mode payments, awaiting owner review |
-| 6 | Business & reseller portals | ⬜ |
+| 6 | Business & reseller portals | 🟡 built: awaiting owner review |
 | 7 | CRM, advanced admin, analytics | ⬜ |
 | 8 | Animation polish, SEO, performance | ⬜ |
 | 9 | Optional AI & marketplace expansion | ⬜ |
@@ -138,3 +138,22 @@ TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into 
 - **Real payment providers:** bKash, Nagad and card merchant agreements, official API documentation, sandbox credentials, then live adapters.
 - SMS provider contract; courier rates and zones; bank account details; COD limit; policies (refund, delivery, terms).
 - Native Bangla review of the checkout and order text.
+
+## Phase 6 — built (platform/)
+- **Separate portals** `/business/*` and `/reseller/*` on the same building blocks. The organization always comes from an approved membership of THAT type (`EnsureOrganizationAccess`), never from input; records addressed by URL are checked against it (404 otherwise). Opening a portal makes that organization the buying context.
+- **Team roles:** owner (everything, team), buyer (order, bulk, quotations, addresses), viewer (read-only: orders, prices, invoices, statements). Viewers cannot place organization orders (enforced in checkout, web and API). Invitations are one-time, email-bound, 7-day links (hash stored); at least one owner always remains; removal takes effect immediately.
+- **Orders:** every member sees the organization's orders; reorder adds lines at today's prices; printable invoice (order invoice, not a VAT/Mushak invoice until VAT details exist).
+- **Bulk order:** paste `SKU, quantity` or upload CSV (max 200 lines); each line validated on the server with the buyer's prices, weight rules and stock; rejected lines are reported, never adjusted; duplicate SKUs merged for tiers.
+- **Price list / rate card:** only the organization's contract lists and its own audience's tiers (business vs reseller), with CSV export (reseller catalog tool).
+- **RFQ / quotations (business):** one request endpoint (product page, `/business`, portal); public requests are sales leads. Staff issue fixed lines (quantity + price, custom lines allowed) with a validity date; owner/buyer accepts → one cart line at exactly the quoted total (no coupons, quantity locked) → normal checkout; ordered exactly once (conditional UPDATE); cancelling the order reopens a still-valid quote; `quotations:expire` hourly.
+- **Saved delivery addresses** per organization, pre-filling checkout. **Monthly statements** (charged / paid / refunded / balance) with CSV export (formula-injection guarded).
+- **Admin:** `/admin/quotations` (new `quotations.manage` permission), `/admin/organizations` directory (members, invitations, addresses, contract lists, orders, quotations).
+- **API:** `/api/v1/{business|reseller}/orders`, `/prices`, `/bulk/check`, `/bulk` (write), `/api/v1/business/quotations[/{number}[/accept]]`; `{type}:read` / `{type}:write` abilities plus member role.
+- **Public pages:** `/business`, `/reseller` landing pages (licensed photo placeholders only), in sitemap.
+- Bangla for all customer-facing portal text (coverage test now scans every storefront, checkout, order and portal view).
+
+## Phase 6 remaining (gate)
+- Owner review of the portal workflows, quotation terms and invoice wording.
+- Legal / VAT details for invoices (BIN, address); credit terms and buyer approval limits (not built; decision needed).
+- Sales process owner for RFQ leads; notification provider for quote and invitation messages (log driver until contracted).
+- Native Bangla review of portal text.
