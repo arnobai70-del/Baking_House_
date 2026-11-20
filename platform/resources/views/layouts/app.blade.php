@@ -4,6 +4,7 @@
         $seo = (new \App\Support\Seo(title: $title ?? config('seo.site_name')))->noindex();
     }
     $navigation = \App\Models\Category::navigation();
+    $cartCount = app(\App\Services\Cart\CartService::class)->itemCount(app(\App\Services\Cart\CartService::class)->forRequest(request()));
 @endphp
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -58,6 +59,7 @@
                     @endforeach
                 </form>
             @endif
+            <a href="{{ route('orders.track') }}">{{ __('Track order') }}</a>
             <a href="{{ route('organizations.apply', 'reseller') }}">{{ __('Become a reseller') }}</a>
             <a href="{{ route('organizations.apply', 'business') }}">{{ __('For business (bulk / wholesale)') }}</a>
         </div>
@@ -95,7 +97,7 @@
                     <a class="icon-btn" href="{{ route('login') }}" aria-label="Login or register"><x-icon name="user" /></a>
                     <span class="label"><a href="{{ route('login') }}">{{ __('Login') }}</a> /<br><a href="{{ route('register') }}">{{ __('Register') }}</a></span>
                 @endauth
-                <span class="icon-btn" aria-label="Cart (opens in Phase 5)" title="Cart opens in Phase 5"><x-icon name="cart" /></span>
+                <a class="icon-btn" href="{{ route('cart.show') }}" aria-label="{{ __('Cart') }} ({{ $cartCount }})"><x-icon name="cart" />@if ($cartCount > 0)<span class="badge-count" data-n="{{ $cartCount }}">{{ $cartCount }}</span>@endif</a>
             </nav>
         </div></header>
 
@@ -186,7 +188,7 @@
     <nav class="mobile-tabbar" aria-label="Quick navigation">
         <a href="{{ route('home') }}" @if (request()->routeIs('home')) aria-current="page" @endif><x-icon name="home" />{{ __('Home') }}</a>
         <a href="{{ route('catalog.shop') }}" @if (request()->routeIs('catalog.*')) aria-current="page" @endif><x-icon name="grid" />{{ __('Shop') }}</a>
-        <a href="{{ route('catalog.search') }}"><x-icon name="search" />{{ __('Search') }}</a>
+        <a href="{{ route('cart.show') }}" @if (request()->routeIs('cart.*', 'checkout.*')) aria-current="page" @endif><x-icon name="cart" />{{ __('Cart') }}</a>
         <a href="{{ route('account') }}" @if (request()->routeIs('account')) aria-current="page" @endif><x-icon name="user" />{{ __('Account') }}</a>
     </nav>
 </body>

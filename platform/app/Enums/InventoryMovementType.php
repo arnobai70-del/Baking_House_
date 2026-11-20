@@ -14,6 +14,7 @@ enum InventoryMovementType: string
     case Damage = 'damage';
     case Sale = 'sale';
     case Return = 'return';
+    case Restock = 'restock';
 
     public function label(): string
     {
@@ -25,6 +26,7 @@ enum InventoryMovementType: string
             self::Damage => 'Damaged / expired',
             self::Sale => 'Sold (order committed)',
             self::Return => 'Customer return',
+            self::Restock => 'Order cancelled — restocked',
         };
     }
 

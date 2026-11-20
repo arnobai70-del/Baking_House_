@@ -8,3 +8,4 @@ use Illuminate\Support\Facades\Schedule;
 Schedule::command('pricing:apply-scheduled')->everyMinute()->withoutOverlapping();
 Schedule::command('inventory:release-expired')->everyMinute()->withoutOverlapping();
 Schedule::command('inventory:verify')->dailyAt('02:00')->timezone('Asia/Dhaka');
+Schedule::command('orders:expire-unpaid')->everyFiveMinutes()->withoutOverlapping();

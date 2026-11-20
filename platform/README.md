@@ -37,11 +37,17 @@ Local demo logins (local environment only, password `password`):
 | Inventory (Phase 4) | `App\Services\Inventory\InventoryService` (only writer of stock), `/admin/inventory` |
 | Promotions & bundles | `PromotionEngine`, `BundlePricer`, `/admin/promotions`, `/admin/bundles`, `/combos` |
 | Languages | `Setting`, `SetStorefrontLocale`, `lang/bn.json`, `/admin/settings/storefront` |
+| Cart & checkout (Phase 5) | `CartService`, `CheckoutService`, `OrderPlacer`, `/cart`, `/checkout`, `/orders/{number}` |
+| Payments (test mode) | `PaymentService`, `TestPaymentGateway`, `/payments/test/*`, `POST /api/v1/webhooks/payments/{provider}` |
+| Order management | `OrderService`, `OrderStock`, `/admin/orders`, `/admin/zones`, `/admin/orders/reconciliation` |
+| Notifications | `OrderNotifier`, `SmsGateway` (log driver), `notification_logs` |
 
 The storefront uses the approved design system from the prototype (`public/css/tokens.css`, `app.css`) plus `storefront.css`.
 `public/js/weight-pricing.js` must stay identical to `prototype/assets/js/weight-pricing.js`, which a test enforces.
 
-Scheduled jobs: run `php artisan schedule:work` locally (applies scheduled prices, releases expired reservations, nightly ledger check).
+Scheduled jobs: run `php artisan schedule:work` locally (applies scheduled prices, releases expired reservations, cancels stale unpaid orders, nightly ledger check).
+
+Payments run in **test mode only**: bKash / Nagad / card use a simulated hosted page and signed callbacks. No real money moves.
 
 Staff accounts must enroll in two-step verification (authenticator app) at first sign-in.
 

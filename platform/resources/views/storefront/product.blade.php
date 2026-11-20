@@ -45,7 +45,10 @@
             @if ($variants->isEmpty())
                 <div class="alert alert-info"><x-icon name="info" /><span>{{ __('This product is not available to order right now.') }}</span></div>
             @else
-                <div id="buy-box" data-product='@json($buyerPayload)'>
+                <form id="buy-box" method="POST" action="{{ route('cart.items.store') }}" data-product='@json($buyerPayload)' novalidate>
+                    @csrf
+                    @if ($variants->count() === 1)<input type="hidden" name="variant" value="{{ $first->id }}">@endif
+                    @error('quantity')<div class="alert alert-error" role="alert" style="margin-bottom:10px"><x-icon name="alert" /><span>{{ $message }}</span></div>@enderror
                     @if ($variants->count() > 1)
                         <fieldset class="variant-picker">
                             <legend class="small" style="font-weight:600;color:var(--bh-navy)">{{ __('Choose an option') }}</legend>
@@ -104,9 +107,9 @@
                         <div>
                             <label class="small" for="custom-qty" style="font-weight:600;color:var(--bh-navy)">{{ __('Or set a custom quantity') }}</label>
                             <div class="custom-qty" style="margin-top:6px">
-                                <input class="input tnum" id="custom-qty" inputmode="decimal" placeholder="e.g. 1250" aria-describedby="qty-hint qty-error">
+                                <input class="input tnum" id="custom-qty" name="weight_quantity" inputmode="decimal" placeholder="e.g. 1250" aria-describedby="qty-hint qty-error" value="{{ old('weight_quantity') }}">
                                 <label class="sr-only" for="qty-unit">Unit</label>
-                                <select class="input" id="qty-unit"><option value="g">g</option><option value="kg">kg</option></select>
+                                <select class="input" id="qty-unit" name="unit"><option value="g">g</option><option value="kg">kg</option></select>
                             </div>
                             <p class="hint" id="qty-hint"></p>
                             <div id="qty-error" aria-live="polite"></div>
@@ -122,7 +125,7 @@
                         <div class="row">
                             <div class="stepper" role="group" aria-label="Quantity">
                                 <button type="button" data-step="-1" aria-label="Decrease quantity"><x-icon name="minus" /></button>
-                                <input id="fixed-qty" class="tnum" value="1" inputmode="numeric" aria-label="Quantity">
+                                <input id="fixed-qty" name="unit_quantity" class="tnum" value="{{ $first->minimumQuantity() }}" inputmode="numeric" aria-label="{{ __('Quantity') }}">
                                 <button type="button" data-step="1" aria-label="Increase quantity"><x-icon name="plus" /></button>
                             </div>
                             <div class="muted small" aria-live="polite">{{ __('Total') }}: <strong class="tnum" id="fixed-total">—</strong></div>
@@ -131,11 +134,12 @@
                     </div>
 
                     <div class="row" style="margin-top:14px" id="buy-actions" @if ($first->pricing_mode === PricingMode::QuoteOnly) hidden @endif>
-                        <button class="btn btn-primary" style="flex:1" disabled title="Cart and checkout open in Phase 5"><x-icon name="cart" /> {{ __('Add to cart') }}</button>
+                        <button class="btn btn-primary" style="flex:1" type="submit"><x-icon name="cart" /> {{ __('Add to cart') }}</button>
+                        <button class="btn btn-navy" type="submit" name="buy_now" value="1">{{ __('Buy now') }}</button>
                         <a class="btn btn-outline" href="#quote"><x-icon name="quote" /> {{ __('Bulk quote') }}</a>
                     </div>
-                    <p class="hint">{{ __('Cart and checkout open in Phase 5. Prices shown are previews; the server recalculates price and stock at checkout.') }}</p>
-                </div>
+                    <p class="hint">{{ __('Prices shown are previews; the server recalculates price and stock at checkout.') }}</p>
+                </form>
             @endif
 
             <details class="card" id="quote" style="margin-top:16px" @if ($product->isQuoteOnly()) open @endif>

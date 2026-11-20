@@ -57,7 +57,7 @@ class InventoryService
             }
 
             return $this->writeMovement($variantId, $type, $delta, $reason, $reference, $actor);
-        });
+        }, 5);
 
         $this->afterStockChange($variantId);
 
@@ -149,7 +149,7 @@ class InventoryService
             }
 
             return $created;
-        });
+        }, 5);
 
         foreach ($reservations as $reservation) {
             $this->afterStockChange($reservation->product_variant_id);
