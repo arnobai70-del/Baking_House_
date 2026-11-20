@@ -83,3 +83,31 @@
   .invoice { box-shadow: none; border: 0; }
   .no-print { display: none !important; }
 }
+
+/* Phase 7: media review, CRM timeline, reports */
+:root { --bh-chart-1: #00909E; /* brand teal stepped to pass the data-viz chroma check on white (validated) */ }
+.media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; padding: 16px; }
+.media-card { overflow: hidden; }
+.media-card img { display: block; width: 100%; height: 220px; object-fit: contain; background: var(--bh-bg); border-bottom: 1px solid var(--bh-border); }
+.crm-timeline { list-style: none; margin: 0; padding: 0 16px 16px; }
+.crm-timeline li { border-left: 2px solid var(--bh-border); padding: 6px 0 10px 14px; position: relative; }
+.crm-timeline li::before { content: ""; position: absolute; left: -5px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--bh-teal); }
+.crm-timeline li.crm-system::before { background: var(--bh-muted); }
+.report-h { font-size: var(--bh-fs-lg); margin: 4px 0 10px; }
+.report-kpis { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.kpi-hero { border: 2px solid var(--bh-teal); }
+.hbar { display: block; height: 8px; width: var(--w, 0%); min-width: 2px; background: var(--bh-chart-1); border-radius: 0 4px 4px 0; }
+.chart-wrap { position: relative; }
+.bar-chart { width: 100%; height: auto; display: block; overflow: visible; }
+.bar-chart .grid { stroke: var(--bh-border); stroke-width: 1; }
+.bar-chart .axis { stroke: var(--bh-muted); stroke-width: 1; }
+.bar-chart .mark { fill: var(--bh-chart-1); }
+.bar-chart .hit { fill: transparent; }
+.bar-chart .bar:hover .hit, .bar-chart .bar:focus .hit { fill: rgba(16, 59, 86, 0.06); }
+.bar-chart .bar:focus { outline: none; }
+.bar-chart .tick { font-size: 12px; fill: var(--bh-muted); }
+.chart-tip { position: absolute; top: 0; background: var(--bh-navy); color: #fff; font-size: var(--bh-fs-xs); padding: 4px 8px; border-radius: var(--bh-radius-sm); pointer-events: none; white-space: nowrap; }
+@media (forced-colors: active) { .hbar, .bar-chart .mark { background: CanvasText; fill: CanvasText; } }
+.product-photo img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; background: #fff; border-radius: var(--bh-radius-sm); }
+.gallery-thumbs { list-style: none; padding: 0; margin: 10px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; }
+.gallery-thumbs a { display: block; border: 1px solid var(--bh-border); border-radius: var(--bh-radius-sm); overflow: hidden; }

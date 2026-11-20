@@ -142,6 +142,44 @@ Route::middleware('auth')->group(function (): void {
             Route::get('/organizations/{organization}', [Admin\OrganizationController::class, 'show'])->name('organizations.show');
         });
 
+        /* Phase 7 — real-image workflow */
+        Route::middleware('can:'.StaffPermission::ManageMedia->value)->group(function (): void {
+            Route::get('/products/{product}/images', [Admin\MediaController::class, 'product'])->name('media.product');
+            Route::post('/products/{product}/images', [Admin\MediaController::class, 'store'])->middleware('throttle:media-uploads')->name('media.store');
+            Route::put('/media/{image}', [Admin\MediaController::class, 'update'])->name('media.update');
+            Route::post('/media/{image}/move', [Admin\MediaController::class, 'move'])->name('media.move');
+            Route::post('/media/{image}/primary', [Admin\MediaController::class, 'primary'])->name('media.primary');
+            Route::delete('/media/{image}', [Admin\MediaController::class, 'destroy'])->name('media.destroy');
+        });
+        Route::middleware('can:'.StaffPermission::ApproveMedia->value)->group(function (): void {
+            Route::get('/media', [Admin\MediaController::class, 'queue'])->name('media.queue');
+            Route::post('/media/{image}/approve', [Admin\MediaController::class, 'approve'])->name('media.approve');
+            Route::post('/media/{image}/reject', [Admin\MediaController::class, 'reject'])->name('media.reject');
+            Route::post('/media/{image}/withdraw', [Admin\MediaController::class, 'withdraw'])->name('media.withdraw');
+        });
+        Route::get('/media/{image}/preview', [Admin\MediaController::class, 'preview'])->name('media.preview');
+
+        /* Phase 7 — CRM */
+        Route::middleware('can:'.StaffPermission::AccessCrm->value)->prefix('crm')->name('crm.')->group(function (): void {
+            Route::get('/', [Admin\CrmController::class, 'dashboard'])->name('dashboard');
+            Route::get('/leads', [Admin\CrmController::class, 'index'])->name('leads.index');
+            Route::post('/leads', [Admin\CrmController::class, 'store'])->name('leads.store');
+            Route::get('/leads/{lead}', [Admin\CrmController::class, 'show'])->name('leads.show');
+            Route::post('/leads/{lead}/assign', [Admin\CrmController::class, 'assign'])->name('leads.assign');
+            Route::post('/leads/{lead}/stage', [Admin\CrmController::class, 'stage'])->name('leads.stage');
+            Route::get('/customers', [Admin\CrmCustomerController::class, 'segments'])->name('customers.index');
+            Route::get('/customers/{user}', [Admin\CrmCustomerController::class, 'customer'])->name('customers.show');
+            Route::get('/organizations/{organization}', [Admin\CrmCustomerController::class, 'organization'])->name('organizations.show');
+            Route::get('/tasks', [Admin\CrmCustomerController::class, 'tasks'])->name('tasks.index');
+            Route::post('/tasks/{task}/complete', [Admin\CrmCustomerController::class, 'completeTask'])->name('tasks.complete');
+            Route::post('/{type}/{id}/activities', [Admin\CrmCustomerController::class, 'logActivity'])->whereIn('type', ['lead', 'customer', 'organization'])->whereNumber('id')->name('activities.store');
+            Route::post('/{type}/{id}/tasks', [Admin\CrmCustomerController::class, 'addTask'])->whereIn('type', ['lead', 'customer', 'organization'])->whereNumber('id')->name('tasks.store');
+            Route::post('/{type}/{id}/tags', [Admin\CrmCustomerController::class, 'tag'])->whereIn('type', ['lead', 'customer', 'organization'])->whereNumber('id')->name('tags.store');
+        });
+
+        /* Phase 7 — analytics & reports */
+        Route::get('/reports/{section?}', Admin\ReportController::class)->middleware('can:'.StaffPermission::ViewReports->value)->name('reports');
+
         Route::middleware('can:'.StaffPermission::ManageQuotations->value)->group(function (): void {
             Route::get('/quotations', [Admin\QuotationController::class, 'index'])->name('quotations.index');
             Route::get('/quotations/{quotation}', [Admin\QuotationController::class, 'show'])->name('quotations.show');

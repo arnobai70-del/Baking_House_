@@ -14,6 +14,7 @@ use App\Models\PromotionRedemption;
 use App\Models\Quotation;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\Crm\CrmService;
 use App\Services\Notifications\OrderNotifier;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -199,6 +200,7 @@ class OrderService
             $status = $quotation->valid_until?->isFuture() ? QuotationStatus::Accepted : QuotationStatus::Expired;
             $quotation->forceFill(['status' => $status, 'order_id' => null])->save();
             $this->audit->record('quotation.reopened', $quotation, ['order' => $order->number], ['status' => $status->value]);
+            app(CrmService::class)->quotationChanged($quotation, $status === QuotationStatus::Accepted ? 'reopened' : 'expired');
         }
     }
 

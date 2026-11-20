@@ -43,6 +43,9 @@ Local demo logins (local environment only, password `password`):
 | Notifications | `OrderNotifier`, `SmsGateway` (log driver), `notification_logs` |
 | Business & reseller portals (Phase 6) | `Portal\*Controller`, `/business/*`, `/reseller/*`, `TeamService`, `BulkOrderService`, `RateCard`, `StatementService` |
 | Quotations (RFQ) | `QuotationService`, `QuotationPricer`, `POST /quotations`, `/admin/quotations`, `quotations:expire` |
+| Real-image workflow (Phase 7) | `ProductImageService`, `/admin/products/{id}/images`, `/admin/media`, `media:withdraw-expired`, `config/media.php` |
+| CRM (Phase 7) | `CrmService`, `/admin/crm/*`, `crm:send-reminders` |
+| Reports (Phase 7) | `ReportService`, `/admin/reports/{section}` (+ `?format=csv`) |
 
 The storefront uses the approved design system from the prototype (`public/css/tokens.css`, `app.css`) plus `storefront.css`.
 `public/js/weight-pricing.js` must stay identical to `prototype/assets/js/weight-pricing.js`, which a test enforces.

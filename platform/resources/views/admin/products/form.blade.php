@@ -25,6 +25,9 @@
     <div class="admin-top">
         <h1>{{ $product->exists ? 'Edit: '.$product->name : 'New product' }}</h1>
         <span class="spacer"></span>
+        @if ($product->exists)
+            @can('media.manage')<a class="btn btn-outline btn-sm" href="{{ route('admin.media.product', $product) }}"><x-icon name="photo" /> Photos</a>@endcan
+        @endif
         @if ($product->exists && $product->status === \App\Enums\ProductStatus::Active)
             <a class="btn btn-ghost btn-sm" href="{{ $product->url() }}" target="_blank" rel="noopener">View on store ↗</a>
         @endif

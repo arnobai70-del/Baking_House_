@@ -20,6 +20,7 @@ use App\Services\AuditLogger;
 use App\Services\Cart\CartService;
 use App\Services\Checkout\CheckoutDetails;
 use App\Services\Checkout\CheckoutService;
+use App\Services\Crm\CrmService;
 use App\Services\Inventory\InventoryService;
 use App\Services\Notifications\OrderNotifier;
 use App\Services\Pricing\PricingContext;
@@ -53,6 +54,7 @@ class OrderPlacer
         private PromotionEngine $promotions,
         private AuditLogger $audit,
         private OrderNotifier $notifier,
+        private CrmService $crm,
     ) {}
 
     /**
@@ -179,7 +181,9 @@ class OrderPlacer
                 if ($claimed !== 1) {
                     throw new RuntimeException('quotation already ordered');
                 }
-                $this->audit->record('quotation.ordered', Quotation::query()->findOrFail($line['quotation_id']), after: ['order' => $number], actorId: $user?->id);
+                $ordered = Quotation::query()->findOrFail($line['quotation_id']);
+                $this->audit->record('quotation.ordered', $ordered, after: ['order' => $number], actorId: $user?->id);
+                $this->crm->quotationChanged($ordered, 'ordered');
             }
         }
 

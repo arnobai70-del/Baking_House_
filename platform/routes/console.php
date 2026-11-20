@@ -10,3 +10,5 @@ Schedule::command('inventory:release-expired')->everyMinute()->withoutOverlappin
 Schedule::command('inventory:verify')->dailyAt('02:00')->timezone('Asia/Dhaka');
 Schedule::command('orders:expire-unpaid')->everyFiveMinutes()->withoutOverlapping();
 Schedule::command('quotations:expire')->hourly()->withoutOverlapping();
+Schedule::command('media:withdraw-expired')->dailyAt('01:00')->timezone('Asia/Dhaka');
+Schedule::command('crm:send-reminders')->everyFifteenMinutes()->withoutOverlapping();

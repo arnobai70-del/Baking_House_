@@ -21,6 +21,9 @@ enum StaffPermission: string
     case ManageCms = 'cms.manage';
     case ManageMedia = 'media.manage';
     case ApproveMedia = 'media.approve';
+    case AccessCrm = 'crm.access';
+    case ViewReports = 'reports.view';
+    case ViewFinancialReports = 'reports.financial';
     case ViewAuditLog = 'audit.view';
     case ManageRoles = 'roles.manage';
     case ManageIntegrations = 'integrations.manage';

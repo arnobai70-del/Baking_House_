@@ -7,6 +7,7 @@ use App\Enums\OrganizationType;
 use App\Http\Requests\OrganizationApplicationRequest;
 use App\Models\Organization;
 use App\Services\AuditLogger;
+use App\Services\Crm\CrmService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -28,6 +29,7 @@ class OrganizationApplicationController extends Controller
             $organization->members()->attach($request->user(), ['role' => OrganizationRole::Owner->value]);
 
             $audit->record('organization.applied', $organization, after: $organization->only(['type', 'name', 'status']));
+            app(CrmService::class)->captureApplication($organization, $request->user());
 
             return $organization;
         });

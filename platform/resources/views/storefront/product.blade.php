@@ -23,11 +23,18 @@
         <section aria-label="Product photos">
             <div class="gallery-main">
                 @if ($images->isNotEmpty())
-                    <img src="{{ $images->first()->url() }}" alt="{{ $images->first()->alt_text }}" width="800" height="800" style="aspect-ratio:1;object-fit:cover;border-radius:var(--bh-radius-sm)">
+                    <x-product-photo :image="$images->first()" sizes="(max-width: 960px) 100vw, 560px" :width="1200" eager />
                 @else
                     <x-photo-placeholder :icon="$icon" :label="__('Real product photo pending')" />
                 @endif
             </div>
+            @if ($images->count() > 1)
+                <ul class="gallery-thumbs" aria-label="{{ __('More photos') }}">
+                    @foreach ($images->skip(1) as $image)
+                        <li><a href="{{ $image->url() }}" target="_blank" rel="noopener"><x-product-photo :image="$image" sizes="120px" :width="400" /></a></li>
+                    @endforeach
+                </ul>
+            @endif
             @if ($images->isEmpty())
                 <p class="hint" style="margin-top:8px"><x-icon name="info" /> {{ __('Approved photography of this exact SKU will replace the placeholder (real-images-only policy).') }}</p>
             @endif

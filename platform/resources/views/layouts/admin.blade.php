@@ -11,6 +11,19 @@
                 <a href="{{ route('admin.orders.reconciliation') }}" @if (request()->routeIs('admin.orders.reconciliation')) aria-current="page" @endif><x-icon name="card" /> Payment reconciliation</a>
                 <a href="{{ route('admin.zones.index') }}" @if (request()->routeIs('admin.zones.*')) aria-current="page" @endif><x-icon name="truck" /> Delivery zones</a>
             @endcan
+            @canany(['crm.access', 'reports.view'])
+                <h4>Sales &amp; insight</h4>
+                @can('crm.access')
+                    <a href="{{ route('admin.crm.dashboard') }}" @if (request()->routeIs('admin.crm.*')) aria-current="page" @endif><x-icon name="users" /> CRM</a>
+                @endcan
+                @can('reports.view')
+                    <a href="{{ route('admin.reports') }}" @if (request()->routeIs('admin.reports')) aria-current="page" @endif><x-icon name="chart" /> Reports</a>
+                @endcan
+            @endcanany
+            @can('media.approve')
+                <h4>Photography</h4>
+                <a href="{{ route('admin.media.queue') }}" @if (request()->routeIs('admin.media.queue')) aria-current="page" @endif><x-icon name="photo" /> Photo review</a>
+            @endcan
             @canany(['quotations.manage', 'customers.manage'])
                 <h4>Business &amp; resellers</h4>
                 @can('quotations.manage')

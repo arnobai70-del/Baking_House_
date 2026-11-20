@@ -525,5 +525,6 @@
     "You are ordering for :organization": "আপনি :organization-এর জন্য অর্ডার করছেন",
     "Who can order, see prices and download statements for :organization": ":organization-এর জন্য কে অর্ডার করতে, মূল্য দেখতে ও স্টেটমেন্ট ডাউনলোড করতে পারবে",
     "You have view-only access to :organization: you can see orders, prices and statements but cannot order.": ":organization-এ আপনার শুধু-দেখার অ্যাক্সেস আছে: অর্ডার, মূল্য ও স্টেটমেন্ট দেখতে পারবেন, কিন্তু অর্ডার করতে পারবেন না।",
-    "Worked out on our server for :organization only; the same prices apply in your cart.": "শুধু :organization-এর জন্য আমাদের সার্ভারে হিসাব করা; কার্টেও একই মূল্য প্রযোজ্য।"
+    "Worked out on our server for :organization only; the same prices apply in your cart.": "শুধু :organization-এর জন্য আমাদের সার্ভারে হিসাব করা; কার্টেও একই মূল্য প্রযোজ্য।",
+    "More photos": "আরও ছবি"
 }
