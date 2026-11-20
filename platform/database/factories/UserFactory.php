@@ -61,13 +61,32 @@ class UserFactory extends Factory
         });
     }
 
+    /**
+     * Known TOTP secret for tests only (base32). Never used outside the test suite.
+     */
+    public const TEST_MFA_SECRET = 'JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP';
+
+    /**
+     * Confirmed TOTP enrollment (encrypted secret via the model cast).
+     */
+    public function withMfa(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'mfa_secret' => self::TEST_MFA_SECRET,
+            'mfa_confirmed_at' => now()->subMinute(),
+        ]);
+    }
+
+    /**
+     * Staff states enroll MFA by default; use withRole() for an unenrolled staff member.
+     */
     public function admin(): static
     {
-        return $this->withRole(Role::Admin);
+        return $this->withMfa()->withRole(Role::Admin);
     }
 
     public function superAdmin(): static
     {
-        return $this->withRole(Role::SuperAdmin);
+        return $this->withMfa()->withRole(Role::SuperAdmin);
     }
 }

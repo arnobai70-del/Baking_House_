@@ -38,6 +38,8 @@ class CategoryRequest extends FormRequest
             'slug' => ['required', 'string', 'max:140', Rule::unique('categories', 'slug')->ignore($category?->id)],
             'parent_id' => ['nullable', 'integer', Rule::exists('categories', 'id')->whereNull('parent_id')],
             'summary' => ['nullable', 'string', 'max:255'],
+            'summary_bn' => ['nullable', 'string', 'max:255'],
+            'description_bn' => ['nullable', 'string', 'max:5000'],
             'description' => ['nullable', 'string', 'max:5000'],
             'icon' => ['required', Rule::in(Category::ICONS)],
             'sort_order' => ['integer', 'min:0', 'max:10000'],

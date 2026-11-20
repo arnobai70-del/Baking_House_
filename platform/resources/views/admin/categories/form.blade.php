@@ -30,7 +30,9 @@
                 </select></div>
             <div class="field"><label for="sort_order">Display order</label><input class="input" id="sort_order" name="sort_order" type="number" min="0" value="{{ old('sort_order', $category->sort_order ?? 0) }}"></div>
             <div class="field full"><label for="summary">Short summary (shown on tiles)</label><input class="input" id="summary" name="summary" value="{{ old('summary', $category->summary) }}"></div>
+            <div class="field full"><label for="summary_bn">Short summary (Bangla)</label><input class="input" id="summary_bn" name="summary_bn" lang="bn" value="{{ old('summary_bn', $category->summary_bn) }}"></div>
             <div class="field full"><label for="description">Description (SEO copy on category page)</label><textarea class="input" id="description" name="description" rows="4">{{ old('description', $category->description) }}</textarea></div>
+            <div class="field full"><label for="description_bn">Description (Bangla)</label><textarea class="input" id="description_bn" name="description_bn" lang="bn" rows="3">{{ old('description_bn', $category->description_bn) }}</textarea></div>
             <div class="field"><label for="seo_title">SEO title (optional)</label><input class="input" id="seo_title" name="seo_title" value="{{ old('seo_title', $category->seo_title) }}"></div>
             <div class="field"><label for="seo_description">SEO description (optional)</label><input class="input" id="seo_description" name="seo_description" value="{{ old('seo_description', $category->seo_description) }}"></div>
         </div>

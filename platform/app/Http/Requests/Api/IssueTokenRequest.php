@@ -20,6 +20,7 @@ class IssueTokenRequest extends LoginRequest
             'identifier' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string'],
             'device_name' => ['required', 'string', 'max:100'],
+            'mfa_code' => ['nullable', 'string', 'max:20'],
             'abilities' => ['sometimes', 'array'],
             'abilities.*' => ['string', 'distinct', Rule::enum(ApiAbility::class)],
         ];

@@ -32,8 +32,17 @@ Local demo logins (local environment only, password `password`):
 | Catalog (Phase 3) | `Category`, `Brand`, `Product`, `ProductVariant`, `ProductImage`; `App\Services\Catalog\ProductListing` / `ProductWriter` |
 | Storefront + SEO | `App\Http\Controllers\Storefront\*`, `App\Support\Seo`, `config/seo.php` |
 | Admin catalog | `/admin/products`, `/admin/categories`, `/admin/brands` |
+| Staff MFA | `App\Services\Mfa\*`, `RequireStaffMfa` middleware, `/mfa/*`, `/account/security` |
+| Pricing (Phase 4) | `PriceResolver`, `PricingContextResolver`, `QuoteService`, `POST /api/v1/pricing/quote`, `/admin/price-lists`, `/admin/price-simulator` |
+| Inventory (Phase 4) | `App\Services\Inventory\InventoryService` (only writer of stock), `/admin/inventory` |
+| Promotions & bundles | `PromotionEngine`, `BundlePricer`, `/admin/promotions`, `/admin/bundles`, `/combos` |
+| Languages | `Setting`, `SetStorefrontLocale`, `lang/bn.json`, `/admin/settings/storefront` |
 
 The storefront uses the approved design system from the prototype (`public/css/tokens.css`, `app.css`) plus `storefront.css`.
 `public/js/weight-pricing.js` must stay identical to `prototype/assets/js/weight-pricing.js`, which a test enforces.
+
+Scheduled jobs: run `php artisan schedule:work` locally (applies scheduled prices, releases expired reservations, nightly ledger check).
+
+Staff accounts must enroll in two-step verification (authenticator app) at first sign-in.
 
 Search engines: indexing stays **off** until `SEO_INDEXING_ENABLED=true` is set for the approved launch.

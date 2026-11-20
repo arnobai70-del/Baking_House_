@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\InventoryMovementType;
 use App\Enums\PricingMode;
 use App\Enums\SellingUnit;
 use App\Services\Pricing\WeightRule;
@@ -11,12 +12,13 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * A sellable SKU. stock_quantity is in base units: grams for weight variants, units otherwise.
  */
 #[Fillable([
-    'sku', 'name', 'pricing_mode', 'selling_unit', 'pack_size', 'price_paisa', 'compare_at_paisa', 'per_kg_paisa',
+    'sku', 'name', 'pricing_mode', 'selling_unit', 'pack_size', 'min_order_quantity', 'price_paisa', 'compare_at_paisa', 'per_kg_paisa',
     'min_grams', 'max_grams', 'step_grams', 'preset_grams', 'stock_quantity', 'low_stock_threshold', 'is_active', 'sort_order',
 ])]
 class ProductVariant extends Model
@@ -47,11 +49,27 @@ class ProductVariant extends Model
             'step_grams' => 'integer',
             'pack_size' => 'integer',
             'stock_quantity' => 'integer',
+            'reserved_quantity' => 'integer',
+            'min_order_quantity' => 'integer',
+            'low_stock_alerted_at' => 'datetime',
         ];
     }
 
     protected static function booted(): void
     {
+        /* Initial stock on a new variant is the opening balance of its ledger. Later changes go
+           through App\Services\Inventory\InventoryService only. */
+        static::created(function (ProductVariant $variant): void {
+            if ($variant->stock_quantity > 0) {
+                InventoryMovement::query()->create([
+                    'product_variant_id' => $variant->id,
+                    'type' => InventoryMovementType::Opening,
+                    'quantity' => $variant->stock_quantity,
+                    'balance_after' => $variant->stock_quantity,
+                    'reason' => 'Opening balance',
+                ]);
+            }
+        });
         static::saved(fn (ProductVariant $variant) => Product::query()->find($variant->product_id)?->refreshSummary());
         static::deleted(fn (ProductVariant $variant) => Product::query()->find($variant->product_id)?->refreshSummary());
     }
@@ -62,6 +80,22 @@ class ProductVariant extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    /**
+     * @return HasMany<InventoryMovement, $this>
+     */
+    public function movements(): HasMany
+    {
+        return $this->hasMany(InventoryMovement::class);
+    }
+
+    /**
+     * @return HasMany<StockReservation, $this>
+     */
+    public function reservations(): HasMany
+    {
+        return $this->hasMany(StockReservation::class);
     }
 
     public function isWeight(): bool
@@ -81,20 +115,30 @@ class ProductVariant extends Model
         };
     }
 
+    /**
+     * Sellable now: on hand minus stock held by active reservations.
+     */
+    public function availableQuantity(): int
+    {
+        return max(0, (int) $this->stock_quantity - (int) $this->reserved_quantity);
+    }
+
+    /**
+     * Smallest sellable quantity in base units (grams or units).
+     */
+    public function minimumQuantity(): int
+    {
+        return $this->isWeight() ? max(1, (int) $this->min_grams) : max(1, (int) $this->min_order_quantity);
+    }
+
     public function isInStock(): bool
     {
-        if (! $this->is_active) {
-            return false;
-        }
-
-        return $this->isWeight()
-            ? $this->stock_quantity >= max(1, (int) $this->min_grams)
-            : $this->stock_quantity > 0;
+        return $this->is_active && $this->availableQuantity() >= $this->minimumQuantity();
     }
 
     public function isLowStock(): bool
     {
-        return $this->isInStock() && $this->low_stock_threshold > 0 && $this->stock_quantity <= $this->low_stock_threshold;
+        return $this->isInStock() && $this->low_stock_threshold > 0 && $this->availableQuantity() <= $this->low_stock_threshold;
     }
 
     public function isDiscounted(): bool
@@ -161,9 +205,10 @@ class ProductVariant extends Model
                 'maxGrams' => $this->max_grams,
                 'stepGrams' => $this->step_grams,
                 'presets' => $this->preset_grams ?? [],
-                'stockGrams' => $this->stock_quantity,
+                'stockGrams' => $this->availableQuantity(),
             ] : null,
-            'stock' => $this->isWeight() ? null : $this->stock_quantity,
+            'stock' => $this->isWeight() ? null : $this->availableQuantity(),
+            'minQuantity' => $this->minimumQuantity(),
         ];
     }
 }

@@ -15,7 +15,7 @@
             'price' => Taka::toInput($v->price_paisa), 'compare_at' => Taka::toInput($v->compare_at_paisa), 'per_kg' => Taka::toInput($v->per_kg_paisa),
             'min_grams' => $v->min_grams, 'max_grams' => $v->max_grams, 'step_grams' => $v->step_grams,
             'preset_grams' => implode(', ', $v->preset_grams ?? []), 'stock_quantity' => $v->stock_quantity,
-            'low_stock_threshold' => $v->low_stock_threshold, 'is_active' => $v->is_active,
+            'low_stock_threshold' => $v->low_stock_threshold, 'is_active' => $v->is_active, 'min_order_quantity' => $v->min_order_quantity,
         ])->all() : [];
         $variantRows[] = ['id' => null, 'sku' => '', 'name' => 'Standard', 'pricing_mode' => 'fixed', 'selling_unit' => 'piece', 'is_active' => true, 'stock_quantity' => 0, 'min_grams' => 100, 'max_grams' => 25000, 'step_grams' => 50, 'preset_grams' => '100, 250, 500, 700, 900, 1000'];
     }
@@ -64,7 +64,9 @@
                         @endforeach
                     </select></div>
                 <div class="field full"><label for="short_description">Short description</label><input class="input" id="short_description" name="short_description" value="{{ old('short_description', $product->short_description) }}"></div>
+                <div class="field full"><label for="short_description_bn">Short description (Bangla)</label><input class="input" id="short_description_bn" name="short_description_bn" lang="bn" value="{{ old('short_description_bn', $product->short_description_bn) }}"></div>
                 <div class="field full"><label for="description">Full description</label><textarea class="input" id="description" name="description" rows="4">{{ old('description', $product->description) }}</textarea></div>
+                <div class="field full"><label for="description_bn">Full description (Bangla)</label><textarea class="input" id="description_bn" name="description_bn" lang="bn" rows="3">{{ old('description_bn', $product->description_bn) }}</textarea></div>
                 <div class="field"><label for="specifications_text">Specifications</label><textarea class="input" id="specifications_text" name="specifications_text" rows="4" placeholder="Material: Stainless steel&#10;Capacity: 9 L">{{ $specText }}</textarea><span class="hint">One per line as “Label: value”.</span></div>
                 <div class="field"><label for="search_keywords">Search keywords &amp; synonyms</label><textarea class="input" id="search_keywords" name="search_keywords" rows="4" placeholder="cake mould, mold, কেক মোল্ড">{{ old('search_keywords', $product->search_keywords) }}</textarea><span class="hint">Bangla and alternative spellings help search.</span></div>
             </div>
@@ -128,7 +130,13 @@
                         <div class="field"><label for="v{{ $i }}-presets">Quick-pick grams</label><input class="input tnum" id="v{{ $i }}-presets" name="variants[{{ $i }}][preset_grams]" value="{{ is_array($row['preset_grams'] ?? null) ? implode(', ', $row['preset_grams']) : ($row['preset_grams'] ?? '') }}">
                             @error("variants.$i.preset_grams")<span class="field-error">{{ $message }}</span>@enderror</div>
 
-                        <div class="field"><label for="v{{ $i }}-stock">Stock on hand</label><input class="input tnum" id="v{{ $i }}-stock" name="variants[{{ $i }}][stock_quantity]" type="number" min="0" value="{{ $row['stock_quantity'] ?? 0 }}"><span class="hint">Grams for weight items, units otherwise.</span></div>
+                        @if (! empty($row['id']))
+                            <div class="field"><span class="small" style="font-weight:600;color:var(--bh-navy)">Stock on hand</span><span class="tnum">{{ $row['stock_quantity'] ?? 0 }}</span>
+                                <a class="hint" href="{{ route('admin.inventory.show', $row['id']) }}">Change via stock ledger →</a></div>
+                        @else
+                            <div class="field"><label for="v{{ $i }}-stock">Opening stock</label><input class="input tnum" id="v{{ $i }}-stock" name="variants[{{ $i }}][stock_quantity]" type="number" min="0" value="{{ $row['stock_quantity'] ?? 0 }}"><span class="hint">Grams for weight items, units otherwise. Later changes go through the stock ledger.</span></div>
+                        @endif
+                        <div class="field"><label for="v{{ $i }}-moq">Minimum order (units)</label><input class="input tnum" id="v{{ $i }}-moq" name="variants[{{ $i }}][min_order_quantity]" type="number" min="1" value="{{ $row['min_order_quantity'] ?? 1 }}"><span class="hint">Weight items use min grams.</span></div>
                         <div class="field"><label for="v{{ $i }}-low">Low-stock alert at</label><input class="input tnum" id="v{{ $i }}-low" name="variants[{{ $i }}][low_stock_threshold]" type="number" min="0" value="{{ $row['low_stock_threshold'] ?? 0 }}"></div>
                         <div class="field" style="justify-content:flex-end"><label class="check"><input type="hidden" name="variants[{{ $i }}][is_active]" value="0"><input type="checkbox" name="variants[{{ $i }}][is_active]" value="1" @checked($row['is_active'] ?? true)> Variant on sale</label></div>
                     </div>

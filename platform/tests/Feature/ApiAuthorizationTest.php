@@ -33,6 +33,7 @@ class ApiAuthorizationTest extends TestCase
             'password' => 'password',
             'device_name' => 'test-device',
             'abilities' => $abilities,
+            'mfa_code' => $user->isStaff() ? $this->totp() : null,
         ])->assertCreated()->json('token');
     }
 
@@ -122,7 +123,7 @@ class ApiAuthorizationTest extends TestCase
         $admin = User::factory()->admin()->create();
         Organization::factory()->create(['name' => 'Pending One']);
 
-        $response = $this->postJson('/api/v1/auth/tokens', ['identifier' => $admin->phone, 'password' => 'password', 'device_name' => 'ops']);
+        $response = $this->postJson('/api/v1/auth/tokens', ['identifier' => $admin->phone, 'password' => 'password', 'device_name' => 'ops', 'mfa_code' => $this->totp()]);
         $expiresAt = now()->parse($response->json('expires_at'));
 
         $this->assertTrue($expiresAt->lessThanOrEqualTo(now()->addMinutes(ApiTokenIssuer::STAFF_TTL_MINUTES)->addMinute()));

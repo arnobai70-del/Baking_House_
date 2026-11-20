@@ -25,7 +25,10 @@ Discounts are applied once, after the line subtotal. The client only previews; t
 - Effective / expiry dates
 
 ## Price precedence
-`contract (assigned customer) → role tier (business/reseller) → campaign → standard`
+`contract (assigned customer) → role tier (business/reseller) → campaign → retail volume tier → standard`
+
+Implemented server-side by `App\Services\Pricing\PriceResolver` from `price_lists` / `price_list_items`. A buyer's
+audience comes only from the server (approved organization membership), never from the client.
 
 Stacking: only the highest-precedence applicable source sets the base rate; bundle discounts do not stack with weight-tier discounts on the same line (documented exclusion).
 
@@ -43,3 +46,10 @@ Stacking: only the highest-precedence applicable source sets the base rate; bund
 | B2B tier from 5 kg | correct rate applied at ≥ 5000 g |
 | promo expires mid-checkout | new quote, explicit acceptance before payment (Phase 5) |
 | concurrent carts | only reserved stock sold (Phase 4 server) |
+
+## Promotions (Phase 4)
+- Coupons have a code; automatic promotions have none. Percentages are stored in basis points and fixed amounts in paisa.
+- Eligibility: active, inside the schedule window, customer type allowed, under the usage limit, under the per-customer limit (sign-in required), minimum eligible spend.
+- **Combination:** at most one non-stackable promotion (the best for the customer). Stackable promotions add on top, capped at the eligible subtotal.
+- Trade-priced lines (contract, business, reseller) and bundle lines are excluded unless the promotion is stackable. Only a super admin can set `stackable`.
+- Bundles: child items at standard price × quantity, minus the bundle discount once.

@@ -17,7 +17,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 #[Fillable(['name', 'email', 'phone', 'password'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'mfa_secret', 'mfa_last_timestep'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -43,7 +43,19 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'is_active' => 'boolean',
             'password' => 'hashed',
+            'mfa_secret' => 'encrypted',
+            'mfa_confirmed_at' => 'datetime',
+            'mfa_last_timestep' => 'integer',
         ];
+    }
+
+    /**
+     * Enrolled = a confirmed secret exists. This is NOT proof of authentication;
+     * a code must still be verified in the current session (App\Services\Mfa\MfaSession).
+     */
+    public function hasMfaEnrolled(): bool
+    {
+        return $this->mfa_confirmed_at !== null && $this->mfa_secret !== null;
     }
 
     /**
