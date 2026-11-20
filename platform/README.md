@@ -46,6 +46,8 @@ Local demo logins (local environment only, password `password`):
 | Real-image workflow (Phase 7) | `ProductImageService`, `/admin/products/{id}/images`, `/admin/media`, `media:withdraw-expired`, `config/media.php` |
 | CRM (Phase 7) | `CrmService`, `/admin/crm/*`, `crm:send-reminders` |
 | Reports (Phase 7) | `ReportService`, `/admin/reports/{section}` (+ `?format=csv`) |
+| Information pages & contact (Phase 8) | `Page`, `/page/{slug}`, `/contact`, `/admin/pages` |
+| Profile & staff (Phase 8) | `/account/profile`, `/admin/staff` (super admin) |
 
 The storefront uses the approved design system from the prototype (`public/css/tokens.css`, `app.css`) plus `storefront.css`.
 `public/js/weight-pricing.js` must stay identical to `prototype/assets/js/weight-pricing.js`, which a test enforces.

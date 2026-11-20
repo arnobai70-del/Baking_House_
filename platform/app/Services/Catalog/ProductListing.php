@@ -9,6 +9,7 @@ use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Storefront product listing: search, filters, sort and pagination. Used by /shop,
@@ -92,10 +93,31 @@ class ProductListing
         $base = fn () => $this->query([], $scope)->reorder();
 
         $categories = $scope?->children()->active()->get() ?? Category::navigation();
-        $categories->each(function (Category $category) use ($base): void {
-            $ids = $category->selfAndDescendantIds();
-            $category->setAttribute('listing_count', $base()->whereHas('categories', fn (Builder $c) => $c->whereIn('categories.id', $ids))->count());
-        });
+
+        /* Two queries instead of 2–3 per facet: the category tree, then every (category, product) pair in
+           scope. Each pair is rolled up to the facet it belongs to and products are counted once per facet. */
+        $parents = Category::query()->pluck('parent_id', 'id');
+        $facetIds = array_flip($categories->pluck('id')->all());
+        $facetOf = function (int $categoryId) use ($parents, $facetIds): ?int {
+            for ($id = $categoryId, $depth = 0; $id !== null && $depth < 6; $id = $parents[$id] ?? null, $depth++) {
+                if (isset($facetIds[$id])) {
+                    return $id;
+                }
+            }
+
+            return null;
+        };
+
+        $products = [];
+        DB::table('category_product')->whereIn('product_id', $base()->select('products.id'))
+            ->get(['category_id', 'product_id'])
+            ->each(function ($pair) use ($facetOf, &$products): void {
+                $facet = $facetOf((int) $pair->category_id);
+                if ($facet !== null) {
+                    $products[$facet][$pair->product_id] = true;
+                }
+            });
+        $categories->each(fn (Category $category) => $category->setAttribute('listing_count', count($products[$category->id] ?? [])));
 
         $brandCounts = $base()->whereNotNull('brand_id')->selectRaw('brand_id, count(*) as aggregate')->groupBy('brand_id')->pluck('aggregate', 'brand_id');
         $brands = Brand::query()->where('is_active', true)->whereIn('id', $brandCounts->keys())->orderBy('name')->get()

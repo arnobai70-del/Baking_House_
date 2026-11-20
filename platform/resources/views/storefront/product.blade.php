@@ -11,7 +11,7 @@
 @endphp
 
 @section('content')
-    <nav class="crumbs" aria-label="Breadcrumb"><ol>
+    <nav class="crumbs" aria-label="{{ __('Breadcrumb') }}"><ol>
         <li><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
         @foreach ($trail as $crumb)
             <li><a href="{{ $crumb->url() }}">{{ $crumb->localized('name') }}</a></li>
@@ -20,7 +20,7 @@
     </ol></nav>
 
     <div class="pdp">
-        <section aria-label="Product photos">
+        <section aria-label="{{ __('Product photos') }}">
             <div class="gallery-main">
                 @if ($images->isNotEmpty())
                     <x-product-photo :image="$images->first()" sizes="(max-width: 960px) 100vw, 560px" :width="1200" eager />
@@ -130,10 +130,10 @@
 
                     <div class="card card-pad stack" id="fixed-box" @if ($first->pricing_mode !== PricingMode::Fixed) hidden @endif>
                         <div class="row">
-                            <div class="stepper" role="group" aria-label="Quantity">
-                                <button type="button" data-step="-1" aria-label="Decrease quantity"><x-icon name="minus" /></button>
+                            <div class="stepper" role="group" aria-label="{{ __('Quantity') }}">
+                                <button type="button" data-step="-1" aria-label="{{ __('Decrease quantity') }}"><x-icon name="minus" /></button>
                                 <input id="fixed-qty" name="unit_quantity" class="tnum" value="{{ $first->minimumQuantity() }}" inputmode="numeric" aria-label="{{ __('Quantity') }}">
-                                <button type="button" data-step="1" aria-label="Increase quantity"><x-icon name="plus" /></button>
+                                <button type="button" data-step="1" aria-label="{{ __('Increase quantity') }}"><x-icon name="plus" /></button>
                             </div>
                             <div class="muted small" aria-live="polite">{{ __('Total') }}: <strong class="tnum" id="fixed-total">—</strong></div>
                         </div>
@@ -162,7 +162,7 @@
     </div>
 
     <section class="card" style="margin-top:28px" data-tabs>
-        <div class="tabs" role="tablist" aria-label="Product information" style="padding:14px 16px 0">
+        <div class="tabs" role="tablist" aria-label="{{ __('Product information') }}" style="padding:14px 16px 0">
             <button class="tab" role="tab" id="t-desc" aria-controls="tp-desc" aria-selected="true">{{ __('Description') }}</button>
             <button class="tab" role="tab" id="t-spec" aria-controls="tp-spec" aria-selected="false" tabindex="-1">{{ __('Specifications') }}</button>
             <button class="tab" role="tab" id="t-ship" aria-controls="tp-ship" aria-selected="false" tabindex="-1">{{ __('Delivery & returns') }}</button>

@@ -6,7 +6,7 @@
 @endphp
 
 @section('content')
-    <nav class="crumbs" aria-label="Breadcrumb"><ol>
+    <nav class="crumbs" aria-label="{{ __('Breadcrumb') }}"><ol>
         <li><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
         <li><a href="{{ route('catalog.shop') }}">{{ __('Shop') }}</a></li>
         @foreach ($trail as $crumb)
@@ -34,13 +34,13 @@
     @endif
 
     <div class="shop-layout">
-        <aside class="card filters" id="filters" aria-label="Filters">
+        <aside class="card filters" id="filters" aria-label="{{ __('Filters') }}">
             <div class="row" style="margin-bottom:12px">
                 <h2 style="font-size:var(--bh-fs-lg);margin:0">{{ __('Filter products') }}</h2>
                 <span class="spacer"></span>
-                <button class="icon-btn filter-toggle" data-filters-close aria-label="Close filters"><x-icon name="x" /></button>
+                <button class="icon-btn filter-toggle" data-filters-close aria-label="{{ __('Close filters') }}"><x-icon name="x" /></button>
             </div>
-            <form method="GET" action="{{ url()->current() }}" id="filter-form">
+            <form method="GET" action="{{ url()->current() }}" id="filter-form" data-busy-target="#results">
                 @if (! empty($filters['q']))<input type="hidden" name="q" value="{{ $filters['q'] }}">@endif
                 <input type="hidden" name="sort" value="{{ $filters['sort'] ?? 'popular' }}">
                 <input type="hidden" name="view" value="{{ $view }}">
@@ -94,7 +94,7 @@
                 @endif
                 <span class="muted small" aria-live="polite">{{ trans_choice(':count product|:count products', $products->total()) }}</span>
                 <span class="spacer"></span>
-                <form method="GET" action="{{ url()->current() }}" class="row" style="gap:8px" data-autosubmit>
+                <form method="GET" action="{{ url()->current() }}" class="row" style="gap:8px" data-autosubmit data-busy-target="#results">
                     @foreach (collect($filters)->except(['sort']) as $key => $value)
                         @foreach ((array) $value as $item)
                             <input type="hidden" name="{{ is_array($value) ? $key.'[]' : $key }}" value="{{ $item }}">
@@ -108,9 +108,9 @@
                     </select>
                     <noscript><button class="btn btn-outline btn-sm">Sort</button></noscript>
                 </form>
-                <div class="row" style="gap:2px" role="group" aria-label="Layout">
-                    <a class="icon-btn" href="{{ request()->fullUrlWithQuery(['view' => null, 'page' => null]) }}" aria-label="Grid view" aria-pressed="{{ $view === 'grid' ? 'true' : 'false' }}"><x-icon name="grid" /></a>
-                    <a class="icon-btn" href="{{ request()->fullUrlWithQuery(['view' => 'list', 'page' => null]) }}" aria-label="List view" aria-pressed="{{ $view === 'list' ? 'true' : 'false' }}"><x-icon name="list" /></a>
+                <div class="row" style="gap:2px" role="group" aria-label="{{ __('Layout') }}">
+                    <a class="icon-btn" href="{{ request()->fullUrlWithQuery(['view' => null, 'page' => null]) }}" aria-label="{{ __('Grid view') }}" aria-pressed="{{ $view === 'grid' ? 'true' : 'false' }}"><x-icon name="grid" /></a>
+                    <a class="icon-btn" href="{{ request()->fullUrlWithQuery(['view' => 'list', 'page' => null]) }}" aria-label="{{ __('List view') }}" aria-pressed="{{ $view === 'list' ? 'true' : 'false' }}"><x-icon name="list" /></a>
                 </div>
             </div>
 
@@ -122,11 +122,11 @@
                         <p class="muted">{{ __('Try fewer filters or a broader search like “chocolate”, “wok” or “packaging”.') }}</p>
                         <div class="row" style="justify-content:center">
                             <a class="btn btn-outline" href="{{ url()->current() }}">{{ __('Clear filters') }}</a>
-                            <a class="btn btn-primary" href="{{ route('organizations.apply', 'business') }}">{{ __('Need it in bulk? Ask for a quote') }}</a>
+                            <a class="btn btn-primary" href="{{ route('business.landing') }}#rfq">{{ __('Need it in bulk? Ask for a quote') }}</a>
                         </div>
                     </div>
                 @else
-                    <div class="grid grid-4">
+                    <div class="grid grid-4" id="results" aria-live="polite">
                         @foreach ($products as $product)
                             <x-product-card :product="$product" />
                         @endforeach

@@ -4,7 +4,8 @@
     <x-photo-placeholder icon="gift" :label="__('Bundle photo pending')" />
     <div>
         <span class="chip-badge orange">{{ __('Combo offer') }}</span>
-        <h2 style="font-size:var(--bh-fs-xl);margin-top:8px"><a href="{{ $bundle->url() }}" style="color:inherit;text-decoration:none">{{ $bundle->localized('name') }}</a></h2>
+        @php $headingTag = $headingTag ?? 'h2'; @endphp
+        <{{ $headingTag }} style="font-size:var(--bh-fs-xl);margin-top:8px"><a href="{{ $bundle->url() }}" style="color:inherit;text-decoration:none">{{ $bundle->localized('name') }}</a></{{ $headingTag }}>
         @if ($bundle->description)<p class="muted small">{{ $bundle->description }}</p>@endif
         <ul class="bundle-items">
             @foreach ($bundle->items as $item)

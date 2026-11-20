@@ -33,10 +33,10 @@
         <script type="application/ld+json">{!! $jsonLd !!}</script>
     @endforeach
     {{-- Approved prototype design system (tokens + components). Bundling/minification is Phase 8. --}}
-    <link rel="stylesheet" href="{{ asset('css/tokens.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/storefront.css') }}">
-    <script type="module" src="{{ asset('js/storefront.js') }}"></script>
+    <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/tokens.css') }}">
+    <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
+    <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/storefront.css') }}">
+    <script type="module" src="{{ \App\Support\Asset::url('js/storefront.js') }}"></script>
 </head>
 <body class="has-tabbar">
     <a class="skip-link" href="#main">{{ __('Skip to content') }}</a>
@@ -48,7 +48,7 @@
     @endunless
 
     <div class="topbar"><div class="container">
-        <span>{{ __('Need help? Contact details pending owner verification') }}</span>
+        <a href="{{ route('contact') }}" class="topbar-help">{{ __('Need help? Contact & support') }}</a>
         <div class="links">
             @php $languages = \App\Models\Setting::enabledLanguages(); @endphp
             @if (count($languages) > 1)
@@ -60,55 +60,55 @@
                 </form>
             @endif
             <a href="{{ route('orders.track') }}">{{ __('Track order') }}</a>
-            <a href="{{ route('organizations.apply', 'reseller') }}">{{ __('Become a reseller') }}</a>
-            <a href="{{ route('organizations.apply', 'business') }}">{{ __('For business (bulk / wholesale)') }}</a>
+            <a href="{{ route('reseller.landing') }}">{{ __('Become a reseller') }}</a>
+            <a href="{{ route('business.landing') }}">{{ __('For business (bulk / wholesale)') }}</a>
         </div>
     </div></div>
 
     <div class="header-wrap">
         <header class="masthead"><div class="container">
-            <button class="icon-btn menu-toggle" data-drawer-open="nav-drawer" aria-label="Open menu" aria-controls="nav-drawer" aria-expanded="false"><x-icon name="menu" /></button>
-            <a class="logo" href="{{ route('home') }}" aria-label="Baking House home">
+            <button class="icon-btn menu-toggle" data-drawer-open="nav-drawer" aria-label="{{ __('Open menu') }}" aria-controls="nav-drawer" aria-expanded="false"><x-icon name="menu" /></button>
+            <a class="logo" href="{{ route('home') }}" aria-label="{{ __('Baking House home') }}">
                 <span class="logo-mark"><x-icon name="logo" class="" /></span>
                 <span class="logo-text"><strong>Baking House</strong><span>Bakery · Restaurant · Café · Food Supply</span></span>
             </a>
             <div class="search" id="search" data-suggest-url="{{ route('api.v1.search') }}">
                 <form action="{{ route('catalog.search') }}" role="search" autocomplete="off">
-                    <label class="sr-only" for="q">Search products</label>
-                    <input id="q" name="q" type="search" value="{{ request()->routeIs('catalog.search', 'catalog.shop', 'catalog.category') ? request('q') : '' }}"
+                    <label class="sr-only" for="site-q">{{ __('Search products') }}</label>
+                    <input id="site-q" name="q" type="search" value="{{ request()->routeIs('catalog.search', 'catalog.shop', 'catalog.category') ? request('q') : '' }}"
                            placeholder="{{ __('Search ingredients, equipment, packaging, tools…') }}"
                            role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggest-list">
-                    <button type="submit" aria-label="Search"><x-icon name="search" /></button>
+                    <button type="submit" aria-label="{{ __('Search') }}"><x-icon name="search" /></button>
                 </form>
-                <div class="suggest" id="suggest-list" role="listbox" aria-label="Suggestions"></div>
+                <div class="suggest" id="suggest-list" role="listbox" aria-label="{{ __('Suggestions') }}"></div>
             </div>
-            <nav class="head-actions" aria-label="Account">
+            <nav class="head-actions" aria-label="{{ __('Account') }}">
                 @auth
                     @can('admin.access')
                         <a class="btn btn-ghost btn-sm" href="{{ route('admin.dashboard') }}">Admin</a>
                     @endcan
-                    <a class="icon-btn" href="{{ route('account') }}" aria-label="My account"><x-icon name="user" /></a>
+                    <a class="icon-btn" href="{{ route('account') }}" aria-label="{{ __('My account') }}"><x-icon name="user" /></a>
                     <span class="label">{{ \Illuminate\Support\Str::limit(auth()->user()->name, 18) }}</span>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="btn btn-ghost btn-sm" type="submit">{{ __('Log out') }}</button>
                     </form>
                 @else
-                    <a class="icon-btn" href="{{ route('login') }}" aria-label="Login or register"><x-icon name="user" /></a>
+                    <a class="icon-btn" href="{{ route('login') }}" aria-label="{{ __('Login or register') }}"><x-icon name="user" /></a>
                     <span class="label"><a href="{{ route('login') }}">{{ __('Login') }}</a> /<br><a href="{{ route('register') }}">{{ __('Register') }}</a></span>
                 @endauth
-                <a class="icon-btn" href="{{ route('cart.show') }}" aria-label="{{ __('Cart') }} ({{ $cartCount }})"><x-icon name="cart" />@if ($cartCount > 0)<span class="badge-count" data-n="{{ $cartCount }}">{{ $cartCount }}</span>@endif</a>
+                <a class="icon-btn" href="{{ route('cart.show') }}" aria-label="{{ __('Cart') }} ({{ $cartCount }})"><x-icon name="cart" />@if ($cartCount > 0)<span class="badge-count{{ session('cart_bump') ? ' bump' : '' }}" data-n="{{ $cartCount }}">{{ $cartCount }}</span>@endif</a>
             </nav>
         </div></header>
 
-        <nav class="catnav" aria-label="Categories"><div class="container">
+        <nav class="catnav" aria-label="{{ __('Categories') }}"><div class="container">
             <button class="all" id="mega-toggle" aria-expanded="false" aria-controls="mega"><x-icon name="menu" /> {{ __('All Categories') }}</button>
             @foreach ($navigation->take(7) as $navCategory)
                 <a href="{{ $navCategory->url() }}" @if (request()->is('category/'.$navCategory->slug)) aria-current="page" @endif>{{ $navCategory->localized('name') }}</a>
             @endforeach
         </div></nav>
 
-        <div class="mega" id="mega" role="region" aria-label="All categories"><div class="container">
+        <div class="mega" id="mega" role="region" aria-label="{{ __('All categories') }}"><div class="container">
             @forelse ($navigation as $navCategory)
                 <div>
                     <h3><x-icon :name="$navCategory->icon" /><a href="{{ $navCategory->url() }}">{{ $navCategory->localized('name') }}</a></h3>
@@ -125,8 +125,8 @@
     </div>
 
     <div class="drawer-overlay" id="overlay"></div>
-    <aside class="drawer left" id="nav-drawer" aria-label="Menu" aria-hidden="true" inert>
-        <div class="drawer-head"><strong>Menu</strong><button class="icon-btn" data-drawer-close aria-label="Close menu"><x-icon name="x" /></button></div>
+    <aside class="drawer left" id="nav-drawer" aria-label="{{ __('Menu') }}" aria-hidden="true" inert>
+        <div class="drawer-head"><strong>{{ __('Menu') }}</strong><button class="icon-btn" data-drawer-close aria-label="{{ __('Close menu') }}"><x-icon name="x" /></button></div>
         <div class="drawer-body"><nav>
             <a href="{{ route('catalog.shop') }}"><x-icon name="grid" /> {{ __('All products') }}</a>
             @foreach ($navigation as $navCategory)
@@ -155,7 +155,7 @@
         @yield('content')
     </main>
 
-    <section class="trust-strip" aria-label="Why Baking House"><div class="container">
+    <section class="trust-strip" aria-label="{{ __('Why Baking House') }}"><div class="container">
         <div class="trust"><x-icon name="truck" /><div><strong>{{ __('Nationwide delivery') }}</strong><span>{{ __('Courier partners pending') }}</span></div></div>
         <div class="trust"><x-icon name="card" /><div><strong>{{ __('bKash, Nagad, card & bank') }}</strong><span>{{ __('Provider integration pending') }}</span></div></div>
         <div class="trust"><x-icon name="store" /><div><strong>{{ __('Wholesale & business pricing') }}</strong><span>{{ __('For verified accounts') }}</span></div></div>
@@ -175,18 +175,26 @@
             <div><h3>{{ __('Business') }}</h3><ul>
                 <li><a href="{{ route('business.landing') }}">{{ __('Business accounts') }}</a></li>
                 <li><a href="{{ route('reseller.landing') }}">{{ __('Reseller accounts') }}</a></li>
-                <li><a href="{{ route('organizations.apply', 'reseller') }}">Reseller program</a></li>
+                <li><a href="{{ route('organizations.apply', 'reseller') }}">{{ __('Reseller program') }}</a></li>
             </ul></div>
             <div><h3>{{ __('Help') }}</h3><ul>
-                <li><span>{{ __('Delivery policy — pending') }}</span></li>
-                <li><span>{{ __('Returns policy — pending') }}</span></li>
-                <li><span>{{ __('Privacy policy — pending') }}</span></li>
+                @php $publishedPages = \App\Models\Page::publishedStandard(); @endphp
+                <li><a href="{{ route('contact') }}">{{ __('Contact & support') }}</a></li>
+                <li><a href="{{ route('orders.track') }}">{{ __('Track order') }}</a></li>
+                @foreach (\App\Models\Page::STANDARD as $slug => $label)
+                    @continue($slug === 'contact-information')
+                    @if (isset($publishedPages[$slug]))
+                        <li><a href="{{ $publishedPages[$slug]->url() }}">{{ $publishedPages[$slug]->localized('title') }}</a></li>
+                    @else
+                        <li><span>{{ __($label) }} — {{ __('pending') }}</span></li>
+                    @endif
+                @endforeach
             </ul></div>
         </div>
         <div class="footer-base"><div class="container" style="display:block">© {{ date('Y') }} Baking House{{ app()->isProduction() ? '' : ' · development build' }}</div></div>
     </footer>
 
-    <nav class="mobile-tabbar" aria-label="Quick navigation">
+    <nav class="mobile-tabbar" aria-label="{{ __('Quick navigation') }}">
         <a href="{{ route('home') }}" @if (request()->routeIs('home')) aria-current="page" @endif><x-icon name="home" />{{ __('Home') }}</a>
         <a href="{{ route('catalog.shop') }}" @if (request()->routeIs('catalog.*')) aria-current="page" @endif><x-icon name="grid" />{{ __('Shop') }}</a>
         <a href="{{ route('cart.show') }}" @if (request()->routeIs('cart.*', 'checkout.*')) aria-current="page" @endif><x-icon name="cart" />{{ __('Cart') }}</a>

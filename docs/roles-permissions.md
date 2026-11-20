@@ -20,7 +20,7 @@ Staff: `quotations.manage` (issue / close quotations), `customers.manage` (organ
 
 Phase 7 staff permissions:
 - `crm.access`: CRM leads, queue, timeline, tasks, tags, segments. No price lists or contract prices; no staff profiles.
-- `reports.view`: reports with counts and quantities. `reports.financial`: money figures in reports, CRM spend, promotions report.
+- `reports.view`: reports with counts and quantities. `reports.financial`: money figures in reports, CRM spend, promotions report — **super admin only by default**; other staff receive it only through the explicit `finance` role (see docs/financial-reporting.md).
 - `media.manage`: upload / describe / order photos. `media.approve`: approve, reject, withdraw (never your own upload).
 
 ## Enforcement

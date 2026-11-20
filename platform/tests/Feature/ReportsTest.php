@@ -38,7 +38,7 @@ class ReportsTest extends TestCase
         parent::setUp();
         $this->zones();
         $this->seed(RolesAndPermissionsSeeder::class);
-        $this->admin = User::factory()->admin()->create();
+        $this->admin = User::factory()->superAdmin()->create();
     }
 
     /**
@@ -217,5 +217,22 @@ class ReportsTest extends TestCase
         $crmOnly->permissions()->sync(Permission::query()->whereIn('name', ['admin.access', 'crm.access'])->pluck('id'));
         $this->actingAsStaff(User::factory()->withMfa()->withRole('crm_only')->create())->get('/admin/reports')->assertForbidden();
         $this->actingAs(User::factory()->create())->get('/admin/reports')->assertForbidden();
+    }
+
+    public function test_financial_reports_default_to_super_admin_and_explicit_finance_role(): void
+    {
+        $this->scenario();
+        $admin = User::factory()->admin()->create();
+        $finance = User::factory()->withMfa()->withRole('finance')->create();
+
+        $this->assertFalse($admin->can('reports.financial'));
+        $this->actingAsStaff($admin)->get('/admin/reports')->assertOk()->assertSee('Money figures are hidden')->assertDontSee('Net revenue');
+        $this->actingAsStaff($admin)->get('/admin/reports/promotions')->assertForbidden();
+
+        $this->assertTrue($finance->can('reports.financial'));
+        $this->assertFalse($finance->can('orders.manage'), 'Finance does not get order management.');
+        $this->assertFalse($finance->can('crm.access'), 'Finance does not get the CRM.');
+        $this->actingAsStaff($finance)->get('/admin/reports')->assertOk()->assertSee('Net revenue')->assertSee('৳3,240', false);
+        $this->actingAsStaff($finance)->get('/admin/orders')->assertForbidden();
     }
 }

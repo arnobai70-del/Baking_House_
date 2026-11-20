@@ -22,6 +22,6 @@ return [
     /*
     | Paths that must never be indexed (robots.txt Disallow when indexing is on).
     */
-    'disallow' => ['/account', '/admin', '/business', '/reseller', '/apply', '/login', '/register', '/cart', '/checkout', '/search', '/api/'],
+    'disallow' => ['/account', '/admin', '/business/', '/reseller/', '/apply', '/login', '/register', '/cart', '/checkout', '/search', '/orders/', '/order/', '/invitations/', '/payments/', '/mfa/', '/api/'],
 
 ];

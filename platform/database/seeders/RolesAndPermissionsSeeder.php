@@ -21,12 +21,19 @@ class RolesAndPermissionsSeeder extends Seeder
             return [$permission->value => $model->id];
         });
 
-        $superAdminOnly = array_map(fn (StaffPermission $permission) => $permission->value, StaffPermission::superAdminOnly());
+        $notInAdmin = array_map(fn (StaffPermission $permission) => $permission->value, StaffPermission::notInAdminRole());
 
         Role::query()->updateOrCreate(['name' => Role::SuperAdmin], ['label' => 'Super admin'])
             ->permissions()->sync($permissionIds->values());
 
+        /* Admin: everything except super-admin-only permissions and financial reports. */
         Role::query()->updateOrCreate(['name' => Role::Admin], ['label' => 'Admin'])
-            ->permissions()->sync($permissionIds->except($superAdminOnly)->values());
+            ->permissions()->sync($permissionIds->except($notInAdmin)->values());
+
+        /* Finance: financial reporting only, assigned explicitly by the super admin (add it next to "admin"). */
+        Role::query()->updateOrCreate(['name' => 'finance'], ['label' => 'Finance (financial reports)'])
+            ->permissions()->sync($permissionIds->only([
+                StaffPermission::AccessAdmin->value, StaffPermission::ViewReports->value, StaffPermission::ViewFinancialReports->value,
+            ])->values());
     }
 }

@@ -151,6 +151,6 @@ class CartController extends Controller
     {
         return $request->boolean('buy_now')
             ? redirect()->route('checkout.show')
-            : back()->with('status', $message.' '.__(':count item(s) in cart.', ['count' => $this->carts->itemCount($cart)]));
+            : back()->with('status', $message.' '.__(':count item(s) in cart.', ['count' => $this->carts->itemCount($cart)]))->with('cart_bump', true);
     }
 }

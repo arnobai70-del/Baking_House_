@@ -11,8 +11,8 @@ Each phase: code review, tests, role checks, mobile review, docs, accessibility,
 | 4 | Pricing, weight engine, promotions, stock | 🟡 built — awaiting owner review |
 | 5 | Retail checkout & operations (MVP gate) | 🟡 built — test-mode payments, awaiting owner review |
 | 6 | Business & reseller portals | ✅ accepted |
-| 7 | CRM, advanced admin, analytics | 🟡 built: awaiting owner review |
-| 8 | Animation polish, SEO, performance | ⬜ |
+| 7 | CRM, advanced admin, analytics | ✅ accepted |
+| 8 | Animation polish, SEO, performance | 🟡 built: awaiting owner review (see docs/qa-phase8.md) |
 | 9 | Optional AI & marketplace expansion | ⬜ |
 | 10 | UAT, security review, production release | ⬜ |
 
@@ -169,3 +169,16 @@ TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into 
 - Real, licensed product photography to upload and approve (none exists yet; storefront keeps labelled placeholders).
 - Owner review of report definitions (gross / net / refunds) and CRM workflow; who holds `reports.financial`.
 - Deployment steps: `php artisan storage:link`, re-run `RolesAndPermissionsSeeder` (new permissions), GD with WebP (AVIF optional) on the server.
+
+## Phase 8 — built (platform/)
+- QA of every page (automated page audit for guest, retail, business, reseller and super admin; 95 pages).
+- Added the missing pages without duplicates: information pages managed by staff (about, contact information, policies; nothing pre-written, published only by staff), Contact & support (messages enter the CRM shared queue), Profile & password, Staff & roles (super admin).
+- Financial reports default to the super admin; other staff only via the explicit Finance role (CRM customer spend included).
+- Animations: busy / spinner state and double-submit guard on every form, dimmed results while filters load, search skeletons, cart badge bump after add-to-cart, card photo hover, dashboard entry transitions, page cross-fades (motion-safe only); all collapse under reduced motion.
+- Performance: category facet N+1 removed, content-hashed asset URLs for long-term caching, measured A/B (docs/qa-phase8.md).
+- Accessibility: contrast to WCAG AA, 24 px targets, field-level error messages, translated screen-reader labels.
+- SEO: X-Robots-Tag on every response, landing pages no longer blocked, information pages in the sitemap.
+- Bangla: full coverage test across customer pages, digits test, `docs/bangla-review.csv` for native review.
+
+## Launch blockers (owner / business)
+See the Phase 8 report: real photography, payment and SMS providers, legal / VAT details, policies and contact details, native Bangla review, Bangla URL / hreflang decision, staging deployment and real-network measurements.
