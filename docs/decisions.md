@@ -51,6 +51,13 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-044 | 2026-11-20 | Opening a portal switches the buying context to that organization | Users in both a business and a reseller org always see matching prices |
 | D-045 | 2026-11-20 | Portal invoices are order invoices, not VAT (Mushak) invoices, until VAT details are provided | No unverified legal documents |
 | D-046 | 2026-11-20 | No credit terms or approval thresholds online in Phase 6 | Needs owner policy decision |
+| D-047 | 2026-11-20 | Product photos: private until approved; public renditions exist only for approved photos | Unapproved images cannot be published by mistake |
+| D-048 | 2026-11-20 | Photo approval needs a second staff member (MEDIA_REQUIRE_SECOND_REVIEWER) plus complete provenance and an authenticity attestation | Real-images-only policy |
+| D-049 | 2026-11-20 | AI images are controlled by provenance, attestation, metadata markers and human review; no automatic "AI detector" is claimed | Software detection is unreliable |
+| D-050 | 2026-11-20 | Report definitions: gross = line subtotal; net sales = gross − discounts; billed = net sales + delivery; net revenue = billed − refunds recorded in period; orders by placed date, cancelled excluded | Owner instruction to separate the figures |
+| D-051 | 2026-11-20 | Money in CRM / reports requires reports.financial (or orders.manage for customer spend) | Restricted financial records |
+| D-052 | 2026-11-20 | Unassigned RFQ and application leads form a shared CRM queue; claims are conditional | Owner default: shared follow-up queue |
+| D-053 | 2026-11-20 | Business credit, spending-limit approvals and VAT invoices stay disabled | Owner defaults (Phase 7) |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Engineering assumptions for open business inputs

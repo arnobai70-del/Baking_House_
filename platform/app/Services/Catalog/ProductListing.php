@@ -36,7 +36,7 @@ class ProductListing
     public function paginate(array $filters, ?Category $scope = null, int $perPage = self::PER_PAGE): LengthAwarePaginator
     {
         return $this->query($filters, $scope)
-            ->with(['primaryCategory:id,name,name_bn,slug,icon', 'brand:id,name', 'variants' => fn ($query) => $query->where('is_active', true)])
+            ->with(['primaryImage', 'primaryCategory:id,name,name_bn,slug,icon', 'brand:id,name', 'variants' => fn ($query) => $query->where('is_active', true)])
             ->paginate($perPage)
             ->withQueryString();
     }

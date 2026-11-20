@@ -10,8 +10,8 @@ Each phase: code review, tests, role checks, mobile review, docs, accessibility,
 | 3 | CMS, catalog, SEO foundation | 🟡 built — awaiting owner review, real photos and catalog data |
 | 4 | Pricing, weight engine, promotions, stock | 🟡 built — awaiting owner review |
 | 5 | Retail checkout & operations (MVP gate) | 🟡 built — test-mode payments, awaiting owner review |
-| 6 | Business & reseller portals | 🟡 built: awaiting owner review |
-| 7 | CRM, advanced admin, analytics | ⬜ |
+| 6 | Business & reseller portals | ✅ accepted |
+| 7 | CRM, advanced admin, analytics | 🟡 built: awaiting owner review |
 | 8 | Animation polish, SEO, performance | ⬜ |
 | 9 | Optional AI & marketplace expansion | ⬜ |
 | 10 | UAT, security review, production release | ⬜ |
@@ -157,3 +157,15 @@ TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into 
 - Legal / VAT details for invoices (BIN, address); credit terms and buyer approval limits (not built; decision needed).
 - Sales process owner for RFQ leads; notification provider for quote and invitation messages (log driver until contracted).
 - Native Bangla review of portal text.
+
+## Phase 7 — built (platform/)
+- **Real-image approval (media.manage / media.approve):** uploads are content-checked (JPEG / PNG / WebP by content, ≥ 600 px, ≤ 8000 px / 40 MP, ≤ 10 MB), refused if their metadata declares AI generation (IPTC/C2PA `trainedAlgorithmicMedia`, generator names) or duplicate (sha256), RE-ENCODED (all metadata incl. GPS removed) and stored on the PRIVATE disk. Approval needs a different staff member, source, rights holder, licence (reference for stock; not expired), English alt text and an authenticity attestation. Only then are public renditions generated (400 / 800 / 1200 px JPEG + WebP + AVIF where GD supports it) and shown through `<picture>`; reject / withdraw / licence expiry (`media:withdraw-expired`, daily) delete them. Ordering, main photo, variant mapping, Bangla alt text, private staff preview, audit log.
+- **CRM (crm.access):** leads / opportunities with pipeline (new → contacted → qualified → quoted → won / lost); every RFQ and account application becomes an unassigned lead in the shared queue; conditional claim / assignment (only to CRM staff); quotation events move RFQ leads automatically; append-only communication timeline (note / call / email / SMS / meeting + system entries); follow-up tasks with reminders (`crm:send-reminders`, log driver); tags; customer & organization profiles; segmentation (type, tag, order count, spend, inactivity, district) with CSV export.
+- **Reports (reports.view, money with reports.financial):** gross sales → discounts → net sales → delivery → billed → refunds → net revenue; paid / unpaid / cancelled; daily chart; orders by status and payment; retail / business / reseller split; top products and categories (quotation items counted); inventory low / out of stock; coupon & promotion performance; acquisition and repeat purchasing; RFQ funnel and CRM pipeline. Every section exports CSV.
+- **Access:** CRM users never see price lists, contract prices or staff accounts; order money appears only with reports.financial or orders.manage.
+- **Business defaults applied:** business credit disabled, spending-limit approvals disabled, VAT invoices disabled until BIN / legal details exist, SMS / email log-only, Bangla + English with Western digits.
+
+## Phase 7 remaining (gate)
+- Real, licensed product photography to upload and approve (none exists yet; storefront keeps labelled placeholders).
+- Owner review of report definitions (gross / net / refunds) and CRM workflow; who holds `reports.financial`.
+- Deployment steps: `php artisan storage:link`, re-run `RolesAndPermissionsSeeder` (new permissions), GD with WebP (AVIF optional) on the server.

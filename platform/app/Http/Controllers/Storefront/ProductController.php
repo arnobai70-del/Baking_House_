@@ -45,7 +45,7 @@ class ProductController extends Controller
         $related = Product::query()->visible()
             ->whereKeyNot($product->id)
             ->whereHas('categories', fn ($query) => $query->where('categories.id', $product->primary_category_id))
-            ->with(['primaryCategory:id,name,name_bn,slug,icon', 'variants' => fn ($query) => $query->where('is_active', true)])
+            ->with(['primaryImage', 'primaryCategory:id,name,name_bn,slug,icon', 'variants' => fn ($query) => $query->where('is_active', true)])
             ->limit(5)->get();
 
         $context = $contexts->forWeb($request);

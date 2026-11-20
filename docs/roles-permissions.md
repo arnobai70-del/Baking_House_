@@ -18,6 +18,11 @@
 
 Staff: `quotations.manage` (issue / close quotations), `customers.manage` (organization directory).
 
+Phase 7 staff permissions:
+- `crm.access`: CRM leads, queue, timeline, tasks, tags, segments. No price lists or contract prices; no staff profiles.
+- `reports.view`: reports with counts and quantities. `reports.financial`: money figures in reports, CRM spend, promotions report.
+- `media.manage`: upload / describe / order photos. `media.approve`: approve, reject, withdraw (never your own upload).
+
 ## Enforcement
 - RBAC **plus** policy/ownership checks (`organization_id`, `reseller_account_id`, memberships). Never menu visibility alone.
 - Role upgrades are requested, then reviewed. One login with multiple account types → explicit context switch.

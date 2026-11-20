@@ -18,7 +18,13 @@
             @endforeach
         </div>
     @endif
-    <div class="media"><x-photo-placeholder :icon="$product->primaryCategory?->icon ?? 'photo'" /></div>
+    <div class="media">
+        @if ($product->relationLoaded('primaryImage') && $product->primaryImage)
+            <a href="{{ $product->url() }}" tabindex="-1" aria-hidden="true"><x-product-photo :image="$product->primaryImage" sizes="(max-width: 640px) 50vw, 260px" :width="400" /></a>
+        @else
+            <x-photo-placeholder :icon="$product->primaryCategory?->icon ?? 'photo'" />
+        @endif
+    </div>
     <div class="body">
         <div class="meta">{{ $product->primaryCategory?->localized('name') }}</div>
         <h3><a href="{{ $product->url() }}">{{ $product->localized('name') }}</a></h3>

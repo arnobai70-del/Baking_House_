@@ -6,12 +6,14 @@ use App\Enums\OrganizationRole;
 use App\Enums\OrganizationStatus;
 use App\Enums\OrganizationType;
 use App\Enums\StaffPermission;
+use App\Models\Concerns\HasCrmRecords;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -21,7 +23,7 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasCrmRecords, HasFactory, Notifiable;
 
     /**
      * Permission names resolved once per request.
@@ -56,6 +58,14 @@ class User extends Authenticatable
     public function hasMfaEnrolled(): bool
     {
         return $this->mfa_confirmed_at !== null && $this->mfa_secret !== null;
+    }
+
+    /**
+     * @return HasMany<Order, $this>
+     */
+    public function orders(): HasMany
+    {
+        return $this->hasMany(Order::class);
     }
 
     /**

@@ -90,6 +90,8 @@ class AppServiceProvider extends ServiceProvider
             Limit::perDay(40)->by($request->ip()),
         ]);
 
+        RateLimiter::for('media-uploads', fn (Request $request): Limit => Limit::perMinute(20)->by((string) $request->user()?->getKey()));
+
         RateLimiter::for('webhooks', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));
 
         RateLimiter::for('catalog', fn (Request $request): Limit => Limit::perMinute(120)->by($request->ip()));

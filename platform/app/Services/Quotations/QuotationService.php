@@ -8,6 +8,7 @@ use App\Models\ProductVariant;
 use App\Models\Quotation;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\Crm\CrmService;
 use App\Services\Notifications\OrderNotifier;
 use App\Support\QuantityInput;
 use App\Support\Taka;
@@ -30,7 +31,7 @@ class QuotationService
 {
     public const DEFAULT_VALID_DAYS = 14;
 
-    public function __construct(private AuditLogger $audit, private OrderNotifier $notifier) {}
+    public function __construct(private AuditLogger $audit, private OrderNotifier $notifier, private CrmService $crm) {}
 
     /**
      * @param  array{contact_name: string, contact_phone: string, contact_email: ?string, request_text: string, customer_note: ?string}  $data
@@ -48,6 +49,8 @@ class QuotationService
         $this->audit->record('quotation.requested', $quotation, after: [
             'number' => $quotation->number, 'organization_id' => $organization?->id, 'lead' => $organization === null,
         ], actorId: $user?->id);
+
+        $this->crm->captureRfq($quotation);
 
         $this->notifier->direct('quotation_requested', $quotation->contact_phone, $quotation->contact_email,
             'Baking House quotation request '.$quotation->number,
@@ -184,6 +187,8 @@ class QuotationService
             'status' => QuotationStatus::Quoted->value, 'total_paisa' => $total, 'lines' => count($lines), 'valid_until' => $validUntil->toDateString(),
         ], actorId: $staff->id);
 
+        $this->crm->quotationChanged($quotation, 'issued');
+
         $this->notifier->direct('quotation_issued', $quotation->contact_phone, $quotation->contact_email,
             'Baking House quotation '.$quotation->number,
             "Baking House: your quotation {$quotation->number} is ready (".Taka::format($total).', valid until '.$validUntil->timezone('Asia/Dhaka')->format('d M Y').'). Review it in your business dashboard.');
@@ -256,6 +261,7 @@ class QuotationService
                 if ($updated === 1) {
                     $count++;
                     $this->audit->record('quotation.expired', $quotation, ['status' => $quotation->status->value], ['status' => QuotationStatus::Expired->value]);
+                    $this->crm->quotationChanged($quotation, 'expired');
                 }
             });
 
@@ -287,6 +293,7 @@ class QuotationService
         }
 
         $this->audit->record($action, $quotation, ['status' => $from->value], ['status' => $to->value], $reason, $actor->id);
+        $this->crm->quotationChanged($quotation->refresh(), $to->value);
     }
 
     private function newNumber(): string

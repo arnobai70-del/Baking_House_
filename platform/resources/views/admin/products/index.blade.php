@@ -42,7 +42,8 @@
                         </td>
                         <td><span class="status {{ $product->status === \App\Enums\ProductStatus::Active ? 'ok' : '' }}">{{ ucfirst($product->status->value) }}</span></td>
                         <td><span class="status warn">Pending</span></td>
-                        <td><a class="btn btn-outline btn-sm" href="{{ route('admin.products.edit', $product) }}">Edit</a></td>
+                        <td class="row" style="gap:4px;flex-wrap:nowrap"><a class="btn btn-outline btn-sm" href="{{ route('admin.products.edit', $product) }}">Edit</a>
+                            @can('media.manage')<a class="btn btn-ghost btn-sm" href="{{ route('admin.media.product', $product) }}">Photos</a>@endcan</td>
                     </tr>
                 @empty
                     <tr><td colspan="7"><div class="empty-state"><p><strong>No products found</strong></p></div></td></tr>

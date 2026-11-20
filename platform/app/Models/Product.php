@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
@@ -96,7 +97,17 @@ class Product extends Model
      */
     public function approvedImages(): HasMany
     {
-        return $this->images()->where('review_status', ProductImage::STATUS_APPROVED);
+        return $this->hasMany(ProductImage::class)->where('review_status', ProductImage::STATUS_APPROVED)->orderByDesc('is_primary')->orderBy('sort_order')->orderBy('id');
+    }
+
+    /**
+     * The approved main photo (product cards).
+     *
+     * @return HasOne<ProductImage, $this>
+     */
+    public function primaryImage(): HasOne
+    {
+        return $this->hasOne(ProductImage::class)->where('review_status', ProductImage::STATUS_APPROVED)->where('is_primary', true);
     }
 
     /**
