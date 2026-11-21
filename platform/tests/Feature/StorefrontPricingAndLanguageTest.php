@@ -96,8 +96,9 @@ class StorefrontPricingAndLanguageTest extends TestCase
 
         $this->get('/')->assertSee('বাংলা')->assertSee('Shop by category');
 
-        $this->post('/language', ['locale' => 'bn'])->assertRedirect();
-        $page = $this->get("/product/{$this->product->slug}")->assertOk();
+        $productUrl = "/product/{$this->product->slug}";
+        $this->from($productUrl)->post('/language', ['locale' => 'bn'])->assertRedirect("/bn{$productUrl}");
+        $page = $this->get("/bn{$productUrl}")->assertOk();
 
         $page->assertSee('<html lang="bn">', false)
             ->assertSee('ডার্ক চকলেট')
@@ -122,7 +123,9 @@ class StorefrontPricingAndLanguageTest extends TestCase
         Setting::put(Setting::LANGUAGES_ENABLED, ['en', 'bn']);
         Setting::put(Setting::LANGUAGE_DEFAULT, 'bn');
 
-        $this->get('/')->assertSee('<html lang="bn">', false)->assertSee('ক্যাটাগরি অনুযায়ী কিনুন');
+        $this->get('/')->assertRedirect('/bn');
+        $this->get('/bn')->assertSee('<html lang="bn">', false)->assertSee('ক্যাটাগরি অনুযায়ী কিনুন');
+        $this->get('/cart')->assertSee('<html lang="bn">', false);
     }
 
     public function test_every_storefront_string_has_a_bangla_translation(): void
@@ -139,7 +142,7 @@ class StorefrontPricingAndLanguageTest extends TestCase
             glob(resource_path('views/account/*.blade.php')),
             [resource_path('views/auth/login.blade.php'), resource_path('views/auth/register.blade.php'), resource_path('views/organizations/apply.blade.php')],
             [resource_path('views/layouts/app.blade.php')],
-            [app_path('Http/Controllers/Storefront/ContactController.php'), app_path('Http/Controllers/Account/ProfileController.php')],
+            glob(app_path('Http/Controllers/Storefront/*.php')), [app_path('Http/Controllers/Account/ProfileController.php'), app_path('Support/Seo.php')],
             glob(app_path('Services/Quotations/*.php')),
             glob(app_path('Services/Portal/*.php')),
             glob(app_path('Http/Controllers/Portal/*.php')),

@@ -30,7 +30,7 @@ class Seo
 
     public function metaDescription(): string
     {
-        return mb_strimwidth($this->description ?: (string) config('seo.default_description'), 0, 160, '…');
+        return mb_strimwidth($this->description ?: __((string) config('seo.default_description')), 0, 160, '…');
     }
 
     public function robots(): string

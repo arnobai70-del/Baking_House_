@@ -35,7 +35,7 @@ class BundleController extends Controller
         $bundle = Bundle::query()->effectiveAt($context->at)->where('slug', $slug)->with('items.variant.product')->firstOrFail();
         abort_unless($bundle->allowsAudience($context->audience), 404);
 
-        $seo = new Seo(title: $bundle->name, description: $bundle->description, canonical: $bundle->url());
+        $seo = new Seo(title: (string) $bundle->localized('name'), description: $bundle->localized('description'), canonical: $bundle->url());
         $seo->breadcrumbs([
             ['name' => __('Home'), 'url' => route('home')],
             ['name' => __('Combo & bundle offers'), 'url' => route('bundles.index')],

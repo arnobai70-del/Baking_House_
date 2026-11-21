@@ -41,6 +41,9 @@
                         @endforeach
                     </select></div>
                 <div class="field full"><label for="note">{{ __('Delivery note (optional)') }}</label><input class="input" id="note" name="note" value="{{ old('note', $draft['note'] ?? '') }}"></div>
+                @if ($canSaveAddress)
+                    <div class="field full"><label class="check"><input type="checkbox" name="save_address" value="1" @checked(old('save_address', $draft['save_address'] ?? false))> {{ __('Save this address to my account') }}</label></div>
+                @endif
             </div>
 
             <h2 style="font-size:var(--bh-fs-lg);margin-top:8px">{{ __('Payment method') }}</h2>

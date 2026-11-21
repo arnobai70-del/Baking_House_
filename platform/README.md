@@ -48,6 +48,9 @@ Local demo logins (local environment only, password `password`):
 | Reports (Phase 7) | `ReportService`, `/admin/reports/{section}` (+ `?format=csv`) |
 | Information pages & contact (Phase 8) | `Page`, `/page/{slug}`, `/contact`, `/admin/pages` |
 | Profile & staff (Phase 8) | `/account/profile`, `/admin/staff` (super admin) |
+| Saved addresses (Phase 9) | `CustomerAddress`, `App\Services\Addresses\AddressBook` (shared with organizations), `/account/addresses` |
+| Language URLs (Phase 9) | `LocalizeUrlPrefix` middleware, `App\Support\LocalizedRoutes`; Bangla under `/bn/…`, hreflang + bilingual sitemap |
+| Security & staging (Phase 9) | `SecurityHeaders` (CSP, HSTS), `StagingGate`, `config/security.php`, `.env.staging.example`, `php artisan app:readiness` |
 
 The storefront uses the approved design system from the prototype (`public/css/tokens.css`, `app.css`) plus `storefront.css`.
 `public/js/weight-pricing.js` must stay identical to `prototype/assets/js/weight-pricing.js`, which a test enforces.
@@ -59,3 +62,7 @@ Payments run in **test mode only**: bKash / Nagad / card use a simulated hosted 
 Staff accounts must enroll in two-step verification (authenticator app) at first sign-in.
 
 Search engines: indexing stays **off** until `SEO_INDEXING_ENABLED=true` is set for the approved launch.
+
+No inline `<script>` or `on*=` attributes in views: the Content-Security-Policy forbids them and a test scans for them.
+Put page scripts in `public/js/` and load them with `Asset::url()`. Before any deploy run
+`php artisan app:readiness --target=staging` (or `production`); see `../docs/staging-runbook.md`.

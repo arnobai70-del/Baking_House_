@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\StaffPermission;
+use App\Http\Controllers\Account;
 use App\Http\Controllers\Account\ProfileController;
 use App\Http\Controllers\Account\SecurityController;
 use App\Http\Controllers\AccountController;
@@ -86,6 +87,10 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/account', AccountController::class)->name('account');
     Route::post('/account/context', OrganizationContextController::class)->name('account.context');
+    Route::get('/account/addresses', [Account\AddressController::class, 'index'])->name('account.addresses');
+    Route::post('/account/addresses', [Account\AddressController::class, 'store'])->name('account.addresses.store');
+    Route::put('/account/addresses/{address}', [Account\AddressController::class, 'update'])->name('account.addresses.update');
+    Route::delete('/account/addresses/{address}', [Account\AddressController::class, 'destroy'])->name('account.addresses.destroy');
     Route::get('/account/profile', [ProfileController::class, 'edit'])->name('account.profile');
     Route::put('/account/profile', [ProfileController::class, 'update'])->name('account.profile.update');
     Route::put('/account/password', [ProfileController::class, 'password'])->middleware('throttle:login')->name('account.password');

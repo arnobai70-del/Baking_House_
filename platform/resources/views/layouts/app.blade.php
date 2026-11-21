@@ -5,6 +5,7 @@
     }
     $navigation = \App\Models\Category::navigation();
     $cartCount = app(\App\Services\Cart\CartService::class)->itemCount(app(\App\Services\Cart\CartService::class)->forRequest(request()));
+    $alternates = \App\Support\LocalizedRoutes::alternatesFor(request());
 @endphp
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -18,6 +19,13 @@
     @if ($seo->canonical)
         <link rel="canonical" href="{{ $seo->canonical }}">
         <meta property="og:url" content="{{ $seo->canonical }}">
+    @endif
+    @if ($alternates)
+        {{-- Language versions of this page (D-059); English is the default for other languages. --}}
+        <link rel="alternate" hreflang="en" href="{{ $alternates['en'] }}">
+        <link rel="alternate" hreflang="bn" href="{{ $alternates['bn'] }}">
+        <link rel="alternate" hreflang="x-default" href="{{ $alternates['en'] }}">
+        <meta property="og:locale" content="{{ app()->getLocale() === 'bn' ? 'bn_BD' : 'en_US' }}">
     @endif
     <meta property="og:type" content="{{ $seo->ogType }}">
     <meta property="og:title" content="{{ $seo->fullTitle() }}">
@@ -51,7 +59,13 @@
         <a href="{{ route('contact') }}" class="topbar-help">{{ __('Need help? Contact & support') }}</a>
         <div class="links">
             @php $languages = \App\Models\Setting::enabledLanguages(); @endphp
-            @if (count($languages) > 1)
+            @if (count($languages) > 1 && $alternates)
+                <nav class="lang-switch" aria-label="{{ __('Language') }}">
+                    @foreach ($languages as $code)
+                        <a href="{{ $alternates[$code] }}" hreflang="{{ $code }}" lang="{{ $code }}" @if (app()->getLocale() === $code) aria-current="true" @endif>{{ \App\Models\Setting::SUPPORTED_LANGUAGES[$code] }}</a>
+                    @endforeach
+                </nav>
+            @elseif (count($languages) > 1)
                 <form method="POST" action="{{ route('language') }}" class="lang-switch" aria-label="{{ __('Language') }}">
                     @csrf
                     @foreach ($languages as $code)
@@ -85,11 +99,11 @@
             <nav class="head-actions" aria-label="{{ __('Account') }}">
                 @auth
                     @can('admin.access')
-                        <a class="btn btn-ghost btn-sm" href="{{ route('admin.dashboard') }}">Admin</a>
+                        <a class="btn btn-ghost btn-sm head-wide" href="{{ route('admin.dashboard') }}">Admin</a>
                     @endcan
                     <a class="icon-btn" href="{{ route('account') }}" aria-label="{{ __('My account') }}"><x-icon name="user" /></a>
                     <span class="label">{{ \Illuminate\Support\Str::limit(auth()->user()->name, 18) }}</span>
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form class="head-wide" method="POST" action="{{ route('logout') }}">
                         @csrf
                         <button class="btn btn-ghost btn-sm" type="submit">{{ __('Log out') }}</button>
                     </form>
@@ -134,6 +148,16 @@
             @endforeach
             <a href="{{ route('organizations.apply', 'business') }}"><x-icon name="store" /> {{ __('For business') }}</a>
             <a href="{{ route('organizations.apply', 'reseller') }}"><x-icon name="users" /> {{ __('Reseller program') }}</a>
+            @auth
+                <a href="{{ route('account') }}"><x-icon name="user" /> {{ __('My account') }}</a>
+                @can('admin.access')
+                    <a href="{{ route('admin.dashboard') }}"><x-icon name="settings" /> Admin</a>
+                @endcan
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="drawer-link" type="submit"><x-icon name="lock" /> {{ __('Log out') }}</button>
+                </form>
+            @endauth
         </nav></div>
     </aside>
 

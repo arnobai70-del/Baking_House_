@@ -180,5 +180,23 @@ TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into 
 - SEO: X-Robots-Tag on every response, landing pages no longer blocked, information pages in the sitemap.
 - Bangla: full coverage test across customer pages, digits test, `docs/bangla-review.csv` for native review.
 
+## Phase 9 — built (platform/), staging preparation
+- **Retail saved addresses:** `/account/addresses` (max 20, one default), checkout pre-fill and opt-in "Save this address"; one `AddressBook` service shared with organization addresses.
+- **Language URLs:** Bangla public pages under `/bn/…`, hreflang en / bn / x-default, bilingual sitemap, localized titles and descriptions, language switcher keeps the page (D-059).
+- **Mobile:** every public, customer, portal and admin page verified at 360–1366 px; three overflow defects fixed (docs/qa-phase9.md).
+- **Security:** CSP (no inline scripts, test-enforced), HSTS over HTTPS, frame / sniffing / referrer / permissions headers, trusted proxies, forced HTTPS.
+- **Staging configuration:** `.env.staging.example`, private HTTP Basic gate, `php artisan app:readiness`, scheduler heartbeat, `docs/staging-runbook.md`.
+
+## Phase 9 remaining (gate)
+- Owner authorization for the actual staging deployment (server, domain, TLS, database, backups).
+- On staging: readiness with 0 FAIL, tester acceptance, real-network performance, device screen-reader pass.
+
 ## Launch blockers (owner / business)
-See the Phase 8 report: real photography, payment and SMS providers, legal / VAT details, policies and contact details, native Bangla review, Bangla URL / hreflang decision, staging deployment and real-network measurements.
+1. Real, licensed product photography (none uploaded; placeholders are labelled).
+2. Payment provider contracts and live credentials (live payments not authorised; test mode only).
+3. Mail and SMS providers (notifications are log-only). **No "forgot password" flow exists yet**: it needs a mail or SMS provider.
+4. Seller legal name, address, BIN / VAT details and bank transfer details (invoices say "not a VAT invoice").
+5. Owner-written policies and contact details (information pages are empty until staff publish them).
+6. Native-speaker review of `docs/bangla-review.csv` (635 strings) and Bangla catalog names.
+7. Real catalog, prices and stock (demo data is illustrative and must not reach production).
+8. Staging deployment, then production approval; search indexing stays off until launch is approved.

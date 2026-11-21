@@ -29,16 +29,18 @@ class ProductController extends Controller
 
         $trail = $product->primaryCategory->trail();
 
+        /* SEO overrides are written in English; Bangla pages use the translated name / summary. */
+        $english = app()->getLocale() === 'en';
         $seo = new Seo(
-            title: $product->seo_title ?: $product->name,
-            description: $product->seo_description ?: $product->short_description,
+            title: ($english ? $product->seo_title : null) ?: (string) $product->localized('name'),
+            description: ($english ? $product->seo_description : null) ?: $product->localized('short_description'),
             canonical: $product->url(),
             ogType: 'product',
         );
         $seo->breadcrumbs([
-            ['name' => 'Home', 'url' => route('home')],
-            ...array_map(fn (Category $crumb) => ['name' => $crumb->name, 'url' => $crumb->url()], $trail),
-            ['name' => $product->name, 'url' => $product->url()],
+            ['name' => __('Home'), 'url' => route('home')],
+            ...array_map(fn (Category $crumb) => ['name' => (string) $crumb->localized('name'), 'url' => $crumb->url()], $trail),
+            ['name' => (string) $product->localized('name'), 'url' => $product->url()],
         ]);
         $seo->addJsonLd($this->productSchema($product));
 
