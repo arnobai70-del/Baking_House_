@@ -13,7 +13,7 @@ class HomeController extends Controller
     public function __invoke(): View
     {
         $seo = new Seo(
-            title: 'Bakery, Restaurant, Café & Food Business Supply in Bangladesh',
+            title: __('Bakery, Restaurant, Café & Food Business Supply in Bangladesh'),
             canonical: route('home'),
         );
         $seo->addJsonLd([

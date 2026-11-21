@@ -63,6 +63,11 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-056 | 2026-11-20 | Contact & support messages become CRM leads in the shared queue | One follow-up process |
 | D-057 | 2026-11-20 | Muted text #5a6c79 and teal text-on-tint #076f79 (same hues, darker step) | WCAG 2.2 AA contrast |
 | D-058 | 2026-11-20 | X-Robots-Tag noindex on all responses while indexing is off; on private paths when on | Covers non-HTML responses |
+| D-059 | 2026-11-21 | Language in the URL for public pages: English unprefixed, Bangla under `/bn/…` (home, shop, search, combos, landing pages, contact, order tracking, category / product / combo / information pages); hreflang en / bn / x-default; both languages in the sitemap; `/bn/*` is 404 while Bangla is disabled. Cart, checkout, account, portal and admin follow the session language | Indexable Bangla pages; existing English URLs unchanged |
+| D-060 | 2026-11-21 | Retail customers get a saved address book (max 20, one default) sharing the organization address service; checkout saves an address only when the customer ticks the box, never for guests or business buyers | One implementation for both books; no silent data collection |
+| D-061 | 2026-11-21 | Content-Security-Policy: scripts from this site only (no inline scripts, enforced by a test); images from this site only; CSP is off when APP_DEBUG is on. Payment provider hosts must be added to `form-action` / `connect-src` when live adapters are built | XSS defence in depth; real-images-only also at browser level |
+| D-062 | 2026-11-21 | Staging is private behind HTTP Basic (bcrypt hash in env, fails closed); `/up` and provider webhooks stay reachable | Testers only; webhooks verify their own signatures |
+| D-063 | 2026-11-21 | `php artisan app:readiness --target=staging|production` must report 0 FAIL before any deploy; live payments are always a FAIL | Repeatable preflight |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Engineering assumptions for open business inputs

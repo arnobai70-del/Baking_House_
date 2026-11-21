@@ -22,13 +22,13 @@ class ShopController extends Controller
     public function index(Request $request): View
     {
         $seo = new Seo(
-            title: 'Shop all products',
-            description: 'Browse baking ingredients, cake tools, restaurant and Chinese kitchen supplies, commercial equipment and packaging.',
+            title: __('Shop all products'),
+            description: __('Browse baking ingredients, cake tools, restaurant and Chinese kitchen supplies, commercial equipment and packaging.'),
             canonical: $this->canonical(route('catalog.shop'), $request),
         );
-        $seo->breadcrumbs([['name' => 'Home', 'url' => route('home')], ['name' => 'Shop', 'url' => route('catalog.shop')]]);
+        $seo->breadcrumbs([['name' => __('Home'), 'url' => route('home')], ['name' => __('Shop'), 'url' => route('catalog.shop')]]);
 
-        return $this->render($request, $seo, null, 'All products');
+        return $this->render($request, $seo, null, __('All products'));
     }
 
     public function category(Request $request, string $slug): View
@@ -36,28 +36,30 @@ class ShopController extends Controller
         $category = Category::query()->active()->where('slug', $slug)->firstOrFail();
         abort_if($category->parent_id !== null && $category->parent()->value('is_active') === false, 404);
 
+        /* SEO overrides are written in English; Bangla pages use the translated name / summary. */
+        $english = app()->getLocale() === 'en';
         $seo = new Seo(
-            title: $category->seo_title ?: $category->name,
-            description: $category->seo_description ?: $category->summary,
+            title: ($english ? $category->seo_title : null) ?: (string) $category->localized('name'),
+            description: ($english ? $category->seo_description : null) ?: $category->localized('summary'),
             canonical: $this->canonical($category->url(), $request),
         );
         $seo->breadcrumbs([
-            ['name' => 'Home', 'url' => route('home')],
-            ...array_map(fn (Category $crumb) => ['name' => $crumb->name, 'url' => $crumb->url()], $category->trail()),
+            ['name' => __('Home'), 'url' => route('home')],
+            ...array_map(fn (Category $crumb) => ['name' => (string) $crumb->localized('name'), 'url' => $crumb->url()], $category->trail()),
         ]);
 
-        return $this->render($request, $seo, $category, $category->name);
+        return $this->render($request, $seo, $category, (string) $category->localized('name'));
     }
 
     public function search(Request $request): View
     {
         $term = trim((string) $request->query('q', ''));
         $seo = (new Seo(
-            title: $term === '' ? 'Search' : "Search results for “{$term}”",
+            title: $term === '' ? __('Search') : __('Search results for “:term”', ['term' => $term]),
             canonical: route('catalog.search'),
         ))->noindex();
 
-        return $this->render($request, $seo, null, $term === '' ? 'Search products' : "Results for “{$term}”");
+        return $this->render($request, $seo, null, $term === '' ? __('Search products') : __('Results for “:term”', ['term' => $term]));
     }
 
     private function render(Request $request, Seo $seo, ?Category $category, string $heading): View

@@ -2,9 +2,12 @@
 
 use App\Http\Middleware\EnsureOrganizationAccess;
 use App\Http\Middleware\EnsureUserIsActive;
+use App\Http\Middleware\LocalizeUrlPrefix;
 use App\Http\Middleware\RequireStaffMfa;
+use App\Http\Middleware\SecurityHeaders;
 use App\Http\Middleware\SendRobotsHeader;
 use App\Http\Middleware\SetStorefrontLocale;
+use App\Http\Middleware\StagingGate;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -20,7 +23,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->append(SendRobotsHeader::class);
+        $middleware->prepend([StagingGate::class, LocalizeUrlPrefix::class]);
+        $middleware->append([SendRobotsHeader::class, SecurityHeaders::class]);
         $middleware->web(append: [SetStorefrontLocale::class, EnsureUserIsActive::class, RequireStaffMfa::class]);
         $middleware->alias([
             'organization' => EnsureOrganizationAccess::class,

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Product;
+use App\Support\LocalizedRoutes;
 use Illuminate\Http\Response;
 
 /**
@@ -15,6 +16,8 @@ class SitemapController extends Controller
 {
     public function __invoke(): Response
     {
+        /* Generate canonical English URLs regardless of the visitor's remembered language. */
+        app()->setLocale('en');
         $urls = [
             ['loc' => route('home'), 'lastmod' => null],
             ['loc' => route('catalog.shop'), 'lastmod' => null],
@@ -39,6 +42,15 @@ class SitemapController extends Controller
                     $urls[] = ['loc' => $product->url(), 'lastmod' => $product->updated_at];
                 }
             });
+
+        /* Each localized page is listed in both languages with hreflang alternates (D-059). */
+        if (LocalizedRoutes::banglaEnabled()) {
+            $urls = collect($urls)->flatMap(function (array $url): array {
+                $alternates = ['en' => $url['loc'], 'bn' => LocalizedRoutes::banglaUrl($url['loc'])];
+
+                return [$url + ['alternates' => $alternates], ['loc' => $alternates['bn'], 'lastmod' => $url['lastmod'], 'alternates' => $alternates]];
+            })->all();
+        }
 
         return response()
             ->view('storefront.sitemap', ['urls' => $urls])

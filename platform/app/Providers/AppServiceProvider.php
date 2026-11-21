@@ -7,13 +7,16 @@ use App\Models\User;
 use App\Services\Cart\CartService;
 use App\Services\Notifications\LogSmsGateway;
 use App\Services\Notifications\SmsGateway;
+use App\Support\LocalizedRoutes;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Middleware\TrustProxies;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -37,6 +40,25 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Model::shouldBeStrict(! $this->app->isProduction());
+
+        /* Behind a load balancer: trust its X-Forwarded-* headers (HTTPS, client IP for rate limits). */
+        $proxies = (string) config('security.trusted_proxies');
+        if ($proxies !== '') {
+            TrustProxies::at($proxies === '*' ? '*' : array_map('trim', explode(',', $proxies)));
+        }
+        if (config('security.force_https')) {
+            URL::forceScheme('https');
+        }
+
+        /* While the page is in Bangla, links to localized public pages stay under /bn (D-059). */
+        URL::formatPathUsing(function (string $path): string {
+            if (app()->getLocale() !== LocalizedRoutes::PREFIX || ! LocalizedRoutes::matches($path)) {
+                return $path;
+            }
+            $trimmed = trim($path, '/');
+
+            return '/'.LocalizedRoutes::PREFIX.($trimmed === '' ? '' : '/'.$trimmed);
+        });
 
         $this->registerStaffGates();
         $this->registerRateLimiters();

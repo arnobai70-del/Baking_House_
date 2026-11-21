@@ -34,10 +34,5 @@
         </form>
         @include('storefront.checkout._summary', ['summary' => $summary])
     </div>
-    <script>
-        document.getElementById('place-form')?.addEventListener('submit', function () {
-            const button = document.getElementById('place-button');
-            setTimeout(() => { button.disabled = true; button.textContent = @json(__('Placing order…')); }, 0);
-        });
-    </script>
+    {{-- Double-submit protection and the busy spinner come from storefront.js (initBusyForms). --}}
 @endsection

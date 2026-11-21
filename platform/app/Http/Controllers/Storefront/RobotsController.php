@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
+use App\Support\LocalizedRoutes;
 use Illuminate\Http\Response;
 
 /**
@@ -19,6 +20,9 @@ class RobotsController extends Controller
         } else {
             foreach (config('seo.disallow') as $path) {
                 $lines[] = "Disallow: {$path}";
+            }
+            if (LocalizedRoutes::banglaEnabled()) {
+                $lines[] = 'Disallow: /'.LocalizedRoutes::PREFIX.'/search';
             }
             $lines[] = 'Disallow: /*?*sort=';
             $lines[] = '';

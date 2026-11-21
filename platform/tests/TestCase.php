@@ -20,6 +20,19 @@ abstract class TestCase extends BaseTestCase
     }
 
     /**
+     * Each real request starts in a fresh process with the default locale; without this the test
+     * client would build the next request URL in the previous page's language (/bn prefix).
+     *
+     * @param  string  $uri
+     */
+    protected function prepareUrlForRequest($uri): string
+    {
+        $this->app->setLocale((string) config('app.fallback_locale', 'en'));
+
+        return parent::prepareUrlForRequest($uri);
+    }
+
+    /**
      * Act as a staff member who has passed MFA in this session.
      */
     protected function actingAsStaff(User $user): static

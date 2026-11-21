@@ -24,6 +24,18 @@
 .variant-chip:focus-within { outline: 3px solid var(--bh-teal); outline-offset: 2px; }
 .logo-mark svg { width: 24px; height: 24px; stroke: var(--bh-orange); fill: none; stroke-width: 1.8; }
 .head-actions form { display: inline; }
+/* Phase 9 responsive fix: on phones the header keeps only menu, logo, account and cart; Admin and
+   Log out move into the menu drawer (they overflowed the header by 25–127 px at 360–390 px). */
+.drawer nav form { margin: 0; }
+.drawer-link { display: flex; gap: 10px; align-items: center; width: 100%; min-height: var(--bh-touch); padding: 0; border: 0; border-bottom: 1px solid var(--bh-bg); background: none; color: var(--bh-text); font: inherit; text-align: left; cursor: pointer; }
+.drawer-link:hover { color: var(--bh-teal); }
+@media (max-width: 560px) { .head-actions .head-wide { display: none; } }
+/* Grid items default to min-width:auto, so a wide table inside .table-wrap stretched whole portal /
+   admin pages at 360–390 px instead of scrolling inside its wrapper. */
+.dash > *, .admin-layout > *, .admin-grid > *, .shop-layout > *, .cart-layout > *, .pdp > *, .portal-main, .admin-main { min-width: 0; }
+/* Absolutely positioned .sr-only labels in the last column escaped the scroll wrapper (their containing
+   block was outside it) and widened the page; the wrapper now contains them. */
+.table-wrap { position: relative; }
 
 /* Admin catalog */
 .admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
@@ -150,3 +162,11 @@
 .fchip, .dash-side nav a[aria-current="true"], .status.info, .admin-nav a[aria-current="page"] { color: var(--bh-teal-text); }
 summary.small { padding-block: 3px; }
 .topbar-help { color: inherit; text-decoration: none; } .topbar-help:hover { text-decoration: underline; }
+
+/* Phase 9: language links (localized pages) share the switch button look */
+.lang-switch a { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 8px; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 4px; color: #fff; font-size: var(--bh-fs-xs); text-decoration: none; }
+.lang-switch a[aria-current="true"] { background: var(--bh-orange); color: var(--bh-navy-deep); border-color: var(--bh-orange); }
+
+/* Phase 9 responsive fix: below 960 px the category bar is hidden and the drawer replaces the mega
+   menu; the invisible mega menu still widened the page (horizontal scroll at 360–390 px). */
+@media (max-width: 960px) { .mega { display: none; } }

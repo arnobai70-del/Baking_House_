@@ -7,6 +7,7 @@ use App\Exceptions\CheckoutChangedException;
 use App\Http\Controllers\Controller;
 use App\Models\DeliveryZone;
 use App\Models\Order;
+use App\Services\Addresses\AddressBook;
 use App\Services\Cart\CartService;
 use App\Services\Checkout\CheckoutDetails;
 use App\Services\Checkout\CheckoutService;
@@ -46,8 +47,8 @@ class CheckoutController extends Controller
         $user = $request->user();
         $context = $this->contexts->forWeb($request);
 
-        /* Organization buyers can pre-fill from their saved addresses (only their own organization's). */
-        $addresses = $context->organization?->addresses()->get() ?? collect();
+        /* Pre-fill from saved addresses: the organization's when buying for it, otherwise the customer's own. */
+        $addresses = $context->organization?->addresses()->get() ?? $user?->addresses()->get() ?? collect();
         $chosen = $request->filled('address')
             ? $addresses->firstWhere('id', (int) $request->query('address'))
             : ($draft === [] ? $addresses->firstWhere('is_default', true) : null);
@@ -66,6 +67,7 @@ class CheckoutController extends Controller
             'addresses' => $addresses,
             'chosenAddress' => $chosen,
             'buyingFor' => $context->organization,
+            'canSaveAddress' => $user !== null && $context->organization === null && $chosen === null && $addresses->count() < AddressBook::MAX_ADDRESSES,
         ]);
     }
 
@@ -85,6 +87,7 @@ class CheckoutController extends Controller
             'district' => ['required', Rule::in(DeliveryZone::DISTRICTS)],
             'note' => ['nullable', 'string', 'max:500'],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
+            'save_address' => ['nullable', 'boolean'],
         ]);
 
         $request->session()->put(self::DRAFT, $validated + ['token' => Str::random(40)]);
@@ -135,6 +138,7 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.review')->withErrors(['checkout' => $e->getMessage()]);
         }
 
+        $this->rememberAddress($request, $draft, $placed->wasExisting);
         $request->session()->forget(self::DRAFT);
         $request->session()->put('checkout.last_token', $details->checkoutToken);
         $order = $placed->order;
@@ -162,5 +166,34 @@ class CheckoutController extends Controller
         }
 
         return null;
+    }
+
+    /**
+     * "Save this address" at checkout (signed-in retail customers): added once to the address book,
+     * never duplicated; a full address book is skipped silently because the order is already placed.
+     *
+     * @param  array<string, mixed>  $draft
+     */
+    private function rememberAddress(Request $request, array $draft, bool $wasExisting): void
+    {
+        $user = $request->user();
+        if ($wasExisting || $user === null || empty($draft['save_address']) || $this->contexts->forWeb($request)->organization !== null) {
+            return;
+        }
+
+        $duplicate = $user->addresses()->reorder()->where('line', $draft['address_line'])->where('area', $draft['area'])
+            ->where('district', $draft['district'])->where('phone', $draft['phone'])->exists();
+        if ($duplicate || $user->addresses()->reorder()->count() >= AddressBook::MAX_ADDRESSES) {
+            return;
+        }
+
+        app(AddressBook::class)->add($user->addresses(), [
+            'label' => mb_substr((string) $draft['area'], 0, 60),
+            'recipient_name' => (string) $draft['name'],
+            'phone' => (string) $draft['phone'],
+            'line' => (string) $draft['address_line'],
+            'area' => (string) $draft['area'],
+            'district' => (string) $draft['district'],
+        ], false);
     }
 }

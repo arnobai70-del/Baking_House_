@@ -73,6 +73,6 @@
         {{ __('Amounts in Bangladeshi taka; each line rounded half-up to the paisa.') }}
     </p>
 </main>
-<script>document.querySelector('[data-print]')?.addEventListener('click', () => window.print());</script>
+<script src="{{ \App\Support\Asset::url('js/print.js') }}" defer></script>
 </body>
 </html>

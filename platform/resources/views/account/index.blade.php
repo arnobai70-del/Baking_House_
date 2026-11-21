@@ -11,6 +11,7 @@
 
     <div class="portal-shortcuts reveal reveal-2" style="margin-bottom:16px">
         <a class="card card-pad" href="{{ route('account.profile') }}"><x-icon name="user" /><strong>{{ __('Profile & password') }}</strong><span class="muted small">{{ __('Name, mobile, email and password.') }}</span></a>
+        <a class="card card-pad" href="{{ route('account.addresses') }}"><x-icon name="truck" /><strong>{{ __('My addresses') }}</strong><span class="muted small">{{ __('Delivery addresses for faster checkout.') }}</span></a>
         <a class="card card-pad" href="#orders"><x-icon name="list" /><strong>{{ __('My orders') }}</strong><span class="muted small">{{ __('Status, payment and invoices.') }}</span></a>
         <a class="card card-pad" href="{{ route('contact') }}"><x-icon name="info" /><strong>{{ __('Contact & support') }}</strong><span class="muted small">{{ __('Questions about an order or product.') }}</span></a>
         @can('admin.access')
