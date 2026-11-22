@@ -59,7 +59,7 @@
             </tbody></table></div></details>
     </div>
 
-    <div class="admin-grid">
+    <div class="admin-grid report-split">
         <div class="card">
             <div class="panel-title"><h2>Orders by status</h2></div>
             @php $maxStatus = max(1, max(array_column($statuses, 'orders'))); @endphp

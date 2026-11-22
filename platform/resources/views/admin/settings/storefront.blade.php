@@ -17,6 +17,6 @@
                 @endforeach
             </select></div>
         <p class="hint">With more than one language enabled, shoppers see a language switch in the top bar. Bangla text comes from the “Bangla” fields on products, categories and bundles; anything not yet translated falls back to English.</p>
-        <button class="btn btn-primary" type="submit">Save</button>
+        <button class="btn btn-navy" type="submit">Save</button>
     </form>
 @endsection

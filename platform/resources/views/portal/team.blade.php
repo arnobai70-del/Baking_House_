@@ -47,7 +47,7 @@
                     <div class="field"><label for="invite-role">{{ __('Role') }}</label>
                         <select class="input" id="invite-role" name="role">@foreach ($roles as $option)<option value="{{ $option->value }}" @selected($option->value === 'buyer')>{{ __($option->label()) }}</option>@endforeach</select></div>
                     <p class="hint">{{ __('The invitation is valid for 7 days and only for this email address. The person needs a Baking House account with that email.') }}</p>
-                    <button class="btn btn-primary" type="submit"><x-icon name="users" /> {{ __('Send invitation') }}</button>
+                    <button class="btn btn-navy" type="submit"><x-icon name="users" /> {{ __('Send invitation') }}</button>
                 </form>
             </div>
             <div class="card">

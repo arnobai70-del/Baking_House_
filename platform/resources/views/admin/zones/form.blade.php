@@ -26,6 +26,6 @@
         <label class="check"><input type="hidden" name="is_default" value="0"><input type="checkbox" name="is_default" value="1" @checked(old('is_default', $zone->is_default))> Default zone (covers districts not listed in any zone)</label>
         <label class="check"><input type="hidden" name="cod_available" value="0"><input type="checkbox" name="cod_available" value="1" @checked(old('cod_available', $zone->cod_available))> Cash on delivery available</label>
         <label class="check"><input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $zone->is_active))> Active</label>
-        <div class="row" style="margin-top:12px"><button class="btn btn-primary" type="submit">Save zone</button></div>
+        <div class="row" style="margin-top:12px"><button class="btn btn-navy" type="submit">Save zone</button></div>
     </form>
 @endsection

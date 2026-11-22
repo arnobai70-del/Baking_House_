@@ -26,7 +26,7 @@
                 </select></div>
             <div class="field"><label for="at">Price at (Dhaka time, optional)</label><input class="input" id="at" name="at" type="datetime-local" value="{{ $input['at'] ?? '' }}"></div>
         </div>
-        <button class="btn btn-primary" type="submit">Calculate</button>
+        <button class="btn btn-navy" type="submit">Calculate</button>
     </form>
 
     @if ($variant && $quote)

@@ -10,7 +10,7 @@
             @endforeach
         </ul>
         <div class="row" style="margin-top:16px">
-            <a class="btn btn-primary" href="{{ route('admin.dashboard') }}">I have saved them — continue</a>
+            <a class="btn btn-navy" href="{{ route('admin.dashboard') }}">I have saved them — continue</a>
             <a class="btn btn-ghost" href="{{ route('account.security') }}">Security settings</a>
         </div>
     </div>

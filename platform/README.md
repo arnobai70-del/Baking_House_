@@ -63,6 +63,9 @@ Staff accounts must enroll in two-step verification (authenticator app) at first
 
 Search engines: indexing stays **off** until `SEO_INDEXING_ENABLED=true` is set for the approved launch.
 
+Fonts are self-hosted in `public/fonts` (Noto Sans and Noto Sans Bengali, SIL Open Font License; licence files beside them).
+Admin and organization portal pages pass `workspace` to the layout (no shop navigation, search, cart or marketing footer).
+
 No inline `<script>` or `on*=` attributes in views: the Content-Security-Policy forbids them and a test scans for them.
 Put page scripts in `public/js/` and load them with `Asset::url()`. Before any deploy run
 `php artisan app:readiness --target=staging` (or `production`); see `../docs/staging-runbook.md`.

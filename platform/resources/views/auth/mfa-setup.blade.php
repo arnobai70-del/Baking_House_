@@ -26,7 +26,7 @@
                 <input class="input tnum" id="code" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" autofocus
                        @error('code') aria-invalid="true" @enderror>
             </div>
-            <button class="btn btn-primary btn-block" type="submit">Confirm and continue</button>
+            <button class="btn btn-navy btn-block" type="submit">Confirm and continue</button>
         </form>
     </div>
 @endsection

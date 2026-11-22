@@ -1,4 +1,4 @@
-@extends('layouts.app', ['title' => $heading.' · '.$organization->name])
+@extends('layouts.app', ['title' => $heading.' · '.$organization->name, 'workspace' => $portal])
 
 @php
     $isBusiness = $portal === 'business';
@@ -31,10 +31,9 @@
             </nav>
         </aside>
         <section class="portal-main">
-            <div class="role-head {{ $isBusiness ? 'role-business' : 'role-reseller' }} reveal">
-                <x-icon name="{{ $isBusiness ? 'store' : 'users' }}" class="icon icon-lg" />
-                <div><h1>{{ $heading }}</h1><p>{{ $subheading ?? ($isBusiness
-                    ? __('Organization-scoped: bulk orders, quotations, your price list, addresses and team.')
+            <div class="admin-top page-head reveal">
+                <div><h1>{{ $heading }}</h1><p class="muted small">{{ $subheading ?? ($isBusiness
+                    ? __('Bulk orders, quotations, prices and team for :organization', ['organization' => $organization->name])
                     : __('Your assigned rate card, bulk reorders and statements. Not visible to any other account.')) }}</p></div>
             </div>
             @if ($role === \App\Enums\OrganizationRole::Viewer)

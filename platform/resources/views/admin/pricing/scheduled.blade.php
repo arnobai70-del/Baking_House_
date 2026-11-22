@@ -15,7 +15,7 @@
             <div class="field"><label for="effective_at">Effective (Dhaka time)</label><input class="input" id="effective_at" name="effective_at" type="datetime-local" value="{{ old('effective_at') }}" required></div>
         </div>
         <div class="field"><label for="reason">Reason</label><input class="input" id="reason" name="reason" value="{{ old('reason') }}" required></div>
-        <button class="btn btn-primary" type="submit">Schedule</button>
+        <button class="btn btn-navy" type="submit">Schedule</button>
         <p class="hint">Applied automatically by the scheduler within a minute of the effective time, with an audit entry.</p>
     </form>
     <div class="card"><div class="table-wrap"><table class="table">

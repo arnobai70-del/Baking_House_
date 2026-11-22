@@ -1,7 +1,7 @@
 @extends('layouts.admin', ['title' => 'Pages'])
 
 @section('admin')
-    <div class="admin-top"><h1>Information pages</h1><span class="spacer"></span><a class="btn btn-primary btn-sm" href="{{ route('admin.pages.create') }}">New page</a></div>
+    <div class="admin-top"><h1>Information pages</h1><span class="spacer"></span><a class="btn btn-navy btn-sm" href="{{ route('admin.pages.create') }}">New page</a></div>
     <div class="alert alert-info" style="margin-bottom:16px"><x-icon name="info" /><span>Write only verified owner information. Policies, contact details and legal text are not pre-filled; a page is public only while it is published.</span></div>
 
     <div class="card" style="margin-bottom:16px">

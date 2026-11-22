@@ -35,7 +35,7 @@
                             <p class="hint">Check: it shows this exact product and pack size, it is a real photo (no AI generation, no fake backgrounds), and the licence covers website use.</p>
                             <div class="row" style="gap:6px;align-items:flex-end">
                                 @if (! $missing && ! $own)
-                                    <form method="POST" action="{{ route('admin.media.approve', $image) }}">@csrf<button class="btn btn-primary btn-sm" type="submit">Approve &amp; publish</button></form>
+                                    <form method="POST" action="{{ route('admin.media.approve', $image) }}">@csrf<button class="btn btn-navy btn-sm" type="submit">Approve &amp; publish</button></form>
                                 @endif
                                 <form method="POST" action="{{ route('admin.media.reject', $image) }}" class="row" style="gap:6px;align-items:flex-end" novalidate>@csrf
                                     <label class="sr-only" for="reason-{{ $image->id }}">Reason</label>

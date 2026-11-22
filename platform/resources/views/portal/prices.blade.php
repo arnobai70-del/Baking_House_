@@ -1,4 +1,4 @@
-@extends('portal.layout', ['heading' => $portal === 'business' ? __('Business pricing') : __('My rate card'), 'subheading' => __('Worked out on our server for :organization only; the same prices apply in your cart.', ['organization' => $organization->name])])
+@extends('portal.layout', ['heading' => $portal === 'business' ? __('Business pricing') : __('My rate card'), 'subheading' => __('Prices for :organization only. The same prices apply in your cart.', ['organization' => $organization->name])])
 
 @use('App\Support\Taka')
 @use('App\Support\Weight')

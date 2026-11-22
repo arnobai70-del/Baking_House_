@@ -61,6 +61,6 @@
             @error('photo')<p class="field-error">{{ $message }}</p>@enderror</div>
         @include('admin.media._details', ['image' => null])
         <p class="hint">The file is re-encoded on upload: camera metadata (including GPS location) is removed. Files whose metadata declares AI generation are refused.</p>
-        <button class="btn btn-primary" type="submit"><x-icon name="photo" /> Upload for review</button>
+        <button class="btn btn-navy" type="submit"><x-icon name="photo" /> Upload for review</button>
     </form>
 @endsection

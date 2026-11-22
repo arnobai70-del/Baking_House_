@@ -1,5 +1,29 @@
 /* Baking House design tokens — source of truth: docs/design-tokens.md
    Red accent is prohibited. Errors use dark amber + icon + text. */
+
+/* Phase 9.5 (D1): self-hosted Noto Sans, SIL Open Font License 1.1 (public/fonts/OFL-*.txt).
+   One variable file per subset covers weights 400–700. No third-party font requests.
+   font-display: optional — the preloaded file is used when it arrives in time; otherwise that one view keeps
+   the system font with no re-paint or layout shift; from the next view the cached font is used (measured, qa-phase9.5.md). */
+@font-face {
+  font-family: "Noto Sans";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: optional;
+  src: url("../fonts/noto-sans-latin-v42.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* The Taka sign (৳) only, cut from Noto Sans Bengali (4 KB), so English pages render prices in the
+   same family without downloading the whole Bengali font. */
+@font-face {
+  font-family: "Noto Sans Taka";
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: optional;
+  src: url("../fonts/noto-sans-bengali-taka-v33.woff2") format("woff2");
+  unicode-range: U+09F3;
+}
+
 :root {
   /* Brand */
   --bh-navy: #103b56;
@@ -29,7 +53,7 @@
   --bh-warning: #8a6100;
 
   /* Type */
-  --bh-font: "Inter", "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --bh-font: "Noto Sans", "Noto Sans Taka", "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --bh-fs-xs: 0.75rem;
   --bh-fs-sm: 0.875rem;
   --bh-fs-md: 1rem;

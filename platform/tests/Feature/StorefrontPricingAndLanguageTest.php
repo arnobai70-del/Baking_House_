@@ -104,7 +104,11 @@ class StorefrontPricingAndLanguageTest extends TestCase
             ->assertSee('ডার্ক চকলেট')
             ->assertSee('কোটিংয়ের জন্য')
             ->assertSee('কার্টে যোগ করুন')
-            ->assertSee('Noto+Sans+Bengali', false);
+            ->assertSee('fonts/noto-sans-bengali-v33.woff2', false)
+            ->assertSee('fonts/noto-sans-latin-v42.woff2', false)
+            ->assertDontSee('fonts.googleapis.com', false);
+        // English pages load only the Latin face from tokens.css (no preload, no Bengali file; see docs/qa-phase9.5.md).
+        $this->get($productUrl)->assertOk()->assertDontSee('rel="preload"', false)->assertDontSee('noto-sans-bengali-v33', false);
         $this->assertSame(1, Product::query()->count(), 'Translations never duplicate product records.');
     }
 

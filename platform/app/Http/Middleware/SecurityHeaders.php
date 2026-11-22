@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\Response;
  * Security headers for every response.
  *
  * - Content-Security-Policy: scripts only from this site (no inline scripts exist), styles from
- *   this site and Google Fonts (inline style attributes are used by the design), fonts from Google
- *   Fonts, no plugins, no framing, forms only to this site. Responses that set their own policy
- *   (e.g. the private photo preview) keep it. Skipped while APP_DEBUG is on so the local error page works.
+ *   this site (inline style attributes are used by the design), fonts self-hosted (Phase 9.5), no
+ *   plugins, no framing, forms only to this site. Responses that set their own policy (e.g. the
+ *   private photo preview) keep it. Skipped while APP_DEBUG is on so the local error page works.
  * - HSTS only over HTTPS. Plus nosniff, frame denial, referrer and permissions policies.
  */
 class SecurityHeaders
@@ -39,8 +39,8 @@ class SecurityHeaders
             $headers->set('Content-Security-Policy', implode('; ', array_filter([
                 "default-src 'self'",
                 "script-src 'self'",
-                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-                "font-src 'self' https://fonts.gstatic.com",
+                "style-src 'self' 'unsafe-inline'",
+                "font-src 'self'",
                 "img-src 'self' data:",
                 "connect-src 'self'",
                 "object-src 'none'",

@@ -7,7 +7,7 @@
         @csrf
         <div class="field" style="flex:1;margin:0"><label for="new-brand">New brand name</label><input class="input" id="new-brand" name="name" required></div>
         <input type="hidden" name="is_active" value="1">
-        <button class="btn btn-primary" type="submit"><x-icon name="plus" /> Add brand</button>
+        <button class="btn btn-navy" type="submit"><x-icon name="plus" /> Add brand</button>
     </form>
     <p class="hint">Only list brands you are authorised to sell; brand names and logos need permission before launch.</p>
 

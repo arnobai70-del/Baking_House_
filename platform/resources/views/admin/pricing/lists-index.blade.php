@@ -3,7 +3,7 @@
 @section('admin')
     <div class="admin-top">
         <h1>Price lists</h1><span class="spacer"></span>
-        <a class="btn btn-primary btn-sm" href="{{ route('admin.price-lists.create') }}"><x-icon name="plus" /> New price list</a>
+        <a class="btn btn-navy btn-sm" href="{{ route('admin.price-lists.create') }}"><x-icon name="plus" /> New price list</a>
     </div>
     <div class="alert alert-info" style="margin-bottom:16px"><x-icon name="info" /><span>Precedence: <strong>Contract</strong> → <strong>Business / Reseller</strong> → <strong>Campaign</strong> → <strong>Retail volume</strong> → standard price. Tiers apply on the total quantity (grams or units).</span></div>
     <div class="card"><div class="table-wrap"><table class="table">

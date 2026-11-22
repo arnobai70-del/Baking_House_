@@ -60,7 +60,7 @@
                 <input class="input" id="reason" name="reason" value="{{ old('reason') }}" required>
                 <span class="hint">Saved in the audit log with the before/after tiers.</span></div>
         @endif
-        <div class="row"><button class="btn btn-primary" type="submit">Save price list</button>
+        <div class="row"><button class="btn btn-navy" type="submit">Save price list</button>
             <a class="btn btn-ghost" href="{{ route('admin.price-simulator') }}">Open price simulator</a></div>
     </form>
 @endsection

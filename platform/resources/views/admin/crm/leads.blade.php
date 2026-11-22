@@ -48,6 +48,6 @@
             <div class="field"><label for="estimated_value">Estimated value ৳</label><input class="input tnum" id="estimated_value" name="estimated_value" value="{{ old('estimated_value') }}" inputmode="decimal"></div>
             <div class="field"><label class="row" style="gap:6px;margin-top:28px"><input type="checkbox" name="assign_to_me" value="1"> Assign to me (otherwise it goes to the shared queue)</label></div>
         </div>
-        <button class="btn btn-primary" type="submit">Create lead</button>
+        <button class="btn btn-navy" type="submit">Create lead</button>
     </form>
 @endsection

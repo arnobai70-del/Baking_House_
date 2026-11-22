@@ -46,6 +46,6 @@
             @endforeach
         </fieldset>
         <label class="check"><input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $bundle->is_active))> Active</label>
-        <div class="row" style="margin-top:12px"><button class="btn btn-primary" type="submit">Save bundle</button></div>
+        <div class="row" style="margin-top:12px"><button class="btn btn-navy" type="submit">Save bundle</button></div>
     </form>
 @endsection

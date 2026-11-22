@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\DB;
 class ProductListing
 {
     public const SORTS = [
-        'popular' => 'Popularity',
+        'popular' => 'Featured first', // staff-curated order, not measured popularity (Phase 9.5)
         'price_asc' => 'Price: low to high',
         'price_desc' => 'Price: high to low',
         'name' => 'Name A–Z',

@@ -3,7 +3,7 @@
 @section('admin')
     <div class="admin-top">
         <h1>Coupons &amp; promotions</h1><span class="spacer"></span>
-        <a class="btn btn-primary btn-sm" href="{{ route('admin.promotions.create') }}"><x-icon name="plus" /> New promotion</a>
+        <a class="btn btn-navy btn-sm" href="{{ route('admin.promotions.create') }}"><x-icon name="plus" /> New promotion</a>
     </div>
     <div class="alert alert-info" style="margin-bottom:16px"><x-icon name="info" /><span>One non-stackable promotion per order (the best one for the customer). Trade-priced and bundle lines are excluded unless a super admin marks a promotion <strong>stackable</strong>.</span></div>
     <div class="card"><div class="table-wrap"><table class="table">

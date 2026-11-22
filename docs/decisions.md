@@ -68,6 +68,12 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-061 | 2026-11-21 | Content-Security-Policy: scripts from this site only (no inline scripts, enforced by a test); images from this site only; CSP is off when APP_DEBUG is on. Payment provider hosts must be added to `form-action` / `connect-src` when live adapters are built | XSS defence in depth; real-images-only also at browser level |
 | D-062 | 2026-11-21 | Staging is private behind HTTP Basic (bcrypt hash in env, fails closed); `/up` and provider webhooks stay reachable | Testers only; webhooks verify their own signatures |
 | D-063 | 2026-11-21 | `php artisan app:readiness --target=staging|production` must report 0 FAIL before any deploy; live payments are always a FAIL | Repeatable preflight |
+| D-064 | 2026-11-22 | Typeface: Noto Sans (Latin) with Noto Sans Bengali, self-hosted variable WOFF2 (SIL OFL); Latin uses `font-display: optional`, Bangla `swap`; font preloads only on Bangla pages (measured A/B, qa-phase9.5.md); no third-party font requests (CSP `font-src 'self'`) | Matching Latin/Bangla design, consistent rendering, measured loading |
+| D-065 | 2026-11-22 | Orange is reserved for the purchase path (add to cart, checkout, place order, pay) and the homepage hero action; other actions are navy or outline | Primary action stands out |
+| D-066 | 2026-11-22 | Admin and organization portals render as workspaces: no category bar, product search, header cart, trust strip or marketing footer; "View store" link instead | Tools, not shop windows |
+| D-067 | 2026-11-22 | The staff-curated flag is labelled "Featured" (badge, home section, "Featured first" sort); the sort URL value stays `popular` | No unmeasured popularity claims; links unchanged |
+| D-068 | 2026-11-22 | Homepage hero shows the departments with live product counts (same counts as shop filters) instead of an image slot | Real catalog data, no placeholder as first impression |
+| D-069 | 2026-11-22 | Admin dashboard shows four work-queue counts, each only with the permission of its screen; no money figures | Least privilege |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Engineering assumptions for open business inputs

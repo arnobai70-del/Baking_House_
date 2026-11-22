@@ -1,4 +1,4 @@
-@extends('portal.layout', ['heading' => __('Bulk order'), 'subheading' => __('Add many SKUs at once. Every line is checked on our server with your prices, weight rules and stock.')])
+@extends('portal.layout', ['heading' => __('Bulk order'), 'subheading' => __('Add many SKUs at once. Every line is checked against your prices, weight rules and stock.')])
 
 @use('App\Support\Taka')
 

@@ -19,13 +19,4 @@
         <div class="panel-title"><h2>{{ __('Recent orders') }}</h2><a class="btn btn-outline btn-sm" href="{{ route($portal.'.orders') }}">{{ __('All orders') }}</a></div>
         @include('portal._orders-table', ['orders' => $recentOrders])
     </div>
-
-    <div class="portal-shortcuts">
-        <a class="card card-pad" href="{{ route($portal.'.bulk') }}"><x-icon name="pallet" /><strong>{{ __('Bulk order') }}</strong><span class="muted small">{{ __('Paste SKUs and quantities or upload a CSV.') }}</span></a>
-        @if ($portal === 'business')
-            <a class="card card-pad" href="{{ route('business.quotations') }}"><x-icon name="quote" /><strong>{{ __('Request a quote') }}</strong><span class="muted small">{{ __('Equipment, cartons and large volumes.') }}</span></a>
-        @endif
-        <a class="card card-pad" href="{{ route($portal.'.prices') }}"><x-icon name="tag" /><strong>{{ $portal === 'business' ? __('Business pricing') : __('My rate card') }}</strong><span class="muted small">{{ __('Confidential to your organization.') }}</span></a>
-        <a class="card card-pad" href="{{ route($portal.'.statements') }}"><x-icon name="file" /><strong>{{ __('Invoices & statements') }}</strong><span class="muted small">{{ __('Monthly statement and CSV export.') }}</span></a>
-    </div>
 @endsection

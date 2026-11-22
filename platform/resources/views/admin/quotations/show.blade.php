@@ -72,7 +72,7 @@
                         <div class="field full"><label for="terms">Terms shown to the customer</label><textarea class="input" id="terms" name="terms" rows="2" placeholder="e.g. delivery in 5 working days; installation included">{{ old('terms', $quotation->terms) }}</textarea></div>
                         <div class="field full"><label for="internal_note">Internal note (staff only)</label><textarea class="input" id="internal_note" name="internal_note" rows="2">{{ old('internal_note', $quotation->internal_note) }}</textarea></div>
                     </div>
-                    <button class="btn btn-primary" type="submit">{{ $quotation->status === QuotationStatus::Quoted ? 'Send revised quote' : 'Send quote' }}</button>
+                    <button class="btn btn-navy" type="submit">{{ $quotation->status === QuotationStatus::Quoted ? 'Send revised quote' : 'Send quote' }}</button>
                 </form>
             @elseif ($quotation->internal_note)
                 <div class="card card-pad" style="margin-bottom:16px"><strong class="small">Internal note</strong><p class="small">{{ $quotation->internal_note }}</p></div>

@@ -26,7 +26,7 @@
             </div>
         </div>
         <p class="hint">{{ __('Restaurants, cafés, bakeries and resellers: register first, then apply for a business or reseller account.') }}</p>
-        <button class="btn btn-primary btn-block" type="submit">{{ __('Create account') }}</button>
+        <button class="btn btn-navy btn-block" type="submit">{{ __('Create account') }}</button>
         <p class="small" style="margin-top:12px">{{ __('Already registered?') }} <a href="{{ route('login') }}">{{ __('Log in') }}</a></p>
     </form>
 @endsection

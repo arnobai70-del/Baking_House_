@@ -3,7 +3,7 @@
 @section('admin')
     <div class="admin-top">
         <h1>Categories</h1><span class="spacer"></span>
-        <a class="btn btn-primary btn-sm" href="{{ route('admin.categories.create') }}"><x-icon name="plus" /> New category</a>
+        <a class="btn btn-navy btn-sm" href="{{ route('admin.categories.create') }}"><x-icon name="plus" /> New category</a>
     </div>
     <div class="card">
         <div class="table-wrap">

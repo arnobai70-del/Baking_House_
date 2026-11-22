@@ -309,6 +309,16 @@ function initBuyBox() {
   selectVariant(variant);
 }
 
+/* ---------------- Quote links (Phase 9.5) ---------------- */
+/** "Request a quote" links open the quote disclosure instead of scrolling to a closed box. */
+function initQuoteLinks() {
+  const box = document.getElementById('quote');
+  if (!(box instanceof HTMLDetailsElement)) return;
+  const open = () => { box.open = true; };
+  if (window.location.hash === '#quote') open();
+  $$('a[href="#quote"]').forEach((link) => link.addEventListener('click', open));
+}
+
 initMegaMenu();
 initDrawers();
 initSearch();
@@ -316,3 +326,4 @@ initBusyForms();
 initAutoSubmit();
 initTabs();
 initBuyBox();
+initQuoteLinks();

@@ -42,7 +42,7 @@
             <div class="field" style="margin:0"><label for="act-when-{{ $type }}">When (optional)</label><input class="input" id="act-when-{{ $type }}" name="occurred_at" type="datetime-local"></div>
         </div>
         <div class="field" style="margin-top:8px"><label for="act-body-{{ $type }}">Note / summary</label><textarea class="input" id="act-body-{{ $type }}" name="body" rows="2" required placeholder="What was discussed or agreed"></textarea></div>
-        <button class="btn btn-primary btn-sm" type="submit">Add to timeline</button>
+        <button class="btn btn-navy btn-sm" type="submit">Add to timeline</button>
     </form>
     <ol class="crm-timeline">
         @forelse ($timeline as $activity)

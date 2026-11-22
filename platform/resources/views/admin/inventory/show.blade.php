@@ -24,7 +24,7 @@
             </div>
             <div class="field"><label for="quantity">Quantity ({{ $unit }})</label><input class="input tnum" id="quantity" name="quantity" type="number" min="1" required></div>
             <div class="field"><label for="m-reason">Reason / reference</label><input class="input" id="m-reason" name="reason" placeholder="e.g. PO-1042, damaged in transit" required></div>
-            <button class="btn btn-primary" type="submit">Record</button>
+            <button class="btn btn-navy" type="submit">Record</button>
         </form>
         <form method="POST" action="{{ route('admin.inventory.reconcile', $variant) }}" class="card card-pad" novalidate>
             @csrf

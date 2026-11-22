@@ -6,9 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>{{ __('Invoice') }} {{ $order->number }}</title>
-    @if (app()->getLocale() === 'bn')
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap">
-    @endif
+    @include('layouts._fonts')
     <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/tokens.css') }}">
     <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
     <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/storefront.css') }}">
@@ -17,7 +15,7 @@
 <main class="invoice card card-pad">
     <div class="row no-print" style="justify-content:space-between;margin-bottom:12px">
         <a class="btn btn-ghost btn-sm" href="{{ route($organization->type->value.'.statements') }}">← {{ __('Back') }}</a>
-        <button class="btn btn-primary btn-sm" type="button" data-print>{{ __('Print / save as PDF') }}</button>
+        <button class="btn btn-navy btn-sm" type="button" data-print>{{ __('Print / save as PDF') }}</button>
     </div>
     <header class="invoice-head">
         <div>
