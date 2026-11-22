@@ -157,7 +157,7 @@
         </section>
 
         <div class="row">
-            <button class="btn btn-primary" type="submit">{{ $product->exists ? 'Save & publish changes' : 'Create product' }}</button>
+            <button class="btn btn-navy" type="submit">{{ $product->exists ? 'Save & publish changes' : 'Create product' }}</button>
             <a class="btn btn-ghost" href="{{ route('admin.products.index') }}">Cancel</a>
         </div>
     </form>

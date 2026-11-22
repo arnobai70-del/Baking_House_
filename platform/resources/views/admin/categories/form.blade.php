@@ -38,7 +38,7 @@
         </div>
         <label class="check"><input type="hidden" name="is_active" value="0"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $category->is_active))> Visible on the storefront</label>
         <div class="row" style="margin-top:14px">
-            <button class="btn btn-primary" type="submit">Save category</button>
+            <button class="btn btn-navy" type="submit">Save category</button>
             <a class="btn btn-ghost" href="{{ route('admin.categories.index') }}">Cancel</a>
         </div>
     </form>

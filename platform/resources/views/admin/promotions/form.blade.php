@@ -49,6 +49,6 @@
         @else
             <p class="hint">Stackable: {{ $promotion->stackable ? 'yes' : 'no' }} (only a super admin can change this).</p>
         @endif
-        <div class="row" style="margin-top:12px"><button class="btn btn-primary" type="submit">Save promotion</button></div>
+        <div class="row" style="margin-top:12px"><button class="btn btn-navy" type="submit">Save promotion</button></div>
     </form>
 @endsection

@@ -25,7 +25,7 @@
                         @error('message')<p class="field-error" id="c-message-error">{{ $message }}</p>@enderror</div>
                 </div>
                 <div class="sr-only" aria-hidden="true"><label for="c-website">Website</label><input id="c-website" name="website" tabindex="-1" autocomplete="off"></div>
-                <button class="btn btn-primary" type="submit">{{ __('Send message') }}</button>
+                <button class="btn btn-navy" type="submit">{{ __('Send message') }}</button>
                 <p class="hint" style="margin-top:8px">{{ __('We use your details only to answer this message.') }}</p>
             </form>
         </section>

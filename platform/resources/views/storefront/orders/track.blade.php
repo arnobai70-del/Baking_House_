@@ -7,7 +7,7 @@
         <form method="GET" action="{{ route('orders.track') }}" class="form-grid" novalidate>
             <div class="field"><label for="number">{{ __('Order number') }}</label><input class="input tnum" id="number" name="number" value="{{ request('number') }}" placeholder="BH261120-XXXXXX" required></div>
             <div class="field"><label for="phone">{{ __('Mobile number') }}</label><input class="input" id="phone" name="phone" inputmode="tel" value="{{ request('phone') }}" placeholder="01XXXXXXXXX" required></div>
-            <div class="full"><button class="btn btn-primary" type="submit">{{ __('Track order') }}</button></div>
+            <div class="full"><button class="btn btn-navy" type="submit">{{ __('Track order') }}</button></div>
         </form>
         @if ($result === false)
             <div class="alert alert-error" style="margin-top:14px"><x-icon name="alert" /><span>{{ __('We could not find an order with those details.') }}</span></div>

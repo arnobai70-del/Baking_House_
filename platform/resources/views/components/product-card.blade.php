@@ -4,19 +4,18 @@
 @php
     $variant = $product->defaultVariant();
     $quoteOnly = $product->isQuoteOnly();
-    $badges = [];
-    if ($variant?->isDiscounted()) { $badges[] = [__('Sale'), 'orange']; }
-    if ($product->is_featured) { $badges[] = [__('Popular'), '']; }
-    if ($quoteOnly) { $badges[] = [__('Quote only'), 'navy']; }
-    if ($variant?->isLowStock()) { $badges[] = [__('Low stock'), '']; }
+    /* One badge per card, highest priority first (Phase 9.5). "Featured" is a staff choice, not measured popularity. */
+    $badge = match (true) {
+        (bool) $variant?->isDiscounted() => [__('Sale'), 'orange'],
+        (bool) $variant?->isLowStock() => [__('Low stock'), 'warn'],
+        $quoteOnly => [__('Quote only'), 'navy'],
+        (bool) $product->is_featured => [__('Featured'), ''],
+        default => null,
+    };
 @endphp
 <article class="card pcard">
-    @if ($badges)
-        <div class="pcard-badges">
-            @foreach ($badges as [$label, $tone])
-                <span class="chip-badge {{ $tone }}">{{ $label }}</span>
-            @endforeach
-        </div>
+    @if ($badge)
+        <div class="pcard-badges"><span class="chip-badge {{ $badge[1] }}">{{ $badge[0] }}</span></div>
     @endif
     <div class="media">
         @if ($product->relationLoaded('primaryImage') && $product->primaryImage)
@@ -44,9 +43,9 @@
         @elseif (! $product->in_stock)
             <span class="btn btn-outline btn-sm btn-block" aria-disabled="true" style="opacity:.6">{{ __('Out of stock') }}</span>
         @elseif ($variant?->pricing_mode === PricingMode::Weight)
-            <a class="btn btn-primary btn-sm btn-block" href="{{ $product->url() }}">{{ __('Choose weight') }}</a>
+            <a class="btn btn-outline btn-sm btn-block" href="{{ $product->url() }}">{{ __('Choose weight') }}</a>
         @else
-            <a class="btn btn-primary btn-sm btn-block" href="{{ $product->url() }}"><x-icon name="cart" /> {{ __('View & buy') }}</a>
+            <a class="btn btn-outline btn-sm btn-block" href="{{ $product->url() }}">{{ __('View product') }}</a>
         @endif
     </div>
 </article>

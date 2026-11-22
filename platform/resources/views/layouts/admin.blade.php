@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app', ['workspace' => 'admin'])
 
 @section('content')
     <div class="admin-layout">

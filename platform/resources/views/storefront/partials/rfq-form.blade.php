@@ -15,6 +15,6 @@
         <div class="field full"><label for="rfq-note">{{ __('Delivery area or notes (optional)') }}</label><input class="input" id="rfq-note" name="customer_note" value="{{ old('customer_note') }}" maxlength="1000"></div>
     </div>
     <div class="sr-only" aria-hidden="true"><label for="rfq-website">Website</label><input id="rfq-website" name="website" tabindex="-1" autocomplete="off"></div>
-    <button class="btn btn-primary" type="submit"><x-icon name="quote" /> {{ __('Send request') }}</button>
+    <button class="btn btn-navy" type="submit"><x-icon name="quote" /> {{ __('Send request') }}</button>
     <p class="hint" style="margin-top:8px">{{ __('Our sales team checks price and stock, then sends a quote. Nothing is charged until you accept a quote and check out.') }}</p>
 </form>

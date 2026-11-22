@@ -52,7 +52,7 @@
                 @if ($next)
                     <form method="POST" action="{{ route('admin.orders.transition', $order) }}" class="row" style="gap:6px" novalidate>
                         @csrf
-                        @foreach ($next as $status)<button class="btn btn-primary btn-sm" name="status" value="{{ $status->value }}">Mark {{ strtolower($status->label()) }}</button>@endforeach
+                        @foreach ($next as $status)<button class="btn btn-navy btn-sm" name="status" value="{{ $status->value }}">Mark {{ strtolower($status->label()) }}</button>@endforeach
                         <input class="input" name="note" placeholder="Note (optional)" aria-label="Note" style="min-height:36px">
                     </form>
                 @endif

@@ -8,7 +8,11 @@
 @section('content')
     <nav class="crumbs" aria-label="{{ __('Breadcrumb') }}"><ol>
         <li><a href="{{ route('home') }}">{{ __('Home') }}</a></li>
-        <li><a href="{{ route('catalog.shop') }}">{{ __('Shop') }}</a></li>
+        @if (request()->routeIs('catalog.search'))
+            <li aria-current="page">{{ __('Search') }}</li>
+        @else
+            <li><a href="{{ route('catalog.shop') }}">{{ __('Shop') }}</a></li>
+        @endif
         @foreach ($trail as $crumb)
             <li @if ($loop->last) aria-current="page" @endif>
                 @if ($loop->last){{ $crumb->localized('name') }}@else<a href="{{ $crumb->url() }}">{{ $crumb->localized('name') }}</a>@endif
@@ -77,7 +81,7 @@
                     <label class="check"><input type="checkbox" name="weight" value="1" @checked(! empty($filters['weight']))> {{ __('Sold by weight (custom grams)') }}</label>
                 </fieldset>
 
-                <button class="btn btn-primary btn-block" type="submit">{{ __('Apply filters') }}</button>
+                <button class="btn btn-navy btn-block" type="submit">{{ __('Apply filters') }}</button>
                 @if ($hasFilters)
                     <a class="btn btn-ghost btn-block" href="{{ url()->current() }}{{ ! empty($filters['q']) ? '?q='.urlencode($filters['q']) : '' }}">{{ __('Clear all filters') }}</a>
                 @endif
@@ -122,7 +126,7 @@
                         <p class="muted">{{ __('Try fewer filters or a broader search like “chocolate”, “wok” or “packaging”.') }}</p>
                         <div class="row" style="justify-content:center">
                             <a class="btn btn-outline" href="{{ url()->current() }}">{{ __('Clear filters') }}</a>
-                            <a class="btn btn-primary" href="{{ route('business.landing') }}#rfq">{{ __('Need it in bulk? Ask for a quote') }}</a>
+                            <a class="btn btn-navy" href="{{ route('business.landing') }}#rfq">{{ __('Need it in bulk? Ask for a quote') }}</a>
                         </div>
                     </div>
                 @else

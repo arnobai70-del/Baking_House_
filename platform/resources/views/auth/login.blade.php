@@ -15,7 +15,7 @@
             <input class="input" id="password" name="password" type="password" autocomplete="current-password" required>
         </div>
         <label class="check"><input type="checkbox" name="remember" value="1"> {{ __('Keep me signed in') }}</label>
-        <button class="btn btn-primary btn-block" type="submit" style="margin-top:12px">{{ __('Log in') }}</button>
+        <button class="btn btn-navy btn-block" type="submit" style="margin-top:12px">{{ __('Log in') }}</button>
         <p class="small" style="margin-top:12px">{{ __('New here?') }} <a href="{{ route('register') }}">{{ __('Create an account') }}</a></p>
     </form>
 @endsection

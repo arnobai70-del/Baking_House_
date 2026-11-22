@@ -6,6 +6,10 @@
     $navigation = \App\Models\Category::navigation();
     $cartCount = app(\App\Services\Cart\CartService::class)->itemCount(app(\App\Services\Cart\CartService::class)->forRequest(request()));
     $alternates = \App\Support\LocalizedRoutes::alternatesFor(request());
+    /* Phase 9.5 (G7): admin and organization portals are workspaces: no shop navigation, search, cart or marketing footer. */
+    $workspace = $workspace ?? null;
+    $workspaceHome = match ($workspace) { 'admin' => route('admin.dashboard'), 'business', 'reseller' => route($workspace.'.dashboard'), default => null };
+    $workspaceLabel = match ($workspace) { 'admin' => 'Admin', 'business' => __('Business portal'), 'reseller' => __('Reseller portal'), default => null };
 @endphp
 <!doctype html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -32,11 +36,7 @@
     <meta property="og:description" content="{{ $seo->metaDescription() }}">
     <meta property="og:site_name" content="{{ config('seo.site_name') }}">
     <meta name="theme-color" content="#103B56">
-    @if (app()->getLocale() === 'bn')
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap">
-    @endif
+    @include('layouts._fonts')
     @foreach ($seo->jsonLdScripts() as $jsonLd)
         <script type="application/ld+json">{!! $jsonLd !!}</script>
     @endforeach
@@ -46,7 +46,7 @@
     <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/storefront.css') }}">
     <script type="module" src="{{ \App\Support\Asset::url('js/storefront.js') }}"></script>
 </head>
-<body class="has-tabbar">
+<body class="has-tabbar{{ $workspace ? ' workspace' : '' }}">
     <a class="skip-link" href="#main">{{ __('Skip to content') }}</a>
 
     @unless (app()->isProduction())
@@ -86,6 +86,9 @@
                 <span class="logo-mark"><x-icon name="logo" class="" /></span>
                 <span class="logo-text"><strong>Baking House</strong><span>Bakery · Restaurant · Café · Food Supply</span></span>
             </a>
+            @if ($workspace)
+                <a class="workspace-label" href="{{ $workspaceHome }}">{{ $workspaceLabel }}</a>
+            @else
             <div class="search" id="search" data-suggest-url="{{ route('api.v1.search') }}">
                 <form action="{{ route('catalog.search') }}" role="search" autocomplete="off">
                     <label class="sr-only" for="site-q">{{ __('Search products') }}</label>
@@ -96,10 +99,14 @@
                 </form>
                 <div class="suggest" id="suggest-list" role="listbox" aria-label="{{ __('Suggestions') }}"></div>
             </div>
+            @endif
             <nav class="head-actions" aria-label="{{ __('Account') }}">
                 @auth
+                    @if ($workspace)
+                        <a class="btn btn-ghost btn-sm head-wide" href="{{ route('home') }}"><x-icon name="store" /> {{ __('View store') }}</a>
+                    @endif
                     @can('admin.access')
-                        <a class="btn btn-ghost btn-sm head-wide" href="{{ route('admin.dashboard') }}">Admin</a>
+                        @if ($workspace !== 'admin')<a class="btn btn-ghost btn-sm head-wide" href="{{ route('admin.dashboard') }}">Admin</a>@endif
                     @endcan
                     <a class="icon-btn" href="{{ route('account') }}" aria-label="{{ __('My account') }}"><x-icon name="user" /></a>
                     <span class="label">{{ \Illuminate\Support\Str::limit(auth()->user()->name, 18) }}</span>
@@ -111,10 +118,13 @@
                     <a class="icon-btn" href="{{ route('login') }}" aria-label="{{ __('Login or register') }}"><x-icon name="user" /></a>
                     <span class="label"><a href="{{ route('login') }}">{{ __('Login') }}</a> /<br><a href="{{ route('register') }}">{{ __('Register') }}</a></span>
                 @endauth
+                @unless ($workspace)
                 <a class="icon-btn" href="{{ route('cart.show') }}" aria-label="{{ __('Cart') }} ({{ $cartCount }})"><x-icon name="cart" />@if ($cartCount > 0)<span class="badge-count{{ session('cart_bump') ? ' bump' : '' }}" data-n="{{ $cartCount }}">{{ $cartCount }}</span>@endif</a>
+                @endunless
             </nav>
         </div></header>
 
+        @unless ($workspace)
         <nav class="catnav" aria-label="{{ __('Categories') }}"><div class="container">
             <button class="all" id="mega-toggle" aria-expanded="false" aria-controls="mega"><x-icon name="menu" /> {{ __('All Categories') }}</button>
             @foreach ($navigation->take(7) as $navCategory)
@@ -136,22 +146,28 @@
                 <p class="muted">No categories yet.</p>
             @endforelse
         </div></div>
+        @endunless
     </div>
 
     <div class="drawer-overlay" id="overlay"></div>
     <aside class="drawer left" id="nav-drawer" aria-label="{{ __('Menu') }}" aria-hidden="true" inert>
         <div class="drawer-head"><strong>{{ __('Menu') }}</strong><button class="icon-btn" data-drawer-close aria-label="{{ __('Close menu') }}"><x-icon name="x" /></button></div>
         <div class="drawer-body"><nav>
+            @if ($workspace)
+                <a href="{{ $workspaceHome }}"><x-icon name="chart" /> {{ $workspaceLabel }}</a>
+                <a href="{{ route('home') }}"><x-icon name="store" /> {{ __('View store') }}</a>
+            @else
             <a href="{{ route('catalog.shop') }}"><x-icon name="grid" /> {{ __('All products') }}</a>
             @foreach ($navigation as $navCategory)
                 <a href="{{ $navCategory->url() }}"><x-icon :name="$navCategory->icon" /> {{ $navCategory->localized('name') }}</a>
             @endforeach
             <a href="{{ route('organizations.apply', 'business') }}"><x-icon name="store" /> {{ __('For business') }}</a>
             <a href="{{ route('organizations.apply', 'reseller') }}"><x-icon name="users" /> {{ __('Reseller program') }}</a>
+            @endif
             @auth
                 <a href="{{ route('account') }}"><x-icon name="user" /> {{ __('My account') }}</a>
                 @can('admin.access')
-                    <a href="{{ route('admin.dashboard') }}"><x-icon name="settings" /> Admin</a>
+                    @if ($workspace !== 'admin')<a href="{{ route('admin.dashboard') }}"><x-icon name="settings" /> Admin</a>@endif
                 @endcan
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
@@ -179,13 +195,16 @@
         @yield('content')
     </main>
 
+    @unless ($workspace)
     <section class="trust-strip" aria-label="{{ __('Why Baking House') }}"><div class="container">
         <div class="trust"><x-icon name="truck" /><div><strong>{{ __('Nationwide delivery') }}</strong><span>{{ __('Courier partners pending') }}</span></div></div>
         <div class="trust"><x-icon name="card" /><div><strong>{{ __('bKash, Nagad, card & bank') }}</strong><span>{{ __('Provider integration pending') }}</span></div></div>
         <div class="trust"><x-icon name="store" /><div><strong>{{ __('Wholesale & business pricing') }}</strong><span>{{ __('For verified accounts') }}</span></div></div>
         <div class="trust"><x-icon name="quote" /><div><strong>{{ __('Request a quote') }}</strong><span>{{ __('Large & regular orders') }}</span></div></div>
     </div></section>
+    @endunless
     <footer class="site-footer">
+        @unless ($workspace)
         <div class="container">
             <div>
                 <a class="logo" href="{{ route('home') }}"><span class="logo-mark"><x-icon name="logo" class="" /></span><span class="logo-text"><strong>Baking House</strong><span>Bakery · Restaurant · Café · Food Supply</span></span></a>
@@ -215,14 +234,21 @@
                 @endforeach
             </ul></div>
         </div>
-        <div class="footer-base"><div class="container" style="display:block">© {{ date('Y') }} Baking House{{ app()->isProduction() ? '' : ' · development build' }}</div></div>
+        @endunless
+        <div class="footer-base"><div class="container">© {{ date('Y') }} Baking House{{ app()->isProduction() ? '' : ' · development build' }}</div></div>
     </footer>
 
-    <nav class="mobile-tabbar" aria-label="{{ __('Quick navigation') }}">
+    <nav class="mobile-tabbar{{ $workspace ? ' tabbar-3' : '' }}" aria-label="{{ __('Quick navigation') }}">
+        @if ($workspace)
+            <a href="{{ $workspaceHome }}" @if (url()->current() === $workspaceHome) aria-current="page" @endif><x-icon name="chart" />{{ __('Dashboard') }}</a>
+            <a href="{{ route('home') }}"><x-icon name="store" />{{ __('Store') }}</a>
+            <a href="{{ route('account') }}"><x-icon name="user" />{{ __('Account') }}</a>
+        @else
         <a href="{{ route('home') }}" @if (request()->routeIs('home')) aria-current="page" @endif><x-icon name="home" />{{ __('Home') }}</a>
         <a href="{{ route('catalog.shop') }}" @if (request()->routeIs('catalog.*')) aria-current="page" @endif><x-icon name="grid" />{{ __('Shop') }}</a>
         <a href="{{ route('cart.show') }}" @if (request()->routeIs('cart.*', 'checkout.*')) aria-current="page" @endif><x-icon name="cart" />{{ __('Cart') }}</a>
         <a href="{{ route('account') }}" @if (request()->routeIs('account')) aria-current="page" @endif><x-icon name="user" />{{ __('Account') }}</a>
+        @endif
     </nav>
 </body>
 </html>

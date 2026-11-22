@@ -9,6 +9,18 @@
         @endcan
     </div>
 
+    @if ($counts !== [])
+        <div class="kpis ops-kpis">
+            @foreach ($counts as $count)
+                <a class="card kpi kpi-link" href="{{ $count['url'] }}">
+                    <div class="k-label">{{ $count['label'] }}</div>
+                    <div class="k-val tnum">{{ $count['value'] }}</div>
+                    <div class="muted small">{{ $count['hint'] }}</div>
+                </a>
+            @endforeach
+        </div>
+    @endif
+
     <div class="card">
         <div class="panel-title"><h2>Pending business &amp; reseller applications ({{ $pendingOrganizations->count() }})</h2></div>
         @if ($pendingOrganizations->isEmpty())
@@ -31,7 +43,7 @@
                                         @method('PATCH')
                                         <label class="sr-only" for="reason-{{ $organization->id }}">Reason</label>
                                         <input class="input" id="reason-{{ $organization->id }}" name="reason" placeholder="Reason (required)" required style="min-height:36px">
-                                        <button class="btn btn-primary btn-sm" name="status" value="approved">Approve</button>
+                                        <button class="btn btn-navy btn-sm" name="status" value="approved">Approve</button>
                                         <button class="btn btn-ghost btn-sm" name="status" value="rejected">Reject</button>
                                     </form>
                                 @else

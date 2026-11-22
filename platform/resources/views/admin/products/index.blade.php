@@ -5,7 +5,7 @@
 @section('admin')
     <div class="admin-top">
         <h1>Products &amp; prices</h1><span class="spacer"></span>
-        <a class="btn btn-primary btn-sm" href="{{ route('admin.products.create') }}"><x-icon name="plus" /> New product</a>
+        <a class="btn btn-navy btn-sm" href="{{ route('admin.products.create') }}"><x-icon name="plus" /> New product</a>
     </div>
 
     <form method="GET" class="card card-pad row" style="margin-bottom:16px;align-items:flex-end">

@@ -18,7 +18,7 @@
                             <tr>
                                 <td><a href="{{ route('admin.crm.leads.show', $lead) }}"><strong>{{ $lead->title }}</strong></a>
                                     <div class="muted small">{{ $lead->source->label() }} · {{ $lead->organization?->name ?? $lead->contact_name }} · waiting {{ $lead->created_at->diffForHumans(null, true) }}</div></td>
-                                <td><form method="POST" action="{{ route('admin.crm.leads.assign', $lead) }}">@csrf<input type="hidden" name="assigned_to" value="me"><button class="btn btn-primary btn-sm" type="submit">Take it</button></form></td>
+                                <td><form method="POST" action="{{ route('admin.crm.leads.assign', $lead) }}">@csrf<input type="hidden" name="assigned_to" value="me"><button class="btn btn-navy btn-sm" type="submit">Take it</button></form></td>
                             </tr>
                         @endforeach
                     </tbody></table></div>

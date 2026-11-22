@@ -148,7 +148,7 @@ class DevelopmentCatalogSeeder extends Seeder
         foreach ($categoryNames as $slug => [$name, $summary]) {
             Category::query()->where('slug', $slug)->update(['name_bn' => $name, 'summary_bn' => $summary]);
         }
-        foreach (['dark-compound-chocolate' => 'ডার্ক কম্পাউন্ড চকলেট', 'premium-all-purpose-flour' => 'প্রিমিয়াম ময়দা', 'carbon-steel-wok-14' => 'কার্বন স্টিল ওক ১৪"', 'gn-pan-stainless-steel' => 'জিএন প্যান (স্টেইনলেস স্টিল)'] as $slug => $name) {
+        foreach (['dark-compound-chocolate' => 'ডার্ক কম্পাউন্ড চকলেট', 'premium-all-purpose-flour' => 'প্রিমিয়াম ময়দা', 'carbon-steel-wok-14' => 'কার্বন স্টিল ওক 14"', 'gn-pan-stainless-steel' => 'জিএন প্যান (স্টেইনলেস স্টিল)'] as $slug => $name) {
             Product::query()->where('slug', $slug)->update(['name_bn' => $name, 'short_description_bn' => 'পরীক্ষামূলক তালিকা — আসল পণ্য বা মূল্য নয়।']);
         }
 

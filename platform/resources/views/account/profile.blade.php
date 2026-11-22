@@ -17,7 +17,7 @@
                 @error('phone')<p class="field-error" id="phone-error">{{ $message }}</p>@enderror</div>
             <div class="field"><label for="email">{{ __('Email (optional)') }}</label><input class="input" id="email" name="email" type="email" value="{{ old('email', $user->email) }}" autocomplete="email" @error('email') aria-invalid="true" aria-describedby="email-error" @enderror>
                 @error('email')<p class="field-error" id="email-error">{{ $message }}</p>@enderror</div>
-            <button class="btn btn-primary" type="submit">{{ __('Save profile') }}</button>
+            <button class="btn btn-navy" type="submit">{{ __('Save profile') }}</button>
         </form>
 
         <form method="POST" action="{{ route('account.password') }}" class="card card-pad reveal reveal-2" novalidate>

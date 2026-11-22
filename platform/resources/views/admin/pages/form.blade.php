@@ -18,6 +18,6 @@
             <div class="field"><label for="seo_description">SEO description (optional, ≤ 160 characters recommended)</label><input class="input" id="seo_description" name="seo_description" value="{{ old('seo_description', $page->seo_description) }}" maxlength="320"></div>
             <div class="field full"><label class="row" style="gap:8px"><input type="checkbox" name="is_published" value="1" @checked(old('is_published', $page->is_published))> Published (visible on the website and in the sitemap)</label></div>
         </div>
-        <button class="btn btn-primary" type="submit">Save page</button>
+        <button class="btn btn-navy" type="submit">Save page</button>
     </form>
 @endsection

@@ -15,7 +15,7 @@
   border: 1px solid var(--bh-border); border-radius: var(--bh-radius-sm); background: #fff; color: var(--bh-navy); text-decoration: none; font-size: var(--bh-fs-sm);
 }
 .pagination a.page:hover { border-color: var(--bh-navy); }
-.pagination .current { background: var(--bh-navy); color: #fff; border-color: var(--bh-navy); font-weight: 700; }
+.pagination .current { background: var(--bh-navy); color: #fff; border-color: var(--bh-navy); font-weight: 600; }
 .pagination .disabled { color: var(--bh-muted); opacity: 0.6; }
 
 .seo-copy { margin-top: 20px; }
@@ -38,14 +38,14 @@
 .table-wrap { position: relative; }
 
 /* Admin catalog */
-.admin-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
+.admin-layout { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
 .admin-nav { padding: 10px; position: sticky; top: 90px; }
 .admin-nav a { display: flex; gap: 10px; align-items: center; min-height: 40px; padding: 0 10px; border-radius: var(--bh-radius-sm); color: var(--bh-text); text-decoration: none; font-size: var(--bh-fs-sm); }
 .admin-nav a:hover { background: var(--bh-bg); }
 .admin-nav a[aria-current="page"] { background: var(--bh-teal-soft); color: var(--bh-teal); font-weight: 600; }
-.admin-nav h4 { margin: 12px 10px 4px; font-size: 0.6875rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--bh-muted); }
+.admin-nav h4 { margin: 16px 10px 4px; font-size: var(--bh-fs-xs); font-weight: 600; color: var(--bh-muted); }
 .variant-row { border: 1px solid var(--bh-border); border-radius: var(--bh-radius); padding: 14px; margin-bottom: 12px; background: var(--bh-bg); }
-.variant-row legend { font-weight: 700; color: var(--bh-navy); padding: 0 6px; }
+.variant-row legend { font-weight: 600; color: var(--bh-navy); padding: 0 6px; }
 .variant-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0 12px; }
 .field-error { color: var(--bh-error); font-size: var(--bh-fs-xs); }
 .reason-box { border-left: 4px solid var(--bh-orange); background: var(--bh-orange-soft); padding: 12px 14px; border-radius: var(--bh-radius-sm); margin: 12px 0; }
@@ -62,7 +62,7 @@
   .variant-grid { grid-template-columns: 1fr; }
 }
 
-.tier-list { list-style: none; padding: 0; margin: 6px 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--bh-fs-sm); }
+.tier-list { list-style: none; padding: 0; margin: 6px 0; display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: var(--bh-fs-sm); font-variant-numeric: tabular-nums; }
 .lang-switch { display: inline-flex; gap: 4px; align-items: center; }
 .lang-switch button { background: transparent; border: 1px solid rgba(255, 255, 255, 0.35); color: #fff; border-radius: 4px; padding: 1px 8px; font-size: var(--bh-fs-xs); cursor: pointer; }
 .lang-switch button[aria-pressed="true"] { background: var(--bh-orange); color: var(--bh-navy-deep); border-color: var(--bh-orange); }
@@ -75,7 +75,6 @@
 }
 
 /* Phase 6: business & reseller portals */
-.eyebrow { display: inline-block; font-size: var(--bh-fs-xs); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .portal-main { min-width: 0; }
 .portal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
 .portal-shortcuts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
@@ -106,9 +105,13 @@
 .crm-timeline li::before { content: ""; position: absolute; left: -5px; top: 11px; width: 8px; height: 8px; border-radius: 50%; background: var(--bh-teal); }
 .crm-timeline li.crm-system::before { background: var(--bh-muted); }
 .report-h { font-size: var(--bh-fs-lg); margin: 4px 0 10px; }
-.report-kpis { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.report-kpis { grid-template-columns: repeat(4, 1fr); } /* Phase 9.5: seven money cards as 4 + 4, net revenue spans two */
+.report-kpis .kpi-hero { grid-column: span 2; }
+.report-split { grid-template-columns: 1fr 1fr; }
+@media (max-width: 960px) { .report-kpis { grid-template-columns: 1fr 1fr; } .report-split { grid-template-columns: 1fr; } }
 .kpi-hero { border: 2px solid var(--bh-teal); }
 .hbar { display: block; height: 8px; width: var(--w, 0%); min-width: 2px; background: var(--bh-chart-1); border-radius: 0 4px 4px 0; }
+.hbar[style*="--w: 0%"] { display: none; } /* a zero value draws no bar (it read as data) */
 .chart-wrap { position: relative; }
 .bar-chart { width: 100%; height: auto; display: block; overflow: visible; }
 .bar-chart .grid { stroke: var(--bh-border); stroke-width: 1; }
@@ -156,12 +159,12 @@
 }
 .lang-switch button { min-height: 24px; min-width: 24px; padding: 2px 8px; }
 .section-head a { display: inline-flex; align-items: center; min-height: 24px; }
-.check input { width: 20px; height: 20px; }
+.check input { width: 24px; height: 24px; } /* Phase 9.5: 24 × 24 minimum target (WCAG 2.5.8) */
 .topbar :focus-visible, .catnav :focus-visible, .site-footer :focus-visible, .role-head :focus-visible, .hero :focus-visible { outline-color: var(--bh-orange); }
 /* Teal text on the teal tint uses the darker teal step (4.28:1 → 5.17:1). */
 .fchip, .dash-side nav a[aria-current="true"], .status.info, .admin-nav a[aria-current="page"] { color: var(--bh-teal-text); }
 summary.small { padding-block: 3px; }
-.topbar-help { color: inherit; text-decoration: none; } .topbar-help:hover { text-decoration: underline; }
+.topbar-help { color: inherit; text-decoration: none; display: inline-flex; align-items: center; min-height: 24px; } .topbar-help:hover { text-decoration: underline; }
 
 /* Phase 9: language links (localized pages) share the switch button look */
 .lang-switch a { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 8px; border: 1px solid rgba(255, 255, 255, 0.35); border-radius: 4px; color: #fff; font-size: var(--bh-fs-xs); text-decoration: none; }
@@ -170,3 +173,25 @@ summary.small { padding-block: 3px; }
 /* Phase 9 responsive fix: below 960 px the category bar is hidden and the drawer replaces the mega
    menu; the invisible mega menu still widened the page (horizontal scroll at 360–390 px). */
 @media (max-width: 960px) { .mega { display: none; } }
+
+/* Phase 9.5 (G7): workspace header for admin and organization portals (no shop search, cart or category bar). */
+.workspace-label { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-left: 1px solid var(--bh-border); font-size: var(--bh-fs-sm); font-weight: 600; color: var(--bh-navy); text-decoration: none; }
+.workspace-label:hover { color: var(--bh-teal-text); }
+.workspace .masthead .container { min-height: 64px; }
+@media (max-width: 960px) { .mobile-tabbar.tabbar-3 { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px) { .workspace-label { display: none; } }
+/* Phase 9.5 (D4): admin work queues; each card opens the matching filtered list. */
+.ops-kpis { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.kpi-link { color: inherit; text-decoration: none; transition: border-color var(--bh-dur-fast) var(--bh-ease), box-shadow var(--bh-dur-fast) var(--bh-ease); }
+.kpi-link:hover { border-color: var(--bh-border-strong); box-shadow: var(--bh-shadow); }
+/* Phase 9.5 (G9): one colour transition for interactive chrome (colour, background, border only), and no
+   press scale or hover lift when the visitor prefers reduced motion. Durations already drop to 0 via tokens. */
+.icon-btn, .fchip, .catnav a, .dash-side nav a, .admin-nav a, .drawer nav a, .pagination .page, .section-head a, .crumbs a, .lang-switch a, .site-footer a {
+  transition: background-color var(--bh-dur-fast) var(--bh-ease), color var(--bh-dur-fast) var(--bh-ease), border-color var(--bh-dur-fast) var(--bh-ease);
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn:active { transform: none; }
+  .pcard:hover, .cat-tile:hover, .portal-shortcuts a:hover { transform: none; }
+}
+/* Phase 9.5: payment radios and form checkboxes meet the 24 × 24 target too (WCAG 2.5.8). */
+.pay-opt input, .check input { width: 24px; height: 24px; min-width: 24px; flex: none; }

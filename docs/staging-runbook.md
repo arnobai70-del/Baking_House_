@@ -69,7 +69,7 @@ The scheduler writes a heartbeat every minute; run readiness again a couple of m
   strict-origin-when-cross-origin`, `Permissions-Policy` (camera, microphone, geolocation, payment off),
   `Cross-Origin-Opener-Policy: same-origin`, HSTS (1 year, subdomains) over HTTPS only.
 - **Content-Security-Policy** (off only when `APP_DEBUG=true`): `default-src 'self'`; scripts only from this site (no inline);
-  styles self + inline + Google Fonts; images self + `data:`; `frame-ancestors 'none'`; `object-src 'none'`;
+  styles self + inline; fonts self-hosted (`public/fonts`, Phase 9.5); images self + `data:`; `frame-ancestors 'none'`; `object-src 'none'`;
   `form-action 'self'`. **When live payment adapters are built, add the provider hosts to `form-action` / `connect-src`.**
 - **Staging gate:** HTTP Basic, bcrypt hash, constant-time user check, fails closed when no hash is set, `noindex` on the 401.
   `/up` (health check) and `/api/v1/webhooks/*` stay open (provider signatures are verified there).

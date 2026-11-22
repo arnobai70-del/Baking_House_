@@ -3,7 +3,7 @@
 @section('admin')
     <div class="admin-top">
         <h1>Bundles &amp; combos</h1><span class="spacer"></span>
-        <a class="btn btn-primary btn-sm" href="{{ route('admin.bundles.create') }}"><x-icon name="plus" /> New bundle</a>
+        <a class="btn btn-navy btn-sm" href="{{ route('admin.bundles.create') }}"><x-icon name="plus" /> New bundle</a>
     </div>
     <div class="card"><div class="table-wrap"><table class="table">
         <thead><tr><th>Name</th><th>Discount</th><th>Items</th><th>For</th><th>Status</th><th></th></tr></thead>

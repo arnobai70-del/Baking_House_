@@ -82,7 +82,7 @@
                     </div>
                     @php $firstTiers = $tiersByVariant[$first->id] ?? []; @endphp
                     @if ($firstTiers !== [])
-                        <div class="alert alert-info tier-box" style="margin:10px 0">
+                        <div class="alert tier-box" style="margin:10px 0">
                             <x-icon name="store" />
                             <div>
                                 <strong>{{ $audience === \App\Enums\CustomerAudience::Retail ? __('Buy more, pay less') : __('Your '.strtolower($audience->label()).' price') }}</strong>
@@ -143,14 +143,14 @@
                     <div class="row" style="margin-top:14px" id="buy-actions" @if ($first->pricing_mode === PricingMode::QuoteOnly) hidden @endif>
                         <button class="btn btn-primary" style="flex:1" type="submit"><x-icon name="cart" /> {{ __('Add to cart') }}</button>
                         <button class="btn btn-navy" type="submit" name="buy_now" value="1">{{ __('Buy now') }}</button>
-                        <a class="btn btn-outline" href="#quote"><x-icon name="quote" /> {{ __('Bulk quote') }}</a>
                     </div>
-                    <p class="hint">{{ __('Prices shown are previews; the server recalculates price and stock at checkout.') }}</p>
+                    <p class="hint">{{ __('Prices shown are previews; the server recalculates price and stock at checkout.') }}
+                        <a class="quote-link" href="#quote">{{ __('Need a larger quantity? Request a quote') }}</a></p>
                 </form>
             @endif
 
             <details class="card" id="quote" style="margin-top:16px" @if ($product->isQuoteOnly()) open @endif>
-                <summary class="card-pad" style="cursor:pointer;font-weight:700;color:var(--bh-navy)"><x-icon name="quote" /> {{ __('Request a quote for :name', ['name' => $product->localized('name')]) }}</summary>
+                <summary class="card-pad quote-summary">{{ __('Request a quote for :name', ['name' => $product->localized('name')]) }}</summary>
                 <div class="card-pad" style="padding-top:0">
                     @include('storefront.partials.rfq-form', [
                         'prefill' => ['name' => auth()->user()?->name, 'phone' => auth()->user()?->phone, 'email' => auth()->user()?->email],

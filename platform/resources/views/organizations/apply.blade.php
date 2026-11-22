@@ -31,6 +31,6 @@
             <input class="input" id="contact_phone" name="contact_phone" value="{{ old('contact_phone', auth()->user()->phone) }}" inputmode="tel" placeholder="01XXXXXXXXX" required @error('contact_phone') aria-invalid="true" aria-describedby="phone-error" @enderror>
             @error('contact_phone')<p class="field-error" id="phone-error">{{ $message }}</p>@enderror
         </div>
-        <button class="btn btn-primary" type="submit">{{ __('Submit application') }}</button>
+        <button class="btn btn-navy" type="submit">{{ __('Submit application') }}</button>
     </form>
 @endsection

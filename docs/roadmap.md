@@ -191,6 +191,16 @@ TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into 
 - Owner authorization for the actual staging deployment (server, domain, TLS, database, backups).
 - On staging: readiness with 0 FAIL, tester acceptance, real-network performance, device screen-reader pass.
 
+## Phase 9.5 — built (platform/), UI/UX refinement (no redesign)
+- Audit: `docs/ui-audit-phase9.5.md` (Unslop method, polish mode). Record: `docs/qa-phase9.5.md`.
+- G1 self-hosted Noto Sans + Noto Sans Bengali, weights 400–700, sentence-case labels, tabular figures, footer band fix, 24 px targets.
+- G2 orange only on the purchase path and the hero; G3 homepage headline + live department panel, balanced category tiles;
+  G4 one badge per card, "Featured" instead of "Popular", honest card actions, search breadcrumb;
+  G5 product page: two actions + quote link, stronger calculated price, quiet tier note, 4:3 mobile placeholder;
+  G6 one page-heading pattern for account / business / reseller / admin; G7 workspace layout for admin and portals plus
+  four permission-gated admin counts; G8 report KPI grid, no zero bars, readable breakdown tables; G9 press and colour
+  transitions, reduced-motion safe; G10 Western digit in the demo Bangla product name.
+
 ## Launch blockers (owner / business)
 1. Real, licensed product photography (none uploaded; placeholders are labelled).
 2. Payment provider contracts and live credentials (live payments not authorised; test mode only).

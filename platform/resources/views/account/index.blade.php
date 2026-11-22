@@ -1,18 +1,14 @@
 @extends('layouts.app', ['title' => __('My account')])
 
 @section('content')
-    <div class="role-head role-retail reveal">
-        <x-icon name="user" class="icon icon-lg" />
-        <div>
-            <h1>{{ __('Hello, :name', ['name' => $user->name]) }}</h1>
-            <p>{{ __('Customer dashboard') }} · {{ $user->phone ?? $user->email }}</p>
-        </div>
+    <div class="admin-top page-head reveal">
+        <div><h1>{{ __('My account') }}</h1>
+            <p class="muted small">{{ $user->name }} · {{ $user->phone ?? $user->email }}</p></div>
     </div>
 
     <div class="portal-shortcuts reveal reveal-2" style="margin-bottom:16px">
         <a class="card card-pad" href="{{ route('account.profile') }}"><x-icon name="user" /><strong>{{ __('Profile & password') }}</strong><span class="muted small">{{ __('Name, mobile, email and password.') }}</span></a>
         <a class="card card-pad" href="{{ route('account.addresses') }}"><x-icon name="truck" /><strong>{{ __('My addresses') }}</strong><span class="muted small">{{ __('Delivery addresses for faster checkout.') }}</span></a>
-        <a class="card card-pad" href="#orders"><x-icon name="list" /><strong>{{ __('My orders') }}</strong><span class="muted small">{{ __('Status, payment and invoices.') }}</span></a>
         <a class="card card-pad" href="{{ route('contact') }}"><x-icon name="info" /><strong>{{ __('Contact & support') }}</strong><span class="muted small">{{ __('Questions about an order or product.') }}</span></a>
         @can('admin.access')
             <a class="card card-pad" href="{{ route('account.security') }}"><x-icon name="lock" /><strong>{{ __('Security & MFA') }}</strong><span class="muted small">{{ __('Two-step sign-in for staff.') }}</span></a>
@@ -25,8 +21,8 @@
             <div class="card-pad">
                 <p class="muted">{{ __('Buying for a restaurant, café, bakery or shop? Apply for protected business or reseller pricing.') }}</p>
                 <div class="row">
-                    <a class="btn btn-teal" href="{{ route('organizations.apply', 'business') }}">{{ __('Apply for a business account') }}</a>
-                    <a class="btn btn-navy" href="{{ route('organizations.apply', 'reseller') }}">{{ __('Apply as reseller') }}</a>
+                    <a class="btn btn-outline" href="{{ route('organizations.apply', 'business') }}">{{ __('Apply for a business account') }}</a>
+                    <a class="btn btn-outline" href="{{ route('organizations.apply', 'reseller') }}">{{ __('Apply as reseller') }}</a>
                 </div>
             </div>
         @else
@@ -47,7 +43,7 @@
                                         <input type="hidden" name="organization_id" value="{{ $organization->id }}">
                                         <button class="btn btn-outline btn-sm" type="submit">{{ __('Buy for this account') }}</button>
                                     </form>
-                                    <a class="btn btn-primary btn-sm" href="{{ route($organization->type->value.'.dashboard') }}">{{ __('Open dashboard') }}</a>
+                                    <a class="btn btn-navy btn-sm" href="{{ route($organization->type->value.'.dashboard') }}">{{ __('Open dashboard') }}</a>
                                 @endif
                             </td>
                         </tr>
