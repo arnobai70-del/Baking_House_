@@ -23,8 +23,6 @@ class MfaManager
 {
     public const RECOVERY_CODE_COUNT = 8;
 
-    public const ISSUER = 'Baking House';
-
     private Google2FA $google2fa;
 
     public function __construct()
@@ -46,7 +44,7 @@ class MfaManager
 
     public function provisioningUri(User $user): string
     {
-        return $this->google2fa->getQRCodeUrl(self::ISSUER, $user->email ?? $user->phone ?? (string) $user->id, (string) $user->mfa_secret);
+        return $this->google2fa->getQRCodeUrl((string) config('brand.name'), $user->email ?? $user->phone ?? (string) $user->id, (string) $user->mfa_secret);
     }
 
     public function qrCodeSvg(User $user): string

@@ -1,4 +1,8 @@
-# Baking House
+# NadimShop.com
+
+> Renamed from **Baking House** on 2026-11-22 (decision D-070). The shop name is configurable (`APP_NAME`); the domain is not
+> confirmed yet and is only ever taken from `APP_URL`. The repository, folders, namespaces and database names keep their
+> original technical names on purpose.
 
 Bangladesh's one-stop supply marketplace for **bakery, restaurant, café, Chinese kitchen and commercial food-service** buyers.
 Retail, Business (restaurant/café) and Reseller journeys on one owned-stock e-commerce platform that is ready to become a marketplace.

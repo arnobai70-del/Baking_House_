@@ -36,6 +36,7 @@
     <meta property="og:description" content="{{ $seo->metaDescription() }}">
     <meta property="og:site_name" content="{{ config('seo.site_name') }}">
     <meta name="theme-color" content="#103B56">
+    <link rel="icon" href="{{ asset('favicon.svg') }}" type="image/svg+xml">
     @include('layouts._fonts')
     @foreach ($seo->jsonLdScripts() as $jsonLd)
         <script type="application/ld+json">{!! $jsonLd !!}</script>
@@ -82,9 +83,9 @@
     <div class="header-wrap">
         <header class="masthead"><div class="container">
             <button class="icon-btn menu-toggle" data-drawer-open="nav-drawer" aria-label="{{ __('Open menu') }}" aria-controls="nav-drawer" aria-expanded="false"><x-icon name="menu" /></button>
-            <a class="logo" href="{{ route('home') }}" aria-label="{{ __('Baking House home') }}">
+            <a class="logo" href="{{ route('home') }}" aria-label="{{ __(':brand home', ['brand' => config('brand.name')]) }}">
                 <span class="logo-mark"><x-icon name="logo" class="" /></span>
-                <span class="logo-text"><strong>Baking House</strong><span>Bakery · Restaurant · Café · Food Supply</span></span>
+                <span class="logo-text"><strong>{{ config('brand.name') }}</strong><span>{{ config('brand.tagline') }}</span></span>
             </a>
             @if ($workspace)
                 <a class="workspace-label" href="{{ $workspaceHome }}">{{ $workspaceLabel }}</a>
@@ -196,7 +197,7 @@
     </main>
 
     @unless ($workspace)
-    <section class="trust-strip" aria-label="{{ __('Why Baking House') }}"><div class="container">
+    <section class="trust-strip" aria-label="{{ __('Why :brand', ['brand' => config('brand.name')]) }}"><div class="container">
         <div class="trust"><x-icon name="truck" /><div><strong>{{ __('Nationwide delivery') }}</strong><span>{{ __('Courier partners pending') }}</span></div></div>
         <div class="trust"><x-icon name="card" /><div><strong>{{ __('bKash, Nagad, card & bank') }}</strong><span>{{ __('Provider integration pending') }}</span></div></div>
         <div class="trust"><x-icon name="store" /><div><strong>{{ __('Wholesale & business pricing') }}</strong><span>{{ __('For verified accounts') }}</span></div></div>
@@ -207,7 +208,7 @@
         @unless ($workspace)
         <div class="container">
             <div>
-                <a class="logo" href="{{ route('home') }}"><span class="logo-mark"><x-icon name="logo" class="" /></span><span class="logo-text"><strong>Baking House</strong><span>Bakery · Restaurant · Café · Food Supply</span></span></a>
+                <a class="logo" href="{{ route('home') }}"><span class="logo-mark"><x-icon name="logo" class="" /></span><span class="logo-text"><strong>{{ config('brand.name') }}</strong><span>{{ config('brand.tagline') }}</span></span></a>
                 <p>{{ __('Complete supply marketplace for bakery, restaurant, café, Chinese kitchen and food businesses in Bangladesh.') }}</p>
             </div>
             <div><h3>{{ __('Shop') }}</h3><ul>
@@ -235,7 +236,7 @@
             </ul></div>
         </div>
         @endunless
-        <div class="footer-base"><div class="container">© {{ date('Y') }} Baking House{{ app()->isProduction() ? '' : ' · development build' }}</div></div>
+        <div class="footer-base"><div class="container">© {{ date('Y') }} {{ config('brand.name') }}{{ app()->isProduction() ? '' : ' · development build' }}</div></div>
     </footer>
 
     <nav class="mobile-tabbar{{ $workspace ? ' tabbar-3' : '' }}" aria-label="{{ __('Quick navigation') }}">

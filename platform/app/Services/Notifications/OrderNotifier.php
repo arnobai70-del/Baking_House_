@@ -23,14 +23,14 @@ class OrderNotifier
         $link = route('orders.show', ['order' => $order->number] + ($guestKey !== null ? ['key' => $guestKey] : []));
 
         $this->send($order, 'order_placed', sprintf(
-            'Baking House: order %s received. Total %s (%s). Track: %s',
-            $order->number, Taka::format($order->total_paisa), $order->payment_method->label(), $link,
+            '%s: order %s received. Total %s (%s). Track: %s',
+            config('brand.name'), $order->number, Taka::format($order->total_paisa), $order->payment_method->label(), $link,
         ));
     }
 
     public function paymentReceived(Order $order): void
     {
-        $this->send($order, 'payment_received', sprintf('Baking House: payment received for order %s. Thank you!', $order->number));
+        $this->send($order, 'payment_received', sprintf('%s: payment received for order %s. Thank you.', config('brand.name'), $order->number));
     }
 
     public function statusChanged(Order $order, OrderStatus $status): void
@@ -39,12 +39,12 @@ class OrderNotifier
             return;
         }
 
-        $this->send($order, 'status_'.$status->value, sprintf('Baking House: order %s is now %s.', $order->number, strtolower($status->label())));
+        $this->send($order, 'status_'.$status->value, sprintf('%s: order %s is now %s.', config('brand.name'), $order->number, strtolower($status->label())));
     }
 
     public function refundRecorded(Order $order, int $amountPaisa): void
     {
-        $this->send($order, 'refund_recorded', sprintf('Baking House: a refund of %s for order %s has been recorded.', Taka::format($amountPaisa), $order->number));
+        $this->send($order, 'refund_recorded', sprintf('%s: a refund of %s for order %s has been recorded.', config('brand.name'), Taka::format($amountPaisa), $order->number));
     }
 
     public static function mask(string $value): string
@@ -83,7 +83,7 @@ class OrderNotifier
 
         if (config('commerce.notifications.email_enabled') && $order->customer_email) {
             $this->attempt($order, 'email', (string) config('mail.default'), $template, $order->customer_email, fn () => Mail::raw($message, function ($mail) use ($order): void {
-                $mail->to($order->customer_email)->subject('Baking House order '.$order->number);
+                $mail->to($order->customer_email)->subject(config('brand.name').' order '.$order->number);
             }));
         }
     }

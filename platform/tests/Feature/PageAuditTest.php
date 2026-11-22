@@ -131,7 +131,7 @@ class PageAuditTest extends TestCase
         $bundle = Bundle::factory()->withItems([[$pan, 1]])->create();
         Promotion::factory()->coupon('SAVE10')->create();
         $category = Category::query()->findOrFail($pan->product->primary_category_id);
-        Page::query()->create(['slug' => 'about-us', 'title' => 'About Baking House', 'body' => "## Who we are\n\nTest content."])->forceFill(['is_published' => true])->save();
+        Page::query()->create(['slug' => 'about-us', 'title' => 'About NadimShop.com', 'body' => "## Who we are\n\nTest content."])->forceFill(['is_published' => true])->save();
 
         [$organization, $owner] = $this->businessWith();
         [$resellerOrganization, $resellerOwner] = $this->resellerWith();

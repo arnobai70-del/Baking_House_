@@ -65,7 +65,7 @@ class MediaApprovalTest extends TestCase
             'alt_text' => 'Steel wok 36 cm with wooden handle, front view',
             'alt_text_bn' => 'কাঠের হাতলসহ স্টিলের কড়াই',
             'source_type' => 'own_photography',
-            'creator' => 'Baking House studio',
+            'creator' => 'NadimShop.com studio',
             'license_type' => 'Owned',
             'attested' => '1',
         ];

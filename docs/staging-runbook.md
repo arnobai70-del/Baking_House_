@@ -27,6 +27,14 @@
    `PAYMENTS_MODE=test`, `MAIL_MAILER=log`, `SMS_DRIVER=log`.
 6. Seller / bank fields stay blank until the owner supplies verified details. Nothing is invented.
 
+### Domain (nadimshop.com not yet confirmed)
+
+The shop name is NadimShop.com (`APP_NAME`), but ownership and DNS of the domain are **not confirmed**. Nothing in the code
+hard-codes a domain: links, canonical URLs, hreflang, the sitemap and structured data all come from `APP_URL`. Keep the
+placeholder until the owner confirms registration, then: point DNS (A / AAAA or CNAME) at the server, issue the TLS
+certificate, set `APP_URL=https://<confirmed host>`, and for email set SPF / DKIM / DMARC for the sending domain before
+changing `MAIL_FROM_ADDRESS`. Re-run `php artisan app:readiness --target=staging`.
+
 ## 3. Deploy steps (staging)
 
 ```bash

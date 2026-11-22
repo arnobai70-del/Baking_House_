@@ -74,6 +74,7 @@ Ambiguities are recorded here as decisions — never silently guessed.
 | D-067 | 2026-11-22 | The staff-curated flag is labelled "Featured" (badge, home section, "Featured first" sort); the sort URL value stays `popular` | No unmeasured popularity claims; links unchanged |
 | D-068 | 2026-11-22 | Homepage hero shows the departments with live product counts (same counts as shop filters) instead of an image slot | Real catalog data, no placeholder as first impression |
 | D-069 | 2026-11-22 | Admin dashboard shows four work-queue counts, each only with the permission of its screen; no money figures | Least privilege |
+| D-070 | 2026-11-22 | Public name changed from Baking House to NadimShop.com via configuration (`APP_NAME` → `brand.name`, `seo.site_name`); domain stays in `APP_URL` until ownership and DNS are confirmed; repository, folders, namespaces, database tables, package names and the Phase 1 prototype keep their names; Git history untouched | Owner rebrand; no unnecessary technical renames |
 | D-008 | 2026-11-20 | Single seller (owned stock) at launch; vendor extension later | §17 |
 
 ## Engineering assumptions for open business inputs

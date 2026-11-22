@@ -195,3 +195,6 @@ summary.small { padding-block: 3px; }
 }
 /* Phase 9.5: payment radios and form checkboxes meet the 24 × 24 target too (WCAG 2.5.8). */
 .pay-opt input, .check input { width: 24px; height: 24px; min-width: 24px; flex: none; }
+/* Rebrand: "NadimShop.com" is longer than the former wordmark; on the narrowest phones it steps down so the
+   header (menu, logo, account, cart) still fits 360 px without horizontal scroll. */
+@media (max-width: 400px) { .logo-text strong { font-size: 1.0625rem; } .logo { gap: 8px; } }

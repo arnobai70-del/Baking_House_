@@ -76,8 +76,8 @@ class CrmService
         ])->save();
 
         $this->write($lead, ActivityType::Note, "Message from the website:\n".$data['message'], null);
-        $this->notifier->direct('contact_received', $data['phone'], $data['email'], 'Baking House: we received your message',
-            'Baking House: thank you, we received your message and will reply soon.');
+        $this->notifier->direct('contact_received', $data['phone'], $data['email'], config('brand.name').': we received your message',
+            config('brand.name').': thank you, we received your message and will reply soon.');
 
         return $lead;
     }
@@ -278,7 +278,7 @@ class CrmService
             ->with('assignee:id,name,email')->orderBy('id')->each(function (CrmTask $task) use (&$count): void {
                 $claimed = CrmTask::query()->whereKey($task->id)->whereNull('reminded_at')->update(['reminded_at' => now()]);
                 if ($claimed === 1 && $task->assignee !== null) {
-                    $this->notifier->direct('crm_task_due', null, $task->assignee->email, 'Baking House CRM: follow-up due',
+                    $this->notifier->direct('crm_task_due', null, $task->assignee->email, config('brand.name').' CRM: follow-up due',
                         'Follow-up due: '.$task->title.' ('.$task->due_at->timezone('Asia/Dhaka')->format('d M Y H:i').').');
                     $count++;
                 }
