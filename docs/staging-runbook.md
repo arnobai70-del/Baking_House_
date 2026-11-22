@@ -11,7 +11,7 @@
 | PHP | 8.3 FPM with OPcache (`opcache.validate_timestamps=0` in production), extensions: pdo_mysql, mbstring, intl, gd (with WebP; AVIF optional), fileinfo, openssl |
 | Database | MySQL 8 / MariaDB 10.6+ (SQLite is a readiness FAIL for production) |
 | Web server | Nginx or Apache, document root `platform/public`, HTTPS only (HTTP → HTTPS redirect), gzip / brotli for HTML, CSS, JS |
-| Static caching | `Cache-Control: public, max-age=31536000, immutable` for `/css`, `/js` (URLs carry a content hash) and `/storage/media` |
+| Static caching | `Cache-Control: public, max-age=31536000, immutable` for `/css`, `/js` (URLs carry a content hash), `/fonts` (versioned file names) and `/storage/media`; `/images` (contextual and representative photos) with `max-age=604800` (rename a file when replacing it, or lower this) |
 | Cron | `* * * * * cd /path/to/platform && php artisan schedule:run >> /dev/null 2>&1` |
 | Queue | Not required today (no queued jobs); add a worker when a mail / SMS provider is connected with queued delivery |
 | Backups | Daily database dump and `storage/app` (private originals of product photos), stored off-server, restore tested |

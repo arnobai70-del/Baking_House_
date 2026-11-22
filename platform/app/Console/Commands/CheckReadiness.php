@@ -49,6 +49,8 @@ class CheckReadiness extends Command
         }
 
         $this->check('Public storage link', is_link(public_path('storage')) || is_dir(public_path('storage')), $live, 'Run php artisan storage:link (approved product photos are served from it).');
+        $this->check('No preview stock product photos', config('representative_images', []) === [], $production,
+            'Launch check L-IMG-1: replace every product stock photo with an own or supplier photo and empty config/representative_images.php.');
         $this->check('GD with WebP', function_exists('imagewebp'), $live, 'Install PHP GD with WebP for photo renditions.');
         $this->check('GD with AVIF (optional)', function_exists('imageavif'), false, 'AVIF renditions are skipped without it; JPEG / WebP still work.');
         $this->check('OPcache enabled (web PHP)', (bool) ini_get('opcache.enable') || (bool) ini_get('opcache.enable_cli'), false, 'Enable OPcache in PHP-FPM; this CLI check can differ from the web server.');

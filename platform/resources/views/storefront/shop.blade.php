@@ -21,11 +21,22 @@
     </ol></nav>
 
     @if ($category)
-        <header class="card category-head">
+        @php
+            /* Department photo (IMAGE_CREDITS.md); sub-categories use their department's photo. */
+            $headSlug = (collect($trail)->first() ?? $category)->slug;
+            $headPhoto = is_file(public_path("images/categories/{$headSlug}.webp")) ? $headSlug : null;
+        @endphp
+        <header class="card category-head {{ $headPhoto ? 'has-photo' : '' }}">
+            @if ($headPhoto)
+                <img class="category-photo" src="{{ asset("images/categories/{$headPhoto}.webp") }}"
+                     srcset="{{ asset("images/categories/{$headPhoto}-400.webp") }} 400w, {{ asset("images/categories/{$headPhoto}-600.webp") }} 600w, {{ asset("images/categories/{$headPhoto}.webp") }} 800w"
+                     sizes="(max-width: 960px) 100vw, 420px" width="800" height="600" fetchpriority="high" decoding="async" alt="">
+            @endif
             <span class="category-icon"><x-icon :name="$category->icon" class="icon icon-lg" /></span>
             <div>
                 <h1>{{ $category->localized('name') }}</h1>
                 @if ($category->localized('summary'))<p class="muted">{{ $category->localized('summary') }}</p>@endif
+                <p class="category-count tnum">{{ trans_choice(':count product|:count products', $products->total()) }}</p>
                 @if ($facets['categories']->isNotEmpty())
                     <div class="subcats">
                         @foreach ($facets['categories'] as $child)
@@ -132,7 +143,7 @@
                 @else
                     <div class="grid grid-4" id="results" aria-live="polite">
                         @foreach ($products as $product)
-                            <x-product-card :product="$product" />
+                            <x-product-card :product="$product" :eager="$loop->index < 4" />
                         @endforeach
                     </div>
                     <div class="pager">{{ $products->onEachSide(1)->links('storefront.partials.pagination') }}</div>

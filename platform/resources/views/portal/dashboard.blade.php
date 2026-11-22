@@ -9,6 +9,21 @@
         @endforeach
     </div>
 
+    {{-- Same destinations as the portal navigation (no new data); business sees quotations, resellers their rate card. --}}
+    <section class="card portal-actions" aria-labelledby="portal-actions-title">
+        <div class="panel-title"><h2 id="portal-actions-title">{{ __('Quick actions') }}</h2></div>
+        <div class="shortcuts shortcuts-4">
+            <a href="{{ route($portal.'.bulk') }}"><x-icon name="pallet" /> {{ __('Bulk order') }}</a>
+            <a href="{{ route($portal.'.orders') }}"><x-icon name="list" /> {{ __('Orders & reorder') }}</a>
+            @if ($portal === 'business')
+                <a href="{{ route('business.quotations') }}"><x-icon name="quote" /> {{ __('Quotations') }}</a>
+            @endif
+            <a href="{{ route($portal.'.prices') }}"><x-icon name="tag" /> {{ $portal === 'business' ? __('Business pricing') : __('My rate card') }}</a>
+            <a href="{{ route($portal.'.statements') }}"><x-icon name="file" /> {{ __('Invoices & statements') }}</a>
+            <a href="{{ route($portal.'.team') }}"><x-icon name="users" /> {{ __('Team & access') }}</a>
+        </div>
+    </section>
+
     @foreach ($quotesAwaiting as $quotation)
         <div class="alert alert-info" style="margin-bottom:12px"><x-icon name="quote" />
             <span>{{ __('Quote :number is ready: :total, valid until :date.', ['number' => $quotation->number, 'total' => Taka::format($quotation->total_paisa), 'date' => $quotation->valid_until->timezone('Asia/Dhaka')->format('d M Y')]) }}

@@ -113,7 +113,13 @@ class PortalPagesTest extends TestCase
 
     public function test_public_landing_pages_product_rfq_form_and_sitemap(): void
     {
-        $this->get('/business')->assertOk()->assertSee('Business pricing, bulk orders')->assertSee('name="request_text"', false)->assertSee('Licensed photo pending');
+        $this->get('/business')->assertOk()->assertSee('Business pricing, bulk orders')->assertSee('name="request_text"', false)
+            ->assertSee('images/contextual/business-restaurant-kitchen-1600.webp', false)->assertSee('alt="Stainless steel range with pots in a professional restaurant kitchen"', false);
+        // The licensed contextual photo is optional: without the file the labelled placeholder returns.
+        $publicPath = public_path();
+        $this->app->usePublicPath(sys_get_temp_dir());
+        $this->get('/business')->assertOk()->assertSee('Licensed photo pending')->assertDontSee('class="scene-photo"', false);
+        $this->app->usePublicPath($publicPath);
         $this->get('/reseller')->assertOk()->assertSee('Reseller rate card')->assertDontSee('name="request_text"', false);
         $this->get('/sitemap.xml')->assertOk()->assertSee(route('business.landing'))->assertSee(route('reseller.landing'));
 

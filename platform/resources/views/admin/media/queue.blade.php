@@ -25,7 +25,7 @@
                             @if ($image->source_url)<tr><th>Source URL</th><td style="word-break:break-all">{{ $image->source_url }}</td></tr>@endif
                             <tr><th>Size</th><td>{{ $image->width }}×{{ $image->height }} px</td></tr>
                             <tr><th>Uploaded by</th><td>{{ $image->uploader?->name ?? '—' }}</td></tr>
-                            <tr><th>Attested real</th><td>{{ $image->authenticity_attested ? 'Yes' : 'No' }}</td></tr>
+                            <tr><th>Attested accurate</th><td>{{ $image->authenticity_attested ? 'Yes' : 'No' }}</td></tr>
                             @if ($image->review_note)<tr><th>Note</th><td>{{ $image->review_note }}</td></tr>@endif
                         </tbody></table>
                         @if ($image->review_status === 'pending')

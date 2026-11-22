@@ -13,6 +13,7 @@ use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Models\Quotation;
 use App\Models\User;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -25,12 +26,33 @@ class DashboardController extends Controller
     {
         return view('admin.dashboard', [
             'counts' => $this->operationalCounts($request->user()),
+            'orderTrend' => $request->user()->can(StaffPermission::ManageOrders->value) ? $this->orderTrend() : null,
             'pendingOrganizations' => Organization::query()
                 ->where('status', OrganizationStatus::Pending->value)
                 ->with('members:id,name,phone')
                 ->oldest()
                 ->get(),
         ]);
+    }
+
+    /** Days shown in the orders-per-day chart. */
+    public const TREND_DAYS = 14;
+
+    /**
+     * Orders placed per day over the last TREND_DAYS days, from real order records (counts only, no money).
+     *
+     * @return list<array{date: CarbonImmutable, count: int}>
+     */
+    private function orderTrend(): array
+    {
+        $start = CarbonImmutable::today()->subDays(self::TREND_DAYS - 1);
+        $perDay = Order::query()->whereNotNull('placed_at')->where('placed_at', '>=', $start)
+            ->selectRaw('date(placed_at) as day, count(*) as orders')->groupBy('day')->pluck('orders', 'day');
+
+        return array_map(fn (int $offset) => [
+            'date' => $start->addDays($offset),
+            'count' => (int) ($perDay[$start->addDays($offset)->toDateString()] ?? 0),
+        ], range(0, self::TREND_DAYS - 1));
     }
 
     /**

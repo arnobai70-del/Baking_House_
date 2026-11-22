@@ -2,6 +2,7 @@
 
 namespace App\Services\Media;
 
+use App\Enums\ImageSourceType;
 use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\User;
@@ -14,7 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Real-images-only workflow for product photos.
+ * Provenance-controlled workflow for product images (D-074: AI-generated allowed when declared).
  *
  * Upload (media.manage): the file is decoded and checked (real JPEG / PNG / WebP by content, size
  * and pixel limits, declared AI-generation metadata, duplicates), then RE-ENCODED with GD so no
@@ -25,9 +26,10 @@ use Illuminate\Validation\ValidationException;
  * generated (400 / 800 / 1200 px; JPEG, plus WebP and AVIF where the server supports them).
  * Reject / withdraw / licence expiry delete the public renditions again.
  *
- * AI-generated images cannot be detected reliably by software. The controls are: provenance
- * documentation, a staff attestation, rejection of files that DECLARE AI generation in their
- * metadata (IPTC / C2PA "trainedAlgorithmicMedia", known generator names), and human review.
+ * AI-generated images are allowed (D-074) but must be declared: a file whose metadata declares AI
+ * generation (IPTC / C2PA "trainedAlgorithmicMedia", known generator names) is rejected unless its
+ * source is recorded as "AI-generated". Every image still needs provenance, an accuracy
+ * attestation and approval by a second staff member.
  */
 class ProductImageService
 {
@@ -56,7 +58,8 @@ class ProductImageService
     public function upload(Product $product, UploadedFile $file, array $details, bool $attested, User $uploader): ProductImage
     {
         $bytes = (string) file_get_contents($file->getRealPath());
-        $this->assertAcceptable($bytes);
+        $this->assertAcceptable($bytes, ($details['source_type'] ?? null) === ImageSourceType::AiGenerated->value
+            || ($details['source_type'] ?? null) === ImageSourceType::AiGenerated);
 
         $hash = hash('sha256', $bytes);
         if (ProductImage::query()->where('sha256', $hash)->exists()) {
@@ -266,7 +269,7 @@ class ProductImageService
     /**
      * @throws ValidationException
      */
-    public function assertAcceptable(string $bytes): void
+    public function assertAcceptable(string $bytes, bool $declaredAi = false): void
     {
         $fail = fn (string $message) => throw ValidationException::withMessages(['photo' => $message]);
 
@@ -291,9 +294,12 @@ class ProductImageService
             $fail('The photo is too large: at most '.self::MAX_EDGE.' px per side.');
         }
 
+        if ($declaredAi) {
+            return;
+        }
         foreach (self::AI_MARKERS as $marker) {
             if (stripos($bytes, $marker) !== false) {
-                $fail("This file's metadata declares AI-generated or AI-edited content (\"{$marker}\"). Only real photographs are accepted.");
+                $fail("This file's metadata declares AI-generated or AI-edited content (\"{$marker}\"). Record its source as \"AI-generated image\".");
             }
         }
     }

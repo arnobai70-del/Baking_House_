@@ -38,6 +38,8 @@ Use the **View as** selector in the top bar to switch between Guest, Retail, Bus
 - Palette: navy `#103B56`, teal `#087D88`, orange CTA `#F18B0A`, white surfaces. **No red accent.**
 - Weight products: integer grams as canonical quantity; < 1000 g shown in grams, ≥ 1000 g shown in kg. ৳650/kg × 700 g = **৳455**.
 - Money in integer paisa — never binary floats. Server is authoritative; client only previews.
-- **Real photography only.** No AI-generated images. Missing photos use a neutral "photo pending" placeholder.
+- **Images (D-074):** own, supplier, licensed or AI-generated images are allowed; every image keeps a provenance record
+  (`IMAGE_CREDITS.md`, Admin › Photo review) and product images must truthfully show the item. Missing photos use a
+  neutral "photo pending" placeholder. Generation prompts: [docs/image-asset-manifest.md](docs/image-asset-manifest.md).
 
 See [docs/roadmap.md](docs/roadmap.md) for the phase plan and gates.

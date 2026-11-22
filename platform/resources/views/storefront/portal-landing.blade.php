@@ -23,7 +23,21 @@
                     @if ($isBusiness)<a class="btn btn-outline" href="#rfq">{{ __('Request a quote') }}</a>@endif
                 </div>
             </div>
-            <div class="reveal reveal-2"><x-photo-placeholder :icon="$isBusiness ? 'store' : 'pallet'" :label="__('Licensed photo pending')" class="ph-wide" /></div>
+            @php
+                /* Contextual scene photo (licensed Pexels stock, see IMAGE_CREDITS.md): allowed for banners by
+                   docs/image-policy.md, never used as a product photo. Falls back to the placeholder if missing. */
+                [$scene, $sceneAlt] = $isBusiness
+                    ? ['images/contextual/business-restaurant-kitchen', __('Stainless steel range with pots in a professional restaurant kitchen')]
+                    : ['images/contextual/reseller-warehouse-aisle', __('Warehouse aisle with tall shelves of boxed stock')];
+            @endphp
+            <div class="reveal reveal-2">
+                @if (is_file(public_path($scene.'-1600.webp')))
+                    <img class="scene-photo" src="{{ asset($scene.'-1600.webp') }}" srcset="{{ asset($scene.'-800.webp') }} 800w, {{ asset($scene.'-1600.webp') }} 1600w"
+                         sizes="(max-width: 960px) 100vw, 560px" width="1600" height="1200" alt="{{ $sceneAlt }}" fetchpriority="high" decoding="async">
+                @else
+                    <x-photo-placeholder :icon="$isBusiness ? 'store' : 'pallet'" :label="__('Licensed photo pending')" class="ph-wide" />
+                @endif
+            </div>
         </div>
     </section>
 

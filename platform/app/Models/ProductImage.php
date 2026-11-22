@@ -11,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Product photo under the real-images-only policy.
+ * Product image with recorded provenance (real photo, or declared AI-generated image since D-074).
  *
  * The uploaded original is kept on the PRIVATE disk. Public renditions (resized JPEG / WebP /
  * AVIF) are generated only when a second staff member approves the photo with complete
@@ -144,7 +144,7 @@ class ProductImage extends Model
             $missing[] = 'English alt text';
         }
         if (! $this->authenticity_attested) {
-            $missing[] = 'authenticity confirmation (real photo, not AI-generated or AI-altered)';
+            $missing[] = 'accuracy confirmation (shows this exact product truthfully)';
         }
 
         return $missing;
