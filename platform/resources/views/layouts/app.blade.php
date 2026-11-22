@@ -130,7 +130,7 @@
         <nav class="catnav" aria-label="{{ __('Categories') }}"><div class="container">
             <button class="all" id="mega-toggle" aria-expanded="false" aria-controls="mega"><x-icon name="menu" /> {{ __('All Categories') }}</button>
             @foreach ($navigation->take(7) as $navCategory)
-                <a href="{{ $navCategory->url() }}" @if (request()->is('category/'.$navCategory->slug)) aria-current="page" @endif>{{ $navCategory->localized('name') }}</a>
+                <a href="{{ $navCategory->url() }}" @if (request()->is('category/'.$navCategory->slug)) aria-current="page" @endif><x-icon :name="$navCategory->icon" />{{ $navCategory->localized('name') }}</a>
             @endforeach
         </div></nav>
 

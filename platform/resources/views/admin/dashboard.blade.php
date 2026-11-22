@@ -42,7 +42,7 @@
                         <g class="bar-hit">
                             <rect class="hit" x="{{ $x - $gap / 2 }}" y="0" width="{{ $barW + $gap }}" height="{{ $chartH }}" />
                             @if ($day['count'] > 0)
-                                <path class="bar" d="M{{ $x }},{{ $chartH }} V{{ $chartH - $h + 4 }} q0,-4 4,-4 h{{ $barW - 8 }} q4,0 4,4 V{{ $chartH }} Z" />
+                                <path class="bar" style="--i: {{ $i }}" d="M{{ $x }},{{ $chartH }} V{{ $chartH - $h + 4 }} q0,-4 4,-4 h{{ $barW - 8 }} q4,0 4,4 V{{ $chartH }} Z" />
                             @endif
                             <title>{{ $day['date']->format('D j M') }}: {{ $day['count'] }} {{ \Illuminate\Support\Str::plural('order', $day['count']) }}</title>
                         </g>
