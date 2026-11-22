@@ -90,3 +90,42 @@ CPU slowdown. Median of 3–5 runs.
   placeholder description" on products. It is data, so edit it in Admin or the seeder.
 - The header department icon row (the text category bar is kept, to avoid overflow at 1024 px).
 - Payment provider logos (need brand permission).
+
+## Homepage unified (D-076, branch `feature/homepage-unified`)
+
+**Audit before:** departments appeared six times:
+- the header bar;
+- the hero list;
+- the category tiles with sub-links;
+- the featured tabs;
+- two banners that only linked to two departments;
+- the café / catering chips.
+
+"Request a quote" and "business pricing" were repeated in the service strip and the business cards.
+
+**Journey now:**
+1. Hero, with the department cards (photo, live count) overlapping its lower edge.
+2. Service facts, once.
+3. Featured products by department: bakery, ingredients, decoration, packaging, bulk.
+4. Restaurant, café & commercial kitchen: its own products and aisles.
+5. A server-priced combo.
+6. Business / reseller entry points.
+
+The controller never shows a product in two blocks (tested). The page is ~340 px shorter at 1366 px.
+
+**Motion** (transform / opacity only; all off with `prefers-reduced-motion`):
+- cross-page view transitions, with the header kept still;
+- the hero photo settles (scale only, so LCP is not delayed);
+- the orange stroke draws under the headline;
+- the cake inset and the department cards rise in sequence;
+- the tab underline slides;
+- tab panels and gallery images fade;
+- status messages slide in;
+- buttons give on press;
+- admin chart bars grow;
+- KPI whole numbers count up.
+
+**Checks:**
+- 393 tests passed; Pint clean.
+- 8 widths, EN + BN, home / shop / product / admin: no overflow, CSP or JS errors.
+- Production-like vitals, home: desktop LCP 0.7 s (was 1.1 s); mobile slow-4G cold 3.1 s (was 3.8–4.3 s), warm 0.5 s; CLS 0.

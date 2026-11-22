@@ -4,7 +4,7 @@
  * with a small stagger inside a grid. Content already on screen at load is never hidden, so the first paint and
  * LCP are unaffected; without JS or with prefers-reduced-motion nothing is hidden at all. Transform and opacity only.
  */
-const TARGETS = '.section-head, .grid > .pcard, .cat-grid > .cat-tile, .audience > .aud-panel, .b2b-band > .card, .portal-steps > *, .combo';
+const TARGETS = '.section-head, .grid > .pcard, .commercial-panel, .b2b-x > *, .b2b-band > .card, .portal-steps > *, .combo, .shortcuts > a, .kpi';
 const STAGGER_MS = 60;
 const MAX_STAGGER = 5;
 
@@ -30,4 +30,26 @@ function initScrollReveal() {
   pending.forEach((el) => { el.classList.add('rv'); observer.observe(el); });
 }
 
+/**
+ * Dashboard KPIs: plain whole numbers count up once when first shown (never money, which keeps its server
+ * formatting). The final text is always the server's value.
+ */
+function initCountUp() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  document.querySelectorAll('.kpi .k-val').forEach((el) => {
+    const text = el.textContent.trim();
+    if (!/^\d{1,6}$/.test(text) || text === '0') return;
+    const target = Number(text);
+    const start = performance.now();
+    const duration = 600;
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      el.textContent = String(Math.round(target * (1 - (1 - t) ** 3)));
+      if (t < 1) requestAnimationFrame(step); else el.textContent = text;
+    };
+    requestAnimationFrame(step);
+  });
+}
+
 initScrollReveal();
+initCountUp();

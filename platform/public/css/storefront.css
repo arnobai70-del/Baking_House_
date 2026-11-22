@@ -221,51 +221,11 @@ summary.small { padding-block: 3px; }
 .line .rep-photo { width: 80px; }
 @media (max-width: 640px) { .line .rep-photo { width: 64px; } }
 @media (prefers-reduced-motion: reduce) { .pcard:hover .rep-photo img { transform: none; } }
-/* Homepage hero v3 (owner review 2026-11-22): light split, navy text on white, bright kitchen photo with a bakery
-   inset. No dark wash, no zoom. Phones: photos on top, text below. */
-.hero-v3 { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 56px; align-items: center; padding: 56px 56px 60px;
-  background: var(--bh-surface); border: 1px solid var(--bh-border); border-radius: var(--bh-radius-lg); }
-.hero-eyebrow { margin: 0 0 14px; color: var(--bh-teal-text); font-weight: 600; font-size: var(--bh-fs-sm); }
-.hero-v3 h1 { color: var(--bh-navy); font-size: clamp(2rem, 1.2rem + 2.3vw, 3.05rem); line-height: 1.1; letter-spacing: -0.01em; margin: 0 0 24px; max-width: 17ch; }
-.hero-v3 h1 em { font-style: normal; color: var(--bh-navy); background: linear-gradient(transparent 64%, rgba(241, 139, 10, 0.38) 64%); padding: 0 2px; }
-.hero-v3 .hero-points li { color: var(--bh-text); font-size: var(--bh-fs-md); }
-.hero-v3 .hero-points .icon { width: 22px; height: 22px; padding: 4px; margin-top: 1px; border-radius: 50%; background: var(--bh-teal-soft); color: var(--bh-teal); }
-.hero-v3-media { position: relative; padding: 0 0 36px 44px; }
-.hero-main { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; max-height: 560px; object-fit: cover; border-radius: 20px; }
-.hero-inset { position: absolute; left: 0; bottom: 0; width: 44%; height: auto; aspect-ratio: 1; object-fit: cover; border-radius: 16px;
-  border: 6px solid var(--bh-surface); box-shadow: 0 14px 34px rgba(8, 45, 70, 0.18); }
-@media (max-width: 960px) {
-  .hero-v3 { grid-template-columns: 1fr; gap: 20px; padding: 16px 16px 24px; }
-  .hero-v3-media { order: -1; padding: 0 0 24px 24px; }
-  .hero-main { aspect-ratio: 4 / 3; max-height: none; border-radius: 14px; }
-  .hero-inset { width: 36%; border-width: 4px; border-radius: 12px; }
-  .hero-v3-copy { padding: 0 6px; }
-  .hero-v3 h1 { max-width: none; }
-}
 
-/* Audience banners: text and colours unchanged; a real photo on the right half fades into the panel colour
-   (the panel gradient's midpoint, so there is no seam). Phones: photo on top, text below. */
-.aud-panel { position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center; min-height: 280px; padding: 0; }
-.aud-restaurant { --aud-edge: color-mix(in srgb, var(--bh-navy-deep), var(--bh-navy)); }
-.aud-bakery { --aud-edge: color-mix(in srgb, #06606a, var(--bh-teal)); }
-.aud-copy { position: relative; z-index: 1; width: 54%; padding: 32px 0 32px 28px; }
-.aud-media { position: absolute; top: 0; right: 0; bottom: 0; width: 52%; z-index: 0; }
-.aud-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
-.aud-bakery .aud-media img { object-position: 0% 50%; } /* keeps the cake clear of the fade */
-.aud-media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
-  background: linear-gradient(90deg, var(--aud-edge) 0%, var(--aud-edge) 8%, transparent 46%); }
-@media (max-width: 960px) {
-  .aud-panel { display: block; min-height: 0; }
-  .aud-media { position: relative; width: 100%; aspect-ratio: 16 / 9; }
-  .aud-media::after { background: linear-gradient(180deg, transparent 62%, var(--aud-edge) 100%); }
-  .aud-copy { width: auto; padding: 16px 24px 28px; }
-}
 
-/* Category tiles: one photo of the department's typical items across the top of each tile (same 4:3 frame;
-   the wide last tile in the 4- and 2-column layouts gets a wide frame instead of a tall one). */
-.cat-tile { overflow: hidden; }
-.cat-photo { display: block; width: calc(100% + 32px); max-width: none; height: auto; margin: -16px -16px 4px; aspect-ratio: 4 / 3; object-fit: cover; background: var(--bh-bg); }
-@media (max-width: 1180px) { .cat-grid > .cat-tile:last-child:nth-child(4n + 3) .cat-photo { aspect-ratio: 8 / 3; } }
+
+
+
 
 /* ---------- Premium visual pass (feature/premium-visual, D-074) ---------- */
 /* Hero: five verified departments / buying features as a check list instead of a paragraph. */
@@ -277,16 +237,7 @@ summary.small { padding-block: 3px; }
 main .trust-strip { margin-top: 16px; border: 1px solid var(--bh-border); border-radius: var(--bh-radius-lg); box-shadow: var(--bh-shadow-sm); }
 main .trust-strip .container { max-width: none; padding: 16px 20px; }
 
-/* Department tiles: photo with the department icon, a live product count, then the first aisles. */
-.cat-media { position: relative; margin: -16px -16px 4px; }
-.cat-media .cat-photo { margin: 0; width: 100%; }
-.cat-badge { position: absolute; left: 12px; bottom: -16px; width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--bh-teal);
-  display: grid; place-items: center; box-shadow: 0 2px 8px rgba(8, 45, 70, 0.16); }
-.cat-badge .icon { width: 18px; height: 18px; }
-.cat-media + h3 { margin-top: 18px; }
-.cat-count { margin: -4px 0 2px; font-size: var(--bh-fs-xs); color: var(--bh-teal-text); font-weight: 600; }
-.cat-tile:hover .cat-photo { transform: scale(1.03); }
-.cat-photo { transition: transform 300ms var(--bh-ease); }
+
 
 /* Featured products by department (progressive tabs). */
 .dept-tabs .tabs { margin-bottom: 16px; }
@@ -299,19 +250,7 @@ main .trust-strip .container { max-width: none; padding: 16px 20px; }
 .dept-more { margin: 12px 0 0; text-align: right; }
 .dept-more a { font-weight: 600; font-size: var(--bh-fs-sm); text-decoration: none; }
 
-/* Café, catering & takeaway band: photo + links to the real sub-categories. */
-.catering-band { display: grid; grid-template-columns: 0.9fr 1.1fr; margin-top: 16px; background: #fff; border: 1px solid var(--bh-border); border-radius: var(--bh-radius-lg); overflow: hidden; }
-.catering-band img { display: block; width: 100%; height: 100%; min-height: 220px; object-fit: cover; }
-.catering-copy { padding: 28px; align-self: center; }
-.catering-copy h3 { font-size: var(--bh-fs-xl); margin: 0 0 8px; color: var(--bh-navy); }
-.catering-copy p { color: var(--bh-muted); margin: 0 0 16px; }
-.chip-links { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
-.chip-links a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--bh-teal-soft);
-  color: var(--bh-teal-text); font-weight: 600; font-size: var(--bh-fs-sm); text-decoration: none; }
-.chip-links a:hover { background: var(--bh-teal); color: #fff; }
-@media (max-width: 960px) { .catering-band { grid-template-columns: 1fr; } .catering-band img { aspect-ratio: 16 / 9; height: auto; min-height: 0; } }
 
-.b2b-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--bh-teal-soft); color: var(--bh-teal); display: grid; place-items: center; margin-bottom: 12px; }
 
 /* Product cards: stock line, selection action vs. direct add, uniform white image frame. */
 .pcard .media .rep-photo, .pcard .media .ph { background: #fff; }
@@ -338,7 +277,6 @@ main .trust-strip .container { max-width: none; padding: 16px 20px; }
 /* Gallery thumbnails switch the main image in place. */
 .gallery-thumbs a { display: block; border: 2px solid transparent; border-radius: var(--bh-radius-sm); }
 .gallery-thumbs a[aria-current="true"] { border-color: var(--bh-orange); }
-@media (prefers-reduced-motion: reduce) { .cat-tile:hover .cat-photo { transform: none; } }
 .dept-tabs .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 4px; }
 .dept-tabs .tab { flex: none; white-space: nowrap; }
 
@@ -386,3 +324,173 @@ main .trust-strip .container { max-width: none; padding: 16px 20px; }
 }
 /* Card actions may wrap (longer Bangla labels in the 4-column shop grid at ~1024 px). */
 .pcard .btn { white-space: normal; text-align: center; line-height: 1.25; height: auto; min-height: 36px; padding-top: 6px; padding-bottom: 6px; }
+
+/* ======================================================================================================
+   Homepage, unified journey (owner reference 2026-11-22): dark hero with a bright kitchen photo, department
+   cards overlapping its lower edge, then service facts, featured products, restaurant & commercial block,
+   combo and business entry points. Each block appears once.
+   ====================================================================================================== */
+.hero-x { position: relative; }
+.hero-x-stage { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); min-height: 560px; padding-bottom: 72px;
+  border-radius: var(--bh-radius-lg); overflow: hidden; color: #fff; background: linear-gradient(118deg, var(--bh-navy-deep) 0%, var(--bh-navy) 58%, #0c4a58 100%); }
+.hero-x-media { position: absolute; top: 0; right: 0; bottom: 0; width: 58%; }
+.hero-x-photo { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 45%; }
+.hero-x-media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, var(--bh-navy) 0%, rgba(16, 59, 86, 0.55) 16%, rgba(16, 59, 86, 0) 38%),
+              linear-gradient(0deg, rgba(8, 45, 70, 0.55) 0%, rgba(8, 45, 70, 0) 30%); }
+.hero-x-inset { position: absolute; z-index: 1; left: 18%; bottom: 96px; width: 190px; height: auto; aspect-ratio: 1; object-fit: cover;
+  border-radius: 16px; border: 5px solid #fff; box-shadow: 0 18px 40px rgba(3, 20, 32, 0.4); }
+.hero-x-copy { position: relative; z-index: 1; grid-column: 1; padding: 52px 40px 40px 56px; max-width: 600px; }
+.hero-x .hero-eyebrow { color: var(--bh-on-navy-muted); }
+.hero-x h1 { color: #fff; font-size: clamp(2rem, 1.15rem + 2.4vw, 3.15rem); line-height: 1.08; letter-spacing: -0.01em; margin: 0; max-width: 16ch; }
+.hero-x h1 em { font-style: normal; color: var(--bh-orange); }
+.hero-swoosh { display: block; width: 220px; height: 14px; margin: 10px 0 22px; overflow: visible; }
+.hero-swoosh path { fill: none; stroke: var(--bh-orange); stroke-width: 4; stroke-linecap: round; }
+.hero-x .hero-points li { color: #e3edf3; }
+.hero-x .hero-points .icon { width: 20px; height: 20px; padding: 3px; border-radius: 50%; background: var(--bh-orange); color: var(--bh-navy-deep); }
+.hero-x .btn .icon { width: 18px; height: 18px; }
+.btn-ghost-light { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.55); }
+.btn-ghost-light:hover { background: rgba(255, 255, 255, 0.1); border-color: #fff; }
+.hero-x :focus-visible { outline-color: var(--bh-orange); }
+
+/* Department cards overlapping the hero's lower edge (the homepage's only department list). */
+.dept-rail { position: relative; z-index: 2; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; margin: -60px 24px 0; }
+.dept-card { position: relative; display: flex; flex-direction: column; background: var(--bh-surface); border: 1px solid var(--bh-border); border-radius: 14px;
+  overflow: hidden; text-decoration: none; box-shadow: 0 10px 26px rgba(8, 45, 70, 0.12);
+  transition: transform var(--bh-dur-fast) var(--bh-ease), box-shadow var(--bh-dur-fast) var(--bh-ease); }
+.dept-card img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; transition: transform 400ms var(--bh-ease); }
+.dept-card-icon { display: grid; place-items: center; aspect-ratio: 4 / 3; background: var(--bh-teal-soft); color: var(--bh-teal); }
+.dept-card-body { display: flex; flex-direction: column; gap: 2px; padding: 10px 40px 12px 12px; }
+.dept-card-name { color: var(--bh-navy); font-weight: 600; font-size: var(--bh-fs-sm); line-height: 1.25; }
+.dept-card-count { color: var(--bh-teal-text); font-size: var(--bh-fs-xs); font-weight: 600; }
+.dept-card-go { position: absolute; right: 10px; bottom: 12px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--bh-orange); color: var(--bh-navy-deep); font-weight: 700; font-size: 0.8125rem; transition: transform var(--bh-dur-fast) var(--bh-ease); }
+.dept-card:hover { transform: translateY(-4px); box-shadow: 0 16px 34px rgba(8, 45, 70, 0.16); }
+.dept-card:hover img { transform: scale(1.05); }
+.dept-card:hover .dept-card-go { transform: translateX(3px); }
+.dept-card:focus-visible { outline: 3px solid var(--bh-orange); outline-offset: 2px; }
+
+/* Restaurant, café & commercial kitchen block: navy photo panel + its own products. */
+.commercial { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 16px; align-items: start; }
+.commercial-panel { display: flex; flex-direction: column; background: var(--bh-navy); color: #fff; border-radius: var(--bh-radius-lg); overflow: hidden; }
+.commercial-panel img { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+.commercial-copy { padding: 20px 22px 24px; }
+.commercial-copy h2 { color: #fff; font-size: var(--bh-fs-xl); margin: 0 0 8px; }
+.commercial-copy p { color: #dbe7ef; margin: 0 0 16px; }
+.commercial-panel .chip-links a { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.commercial-panel .chip-links a:hover { background: var(--bh-orange); color: var(--bh-navy-deep); }
+.commercial-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); align-content: start; }
+.chip-links { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
+.chip-links a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; font-weight: 600; font-size: var(--bh-fs-sm); text-decoration: none;
+  transition: background-color var(--bh-dur-fast) var(--bh-ease), color var(--bh-dur-fast) var(--bh-ease); }
+
+/* Business / reseller entry points (links to the existing services). */
+.b2b-x { display: grid; grid-template-columns: 1.25fr repeat(3, minmax(0, 1fr)); gap: 14px; align-items: stretch; padding: 24px;
+  background: var(--bh-navy-deep); border-radius: var(--bh-radius-lg); }
+.b2b-x-intro h2 { color: #fff; font-size: var(--bh-fs-xl); margin: 0 0 6px; }
+.b2b-x-intro p { color: var(--bh-on-navy-muted); margin: 0; font-size: var(--bh-fs-sm); }
+.b2b-x-card { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-radius: 12px; text-decoration: none; color: #fff;
+  background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14);
+  transition: background-color var(--bh-dur-fast) var(--bh-ease), transform var(--bh-dur-fast) var(--bh-ease); }
+.b2b-x-card .icon { flex: none; width: 22px; height: 22px; color: var(--bh-orange); }
+.b2b-x-card strong { display: block; font-size: var(--bh-fs-sm); }
+.b2b-x-card small { display: block; color: var(--bh-on-navy-muted); font-size: var(--bh-fs-xs); margin-top: 2px; }
+.b2b-x-card:hover { background: rgba(255, 255, 255, 0.11); transform: translateY(-2px); }
+.b2b-x-card:focus-visible { outline: 3px solid var(--bh-orange); outline-offset: 2px; }
+
+main .trust-strip { margin-top: 20px; }
+
+@media (max-width: 1180px) {
+  /* Departments become a snap-scrolling row instead of squeezing seven cards. */
+  .dept-rail { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(168px, 1fr); overflow-x: auto; scroll-snap-type: x mandatory;
+    padding: 0 4px 10px; margin: -52px 12px 0; scrollbar-width: thin; }
+  .dept-card { scroll-snap-align: start; }
+  .commercial { grid-template-columns: 280px minmax(0, 1fr); }
+  .commercial-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .b2b-x { grid-template-columns: 1fr 1fr; }
+  .b2b-x-intro { grid-column: 1 / -1; }
+}
+@media (max-width: 960px) {
+  .hero-x-stage { display: block; min-height: 0; padding-bottom: 64px; }
+  .hero-x-media { position: relative; width: 100%; height: auto; aspect-ratio: 16 / 10; }
+  .hero-x-media::after { background: linear-gradient(0deg, var(--bh-navy-deep) 0%, rgba(8, 45, 70, 0) 45%); }
+  .hero-x-inset { width: 30%; left: auto; right: 16px; bottom: -28px; border-width: 4px; border-radius: 12px; }
+  .hero-x-copy { padding: 24px 20px 12px; max-width: none; }
+  .hero-x h1 { max-width: none; }
+  .commercial { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .dept-rail { grid-auto-columns: 46%; margin: -48px 8px 0; }
+  .b2b-x { grid-template-columns: 1fr; padding: 18px; }
+}
+
+/* Header: department icons in the category bar where there is room. */
+.catnav a .icon { display: none; width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; opacity: 0.85; }
+@media (min-width: 1560px) { .catnav a .icon { display: inline-block; } }
+
+/* ======================================================================================================
+   Motion, project-wide (transform / opacity only; everything is off for prefers-reduced-motion).
+   Signature: the orange stroke that draws under the hero headline, echoed by the sliding tab underline.
+   ====================================================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  /* Soft cross-fade between pages (browsers with cross-document view transitions); the header stays put. */
+  @view-transition { navigation: auto; }
+  .masthead { view-transition-name: masthead; }
+  ::view-transition-old(root) { animation: 160ms var(--bh-ease) both vt-out; }
+  ::view-transition-new(root) { animation: 220ms var(--bh-ease) both vt-in; }
+
+  /* Hero: photo settles (scale only, so LCP is not delayed), inset rises, stroke draws, departments follow. */
+  .hero-x-photo { animation: hero-settle 1400ms cubic-bezier(0.2, 0.7, 0.2, 1) both; transform-origin: 60% 50%; }
+  .hero-x-inset { animation: rise-in 700ms 350ms var(--bh-ease) both; }
+  .hero-swoosh path { stroke-dasharray: 250; stroke-dashoffset: 250; animation: draw 900ms 450ms cubic-bezier(0.6, 0, 0.2, 1) forwards; }
+  .dept-card { animation: rise-in 520ms calc(300ms + var(--i, 0) * 60ms) var(--bh-ease) both; }
+
+  /* Tabs: the selected tab's underline slides in; a newly shown panel fades up. */
+  .dept-tabs .tab { position: relative; }
+  .dept-tabs .tab::after { content: ""; position: absolute; left: 16px; right: 16px; bottom: 4px; height: 2px; border-radius: 2px; background: var(--bh-orange);
+    transform: scaleX(0); transition: transform 260ms var(--bh-ease); }
+  .dept-tabs .tab[aria-selected="true"]::after { transform: scaleX(1); }
+  .tabs-ready [role="tabpanel"]:not([hidden]) { animation: rise-in 280ms var(--bh-ease) both; }
+
+  /* Feedback: status messages slide in, pressed buttons give, gallery images cross-fade, chart bars grow. */
+  .alert[role="status"] { animation: slide-down 280ms var(--bh-ease) both; }
+  .btn:active:not([disabled]):not(.is-disabled) { transform: scale(0.97); }
+  .gallery-slide:not([hidden]) { animation: fade-in 240ms var(--bh-ease) both; }
+  .trend .bar { transform-box: fill-box; transform-origin: 50% 100%; animation: bar-grow 600ms calc(var(--i, 0) * 35ms) var(--bh-ease) both; }
+}
+@keyframes hero-settle { from { transform: scale(1.06); } to { transform: scale(1); } }
+@keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes draw { to { stroke-dashoffset: 0; } }
+@keyframes slide-down { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(6px); } }
+
+/* Hero, owner review 2: full browser width directly under the menu (like the reference) and shorter. The copy stays
+   aligned with the page content; the department cards keep the content width. */
+body { overflow-x: clip; } /* the full-bleed band must never add a horizontal scrollbar */
+.hero-x { width: 100vw; margin-left: calc(50% - 50vw); margin-top: -20px; }
+.hero-x-stage { border-radius: 0; min-height: 0; padding-bottom: 76px; }
+.hero-x-media { width: 56%; }
+.hero-x-copy { max-width: none; padding: 36px 32px 28px max(var(--bh-gutter), calc((100vw - var(--bh-max)) / 2 + var(--bh-gutter))); }
+.hero-x h1 { font-size: clamp(1.875rem, 1.1rem + 1.9vw, 2.6rem); max-width: 21ch; }
+.hero-x .hero-points { gap: 6px; margin-bottom: 22px; }
+.hero-x .hero-points li { font-size: var(--bh-fs-base, 1rem); }
+.hero-swoosh { margin: 8px 0 16px; }
+.hero-x-inset { width: 160px; bottom: 92px; }
+.dept-rail { max-width: calc(var(--bh-max) - 2 * var(--bh-gutter)); margin-left: auto; margin-right: auto; }
+@media (max-width: 1180px) { .dept-rail { margin-left: 12px; margin-right: 12px; } }
+@media (max-width: 960px) {
+  .hero-x { margin-top: -20px; }
+  .hero-x-media { width: 100%; aspect-ratio: 16 / 8; }
+  .hero-x-copy { padding: 20px var(--bh-gutter) 8px; }
+  .hero-x-inset { width: 26%; bottom: -24px; }
+}
+@media (max-width: 640px) { .dept-rail { margin-left: 8px; margin-right: 8px; } }
+@media (min-width: 961px) {
+  .hero-x-stage { grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr); }
+  .hero-x-media { width: 52%; }
+  .hero-x h1 { font-size: clamp(1.875rem, 1.05rem + 1.65vw, 2.45rem); max-width: 22ch; }
+  .hero-x-inset { left: 10%; }
+}

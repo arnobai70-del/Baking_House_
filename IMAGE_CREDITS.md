@@ -35,14 +35,9 @@ Originals of photos that are no longer used are in its `retired/` folder.
 
 | Files (`platform/public/images/…`) | Used on | Source | Photographer | Published | Camera | Edits |
 |---|---|---|---|---|---|---|
-| `hero/kitchen-range-{600,900,1200}.webp` | Homepage hero main photo (4:5), EN and BN | [Pexels 34276646](https://www.pexels.com/photo/34276646/) | Özkan Keklik | 12 Oct 2025 | not stated | 4:5 crop of the 4160×6240 original; resized |
+| `hero/bakery-kitchen-{800,1200,1600}.webp` | Homepage hero photo (1.4:1, full-width hero, right side behind a navy fade), EN and BN | [Unsplash u7egjbn8tzk](https://unsplash.com/photos/grey-metal-rolling-rack-u7egjbn8tzk) | Isaac Smith | 18 Jul 2019 | Canon EOS 6D | 1.4:1 crop (78%) of the 5089×3392 original, shifted right to leave out people by the windows; resized |
 | `hero/cake-piping-{400,800}.webp` | Homepage hero bakery inset (1:1) | [Pexels 8478181](https://www.pexels.com/photo/8478181/) | Los Muertos Crew | 25 Jun 2021 | not stated | square crop on the cake and piping bag (no face); resized |
-| `banners/restaurant-wok-{600,1200}.webp` | Homepage "For Restaurants & Cafés" banner | [Pexels 10324702](https://www.pexels.com/photo/10324702/) | Taha Samet Arslan | 22 Nov 2021 | not stated | 3:2 crop around the wok and flame; resized |
-| `banners/bakery-cake-{600,1200}.webp` | Homepage "For Bakeries & Home Bakers" banner | [Pexels 3983578](https://www.pexels.com/photo/3983578/) | Gustavo Fring | 22 Mar 2020 | Canon EOS 5D Mk III, 50 mm | Whole 3:2 frame (no face in frame); resized |
-| `banners/catering-buffet-{600,1200}.webp` | Homepage "Café, catering & takeaway" band | [Pexels 2337843](https://www.pexels.com/photo/2337843/) | Vidal Balielo Jr. | 19 May 2019 | Canon EOS 6D, 58 mm | 3:2 crop; resized |
-| `banners/catering-buffet-{600,1200}.webp` | Homepage "Café, catering & takeaway" band | [Pexels 2337843](https://www.pexels.com/photo/2337843/) | Vidal Balielo Jr. | 19 May 2019 | Canon EOS 6D, 58 mm | 3:2 crop; resized |
-| `banners/catering-buffet-{600,1200}.webp` | Homepage "Café, catering & takeaway" band | [Pexels 2337843](https://www.pexels.com/photo/2337843/) | Vidal Balielo Jr. | 19 May 2019 | Canon EOS 6D, 58 mm | 3:2 crop; resized |
-| `banners/catering-buffet-{600,1200}.webp` | Homepage "Café, catering & takeaway" band | [Pexels 2337843](https://www.pexels.com/photo/2337843/) | Vidal Balielo Jr. | 19 May 2019 | Canon EOS 6D, 58 mm | 3:2 crop; resized |
+| `banners/restaurant-wok-{600,1200}.webp` | Homepage "restaurants, cafés & commercial kitchens" panel | [Pexels 10324702](https://www.pexels.com/photo/10324702/) | Taha Samet Arslan | 22 Nov 2021 | not stated | 3:2 crop around the wok and flame; resized |
 | `contextual/business-restaurant-kitchen-{800,1600}.webp` | `/business` landing | [Pexels 6375558](https://www.pexels.com/photo/a-stainless-table-in-the-kitchen-6375558/) | [Skylar Kang](https://www.pexels.com/@skylar-kang/) | 2 Jan 2021 | Nikon D7000 | 4:3 crop that excludes a branded can |
 | `contextual/reseller-warehouse-aisle-{800,1600}.webp` | `/reseller` landing | [Pexels 5156696](https://www.pexels.com/photo/boxes-on-shelves-inside-a-warehouse-5156696/) | [Maor Attias](https://www.pexels.com/@maorattias/) | 21 Aug 2020 | Canon EOS 6D | 4:3 crop that excludes people, a branded forklift and box labels |
 
@@ -121,6 +116,8 @@ All seven tiles share one format:
 - the old hero, Pexels 7405059 (a dark display counter);
 - the bread-shelves hero, Pexels 35993723 (replaced by a mixed restaurant / kitchen scene so the hero is not bakery-only);
 - the dark kitchen-line hero, Pexels 4947388 (owner review: replaced by the light split hero);
+- the kitchen-range hero, Pexels 34276646 (owner review: replaced by a bright bakery-production kitchen closer to the approved reference);
+- the bakery banner (Pexels 3983578) and the catering band (Pexels 2337843): the homepage no longer repeats department links in banners;
 - the old flour, Pexels 5734741 (dark background);
 - the old cocoa, Pexels 9179843 (texture only);
 - the old sprinkles, Pexels 8471600 (blue surface);
@@ -135,15 +132,11 @@ All seven tiles share one format:
 
 | File | SHA-256 |
 |---|---|
+| `hero/bakery-kitchen-1200.webp` | `620f01e9558705242b2d95c55fe7a3eb6b4cc1b60972f79cca6e26003fe21eb7` |
+| `hero/bakery-kitchen-1600.webp` | `f86ac0d6ed73b5f791199f3eff2ad05bdfb6252baf20cdf4bffb2fca01f3c05e` |
+| `hero/bakery-kitchen-800.webp` | `9a6aa12284a338663549cc7f630270ee8a5856d1517c73f84478e904672403bd` |
 | `hero/cake-piping-400.webp` | `d120900e33fc787734f347479b1346dddf58c9de5f3ca6ccf7971ea01605b510` |
 | `hero/cake-piping-800.webp` | `89cc54a83d1d88326d78d8d6bb0b72e03e1add298d3383eca37ebbd9bb8bf81d` |
-| `hero/kitchen-range-1200.webp` | `fa8b9347da021573e70462eca81532918752256cc87f1e3d64706826b8eb4e69` |
-| `hero/kitchen-range-600.webp` | `44e00e844b0342eedb241c8c0a03597a525f383c4a17a6c2d36d3636f6332a94` |
-| `hero/kitchen-range-900.webp` | `18724d42fd4ff192e08f09d18e879804d2a12a7a67288d5382b86983125c2957` |
-| `banners/bakery-cake-1200.webp` | `d0f97377e73bf6302041c03cc8978ae54f37161aebd7375d90b8f473a5cb2b1c` |
-| `banners/bakery-cake-600.webp` | `8f192fc1c9860b2958bdb44723fd2b36da4a8b78f1387fe3fbbc0fd859365ed6` |
-| `banners/catering-buffet-1200.webp` | `f80197d4e0b8fed6bf3958db5e90e8ebb77dd32d6372e4412d0a42f241279ee9` |
-| `banners/catering-buffet-600.webp` | `b42133e97cbca4ef43900b15ceed2f7b4168ba688fdf0a7f4076c4b6cfa2ac56` |
 | `banners/restaurant-wok-1200.webp` | `88aecffb51b5af70ea4708e6b31579cab96524e00c31b74ac4a44c61016e50fb` |
 | `banners/restaurant-wok-600.webp` | `991a9d803134df9c0d34b2d36fc79dd3a241fa481fe40890f192784109e5e6f1` |
 | `categories/baking-tools-400.webp` | `d02742ddb656d3c6fce074e3a716f1683860b50f76469d7d7473a7b7ca9cab10` |
@@ -194,11 +187,8 @@ All seven tiles share one format:
 | `original: pexels-12354555-ayrat.jpg` | `c8b117f9fb7575866e1872531da97564aa5353a532236aff4329a18461dcf550` |
 | `original: pexels-16412992-beyzaa.jpg` | `0809f30b61a8d2597cc37a37d8a9f0c85d83db4df5483fdbcf64cff61ec9ff52` |
 | `original: pexels-20843711-ivan-vi.jpg` | `3cb106daaffb23d23ebde898299167d311825efe7a6946ae2eb93fcc6aa87b7e` |
-| `original: pexels-2337843-vidal-balielo-jr.jpg` | `cf5c16ebe72377e7ad0689d6a387cb629a63a6e45b2c1e8c65b6091b31ac2e4d` |
 | `original: pexels-2522610-zhugewala.jpg` | `c0f10e65367460dabcebc896149f2328b23fff8943f2db589c316ae4358d3ef6` |
 | `original: pexels-31703552-natalia-s.jpg` | `002686734dccd6b0679e189f4b5d6715930adcb19c83766084b09885971fd688` |
-| `original: pexels-34276646-ozkan-keklik.jpg` | `3c4156824051c2fa046dde3cc26893668c928193100c3afe1e41eaf6379b4204` |
-| `original: pexels-3983578-gustavo-fring.jpg` | `98090bbbfbb691ab6ef85760bcfcc34609f01a9fd710fed7fbfc497052f7977b` |
 | `original: pexels-4271686-alleksana.jpg` | `8643d700174a48adc7312bb797b3b8e01b9454b28df5c63d9eb0f126ce0f6c56` |
 | `original: pexels-5078591-nataliya-vaitkevich.jpg` | `96fec6a13a8b7f94e9d2c26838674ac46dd1b05780836c6fe15ce21d915c6558` |
 | `original: pexels-5156696-maor-attias.jpg` | `9ef52386a8fa493454750bb13c00e1b06f805b323d752b45e3a68fefe80df381` |
@@ -212,5 +202,6 @@ All seven tiles share one format:
 | `original: pexels-7525172-shvets-production.jpg` | `0856bbbc669d734dd78830283c89d91177306866fa2f9fb4b9278c9aec225ef8` |
 | `original: pexels-8478181-los-muertos-crew.jpg` | `0df31a80edcc63366fc85b5d782f11c29aabca7e8d9fce1a61df44d60251f95f` |
 | `original: unsplash-D0FWHT-eW_I-agenlaku-indonesia.jpg` | `6ccf6db52efd72ab51edd69804542ffa8fcd41d94c9b87e03066dcd35e0627db` |
+| `original: unsplash-u7egjbn8tzk-isaac-smith.jpg` | `1b12172602e1e2ad28b62941e15b128caefd95a2174b35cf37b65b5fe01fe758` |
 
 If a licence is withdrawn or a photo is reported, delete its file (and, for products, its config line). The page then falls back to the placeholder automatically.

@@ -11,14 +11,26 @@ use App\Services\Pricing\PricingContextResolver;
 use App\Services\Promotions\BundlePricer;
 use App\Support\RepresentativeImage;
 use App\Support\Seo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
+/**
+ * Homepage as one shopping journey, each block with its own job and no repeated products:
+ * hero + department cards → service facts → featured products by department → restaurant & commercial
+ * kitchen → combo → business / reseller entry points.
+ */
 class HomeController extends Controller
 {
-    /** Products per department tab on the homepage. */
+    /** Departments shown in their own "restaurant & commercial kitchen" block instead of the featured tabs. */
+    public const COMMERCIAL_DEPARTMENTS = ['restaurant-supply', 'kitchen-equipment'];
+
+    /** Products per featured department tab. */
     private const PER_DEPARTMENT = 5;
+
+    /** Products in the restaurant & commercial kitchen block. */
+    private const COMMERCIAL_LIMIT = 6;
 
     public function __invoke(Request $request, ProductListing $listing, PricingContextResolver $contexts, BundlePricer $pricer): View
     {
@@ -37,38 +49,62 @@ class HomeController extends Controller
             ],
         ]);
 
-        // Departments (same set and counts the shop filters show) for the tiles, tabs and banners.
+        // Departments (same set and counts the shop filters show).
         $categories = $listing->facets()['categories'];
+        [$commercial, $general] = $categories->partition(fn (Category $category) => in_array($category->slug, self::COMMERCIAL_DEPARTMENTS, true));
+
+        $commercialProducts = $this->productsIn($commercial, collect(), self::COMMERCIAL_LIMIT);
+        $shown = $commercialProducts->pluck('id');
 
         return view('storefront.home', [
             'seo' => $seo,
             'categories' => $categories,
-            'departments' => $this->departmentShelves($categories),
+            'commercialDepartments' => $commercial->values(),
+            'commercialProducts' => $commercialProducts,
+            'departments' => $this->departmentShelves($general->values(), $shown),
             'combo' => $this->featuredCombo($request, $contexts, $pricer),
         ]);
     }
 
     /**
-     * Up to five visible products per department (the department and its sub-categories), featured
-     * and in-stock first. Departments without products are left out.
+     * Up to five visible products per department, featured and in-stock first, never repeating a product
+     * already shown in another homepage block. Departments without products are left out.
      *
      * @param  Collection<int, Category>  $categories
+     * @param  Collection<int, int>  $exclude
      * @return Collection<int, array{category: Category, products: Collection<int, Product>, photographed: int}>
      */
-    private function departmentShelves(Collection $categories): Collection
+    private function departmentShelves(Collection $categories, Collection $exclude): Collection
     {
-        return $categories->map(function (Category $category) {
-            $ids = $category->children->pluck('id')->push($category->id)->all();
-            $products = Product::query()->visible()
-                ->whereHas('categories', fn ($query) => $query->whereIn('categories.id', $ids))
-                ->with(['primaryImage', 'primaryCategory:id,name,name_bn,slug,icon', 'variants' => fn ($query) => $query->where('is_active', true)])
-                ->orderByDesc('is_featured')->orderByDesc('in_stock')->orderBy('id')
-                ->limit(self::PER_DEPARTMENT)->get();
-
+        return $categories->map(function (Category $category) use (&$exclude) {
+            $products = $this->productsIn(collect([$category]), $exclude, self::PER_DEPARTMENT);
+            $exclude = $exclude->merge($products->pluck('id'));
             $photographed = $products->filter(fn (Product $product) => $product->primaryImage !== null || RepresentativeImage::forSlug($product->slug) !== null)->count();
 
             return ['category' => $category, 'products' => $products, 'photographed' => $photographed];
         })->filter(fn (array $shelf) => $shelf['products']->isNotEmpty())->values();
+    }
+
+    /**
+     * Visible products in the given departments (and their sub-categories), featured and in-stock first.
+     *
+     * @param  Collection<int, Category>  $departments
+     * @param  Collection<int, int>  $exclude
+     * @return Collection<int, Product>
+     */
+    private function productsIn(Collection $departments, Collection $exclude, int $limit): Collection
+    {
+        $ids = $departments->flatMap(fn (Category $category) => $category->children->pluck('id')->push($category->id))->all();
+        if ($ids === []) {
+            return new Collection;
+        }
+
+        return Product::query()->visible()
+            ->whereHas('categories', fn (Builder $query) => $query->whereIn('categories.id', $ids))
+            ->when($exclude->isNotEmpty(), fn (Builder $query) => $query->whereNotIn('products.id', $exclude->all()))
+            ->with(['primaryImage', 'primaryCategory:id,name,name_bn,slug,icon', 'variants' => fn ($query) => $query->where('is_active', true)])
+            ->orderByDesc('is_featured')->orderByDesc('in_stock')->orderBy('id')
+            ->limit($limit)->get();
     }
 
     /**
