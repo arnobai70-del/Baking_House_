@@ -21,22 +21,29 @@
 
     <div class="pdp">
         <section aria-label="{{ __('Product photos') }}">
-            <div class="gallery-main">
+            <div class="gallery-main" data-gallery>
                 @if ($images->isNotEmpty())
-                    <x-product-photo :image="$images->first()" sizes="(max-width: 960px) 100vw, 560px" :width="1200" eager />
+                    @foreach ($images as $image)
+                        <div class="gallery-slide" id="gslide-{{ $image->id }}" @unless ($loop->first) hidden @endunless>
+                            <x-product-photo :image="$image" sizes="(max-width: 960px) 100vw, 560px" :width="1200" :eager="$loop->first" />
+                        </div>
+                    @endforeach
+                @elseif ($representative = \App\Support\RepresentativeImage::forSlug($product->slug))
+                    <x-representative-photo :image="$representative" :priority="true" sizes="(max-width: 960px) 100vw, 560px" />
                 @else
                     <x-photo-placeholder :icon="$icon" :label="__('Real product photo pending')" />
                 @endif
             </div>
             @if ($images->count() > 1)
-                <ul class="gallery-thumbs" aria-label="{{ __('More photos') }}">
-                    @foreach ($images->skip(1) as $image)
-                        <li><a href="{{ $image->url() }}" target="_blank" rel="noopener"><x-product-photo :image="$image" sizes="120px" :width="400" /></a></li>
+                <ul class="gallery-thumbs" aria-label="{{ __('Product photos') }}">
+                    @foreach ($images as $image)
+                        <li><a href="{{ $image->url() }}" data-gallery-thumb="gslide-{{ $image->id }}" @if ($loop->first) aria-current="true" @endif
+                               aria-label="{{ __('Show photo :n of :total', ['n' => $loop->iteration, 'total' => $images->count()]) }}"><x-product-photo :image="$image" sizes="120px" :width="400" /></a></li>
                     @endforeach
                 </ul>
             @endif
-            @if ($images->isEmpty())
-                <p class="hint" style="margin-top:8px"><x-icon name="info" /> {{ __('Approved photography of this exact SKU will replace the placeholder (real-images-only policy).') }}</p>
+            @if ($images->isEmpty() && ! $representative)
+                <p class="hint" style="margin-top:8px"><x-icon name="info" /> {{ __('An approved image of this exact product will replace the placeholder.') }}</p>
             @endif
         </section>
 

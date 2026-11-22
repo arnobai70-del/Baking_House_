@@ -208,7 +208,7 @@ TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into 
   (`SELLER_LEGAL_NAME`), a sending email domain (SPF / DKIM / DMARC), and whether a new logo mark is wanted.
 
 ## Launch blockers (owner / business)
-1. Real, licensed product photography (none uploaded; placeholders are labelled).
+1. Product photography (none uploaded; placeholders are labelled). Own, supplier, licensed or — since D-074 — AI-generated images are allowed. The product stock photos are a dev preview only and must all be replaced first (launch check L-IMG-1 in `image-policy.md`; `app:readiness --target=production` fails until they are).
 2. Payment provider contracts and live credentials (live payments not authorised; test mode only).
 3. Mail and SMS providers (notifications are log-only). **No "forgot password" flow exists yet**: it needs a mail or SMS provider.
 4. Seller legal name, address, BIN / VAT details and bank transfer details (invoices say "not a VAT invoice").

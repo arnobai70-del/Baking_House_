@@ -160,15 +160,23 @@ function initAutoSubmit() {
 function initTabs() {
   $$('[data-tabs]').forEach((root) => {
     const tabs = $$('[role="tab"]', root);
-    const select = (tab) => {
+    const select = (tab, focus = true) => {
       tabs.forEach((t) => {
         const on = t === tab;
         t.setAttribute('aria-selected', String(on));
         t.tabIndex = on ? 0 : -1;
         $(`#${t.getAttribute('aria-controls')}`).hidden = !on;
       });
-      tab.focus();
+      if (focus) tab.focus();
     };
+    // Progressive tabs (homepage departments): every panel is visible without JavaScript; with it,
+    // the tab list appears and only the selected panel shows.
+    const list = $('[data-tablist]', root);
+    if (list && tabs.length) {
+      list.hidden = false;
+      root.classList.add('tabs-ready');
+      select(tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0], false);
+    }
     tabs.forEach((tab, i) => {
       tab.addEventListener('click', () => select(tab));
       tab.addEventListener('keydown', (event) => {
@@ -177,6 +185,20 @@ function initTabs() {
       });
     });
   });
+}
+
+/* ---------------- Product gallery: thumbnails switch the main image in place ----------------
+   Without JavaScript each thumbnail still opens its photo. */
+function initGallery() {
+  const main = $('[data-gallery]');
+  if (!main) return;
+  const thumbs = $$('[data-gallery-thumb]');
+  thumbs.forEach((thumb) => thumb.addEventListener('click', (event) => {
+    event.preventDefault();
+    const target = thumb.dataset.galleryThumb;
+    $$('.gallery-slide', main).forEach((slide) => { slide.hidden = slide.id !== target; });
+    thumbs.forEach((t) => (t === thumb ? t.setAttribute('aria-current', 'true') : t.removeAttribute('aria-current')));
+  }));
 }
 
 /* ---------------- Product buy box: weight calculator + fixed quantity ---------------- */
@@ -327,3 +349,4 @@ initAutoSubmit();
 initTabs();
 initBuyBox();
 initQuoteLinks();
+initGallery();

@@ -26,9 +26,14 @@
                 @if ($quote['audience'] !== 'retail')
                     <div class="alert alert-info" style="margin-bottom:12px"><x-icon name="store" /><span>{{ __('Prices shown are your :type prices.', ['type' => __($quote['audience'])]) }}</span></div>
                 @endif
+                @php $representatives = \App\Support\RepresentativeImage::bySkus(collect($quote['lines'])->where('type', 'item')->pluck('sku')); @endphp
                 @foreach ($quote['lines'] as $line)
                     <div class="line">
-                        <x-photo-placeholder :icon="match ($line['type']) { 'bundle' => 'gift', 'quotation' => 'quote', default => 'box' }" />
+                        @if ($line['type'] === 'item' && isset($representatives[$line['sku']]))
+                            <x-representative-photo :image="$representatives[$line['sku']]" :label="false" sizes="80px" />
+                        @else
+                            <x-photo-placeholder :icon="match ($line['type']) { 'bundle' => 'gift', 'quotation' => 'quote', default => 'box' }" />
+                        @endif
                         <div>
                             <h3>{{ $line['name'] ?? $line['sku'] ?? $line['slug'] }}</h3>
                             <div class="small muted">

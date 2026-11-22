@@ -16,7 +16,7 @@
 @endphp
 
 @section('content')
-    <div class="dash portal">
+    <div class="dash portal portal-{{ $portal }}">
         <aside class="card dash-side" aria-label="{{ __('Dashboard navigation') }}">
             <div class="dash-id">
                 <span class="avatar" aria-hidden="true" @if ($isBusiness) style="background:var(--bh-teal)" @endif>{{ $initials }}</span>

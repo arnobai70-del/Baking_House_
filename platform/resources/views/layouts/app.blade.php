@@ -46,6 +46,7 @@
     <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/app.css') }}">
     <link rel="stylesheet" href="{{ \App\Support\Asset::url('css/storefront.css') }}">
     <script type="module" src="{{ \App\Support\Asset::url('js/storefront.js') }}"></script>
+    <script type="module" src="{{ \App\Support\Asset::url('js/motion.js') }}"></script>
 </head>
 <body class="has-tabbar{{ $workspace ? ' workspace' : '' }}">
     <a class="skip-link" href="#main">{{ __('Skip to content') }}</a>
@@ -196,14 +197,9 @@
         @yield('content')
     </main>
 
-    @unless ($workspace)
-    <section class="trust-strip" aria-label="{{ __('Why :brand', ['brand' => config('brand.name')]) }}"><div class="container">
-        <div class="trust"><x-icon name="truck" /><div><strong>{{ __('Nationwide delivery') }}</strong><span>{{ __('Courier partners pending') }}</span></div></div>
-        <div class="trust"><x-icon name="card" /><div><strong>{{ __('bKash, Nagad, card & bank') }}</strong><span>{{ __('Provider integration pending') }}</span></div></div>
-        <div class="trust"><x-icon name="store" /><div><strong>{{ __('Wholesale & business pricing') }}</strong><span>{{ __('For verified accounts') }}</span></div></div>
-        <div class="trust"><x-icon name="quote" /><div><strong>{{ __('Request a quote') }}</strong><span>{{ __('Large & regular orders') }}</span></div></div>
-    </div></section>
-    @endunless
+    @if (! $workspace && ! $__env->hasSection('trust-strip-inline'))
+        @include('storefront.partials.trust-strip')
+    @endif
     <footer class="site-footer">
         @unless ($workspace)
         <div class="container">

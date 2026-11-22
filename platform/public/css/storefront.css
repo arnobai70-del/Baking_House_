@@ -198,3 +198,189 @@ summary.small { padding-block: 3px; }
 /* Rebrand: "NadimShop.com" is longer than the former wordmark; on the narrowest phones it steps down so the
    header (menu, logo, account, cart) still fits 360 px without horizontal scroll. */
 @media (max-width: 400px) { .logo-text strong { font-size: 1.0625rem; } .logo { gap: 8px; } }
+/* Motion polish (owner request 2026-11-22): scroll-in reveal set by js/motion.js (below-the-fold content only),
+   card image zoom inside a clipped frame, category tile lift. Transform / opacity only, 150–400 ms, off under reduced motion. */
+.rv { opacity: 0; transform: translateY(14px); }
+.rv.rv-in { opacity: 1; transform: none; transition: opacity var(--bh-dur-hero) var(--bh-ease), transform var(--bh-dur-hero) var(--bh-ease); }
+.pcard .media { overflow: hidden; border-radius: var(--bh-radius-sm); }
+.pcard .media > .ph { transition: transform 300ms var(--bh-ease); } /* photos already zoom via .product-photo img */
+.pcard:hover .media > .ph { transform: scale(1.03); }
+.cat-tile { transition: transform var(--bh-dur-fast) var(--bh-ease), border-color var(--bh-dur-fast) var(--bh-ease), box-shadow var(--bh-dur-fast) var(--bh-ease); }
+.cat-tile:hover { transform: translateY(-3px); }
+@media (prefers-reduced-motion: reduce) {
+  .rv { opacity: 1; transform: none; }
+  .pcard:hover .media > .ph, .cat-tile:hover { transform: none; }
+}
+/* Contextual scene photo in the business / reseller landing hero: same 4:3 frame as the placeholder it replaces. */
+.scene-photo { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--bh-radius-sm); background: rgba(255, 255, 255, 0.08); }
+/* Representative product images (D-071): square, labelled, same frame as the placeholder they replace. */
+.rep-photo { position: relative; margin: 0; aspect-ratio: 1 / 1; overflow: hidden; border-radius: var(--bh-radius-sm); background: var(--bh-bg); }
+.rep-photo img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 300ms var(--bh-ease); }
+.pcard:hover .rep-photo img { transform: scale(1.03); }
+.rep-tag { position: absolute; left: 6px; bottom: 6px; font-size: 0.6875rem; font-weight: 500; line-height: 1.4; background: rgba(255, 255, 255, 0.92); color: var(--bh-muted); padding: 2px 6px; border-radius: 4px; }
+.line .rep-photo { width: 80px; }
+@media (max-width: 640px) { .line .rep-photo { width: 64px; } }
+@media (prefers-reduced-motion: reduce) { .pcard:hover .rep-photo img { transform: none; } }
+/* Homepage hero (owner brief, 2026-11-22): text on solid navy on the left; one real photo on the right ~55%,
+   blended by a horizontal gradient that is solid behind the text and fully transparent over the subject.
+   No wash or blur on the subject; one very slow zoom, off for reduced motion. Phones: photo on top at 16:10. */
+.hero--photo { position: relative; isolation: isolate; display: flex; align-items: center; min-height: 520px; background: var(--bh-navy-deep); }
+.hero-copy { position: relative; z-index: 1; width: 50%; padding: 64px 0 64px 56px; }
+.hero-media { position: absolute; top: 0; right: 0; bottom: 0; width: 55%; overflow: hidden; z-index: 0; }
+.hero-media img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%;
+  animation: hero-zoom 30s cubic-bezier(0.2, 0.7, 0.2, 1) both; transform-origin: 70% 50%; }
+.hero-media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, var(--bh-navy-deep) 0%, rgba(8, 45, 70, 0.82) 10%, rgba(8, 45, 70, 0.4) 22%, rgba(8, 45, 70, 0) 36%); }
+.hero--photo h1 { font-size: clamp(2rem, 1.3rem + 2.4vw, 3.25rem); line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 20px; max-width: 18ch; }
+.hero--photo .hero-lead { color: #e3edf3; max-width: 34rem; margin-bottom: 32px; }
+@keyframes hero-zoom { from { transform: scale(1); } to { transform: scale(1.04); } }
+@media (max-width: 960px) {
+  .hero--photo { display: block; min-height: 0; }
+  .hero-media { position: relative; width: 100%; aspect-ratio: 16 / 10; }
+  .hero-media::after { background: linear-gradient(180deg, rgba(8, 45, 70, 0) 72%, var(--bh-navy-deep) 100%); }
+  .hero-copy { width: auto; padding: 20px 22px 28px; }
+  .hero--photo h1 { max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) { .hero-media img { animation: none; } }
+
+/* Audience banners: text and colours unchanged; a real photo on the right half fades into the panel colour
+   (the panel gradient's midpoint, so there is no seam). Phones: photo on top, text below. */
+.aud-panel { position: relative; isolation: isolate; overflow: hidden; display: flex; align-items: center; min-height: 280px; padding: 0; }
+.aud-restaurant { --aud-edge: color-mix(in srgb, var(--bh-navy-deep), var(--bh-navy)); }
+.aud-bakery { --aud-edge: color-mix(in srgb, #06606a, var(--bh-teal)); }
+.aud-copy { position: relative; z-index: 1; width: 54%; padding: 32px 0 32px 28px; }
+.aud-media { position: absolute; top: 0; right: 0; bottom: 0; width: 52%; z-index: 0; }
+.aud-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.aud-bakery .aud-media img { object-position: 0% 50%; } /* keeps the cake clear of the fade */
+.aud-media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(90deg, var(--aud-edge) 0%, var(--aud-edge) 8%, transparent 46%); }
+@media (max-width: 960px) {
+  .aud-panel { display: block; min-height: 0; }
+  .aud-media { position: relative; width: 100%; aspect-ratio: 16 / 9; }
+  .aud-media::after { background: linear-gradient(180deg, transparent 62%, var(--aud-edge) 100%); }
+  .aud-copy { width: auto; padding: 16px 24px 28px; }
+}
+
+/* Category tiles: one photo of the department's typical items across the top of each tile (same 4:3 frame;
+   the wide last tile in the 4- and 2-column layouts gets a wide frame instead of a tall one). */
+.cat-tile { overflow: hidden; }
+.cat-photo { display: block; width: calc(100% + 32px); max-width: none; height: auto; margin: -16px -16px 4px; aspect-ratio: 4 / 3; object-fit: cover; background: var(--bh-bg); }
+@media (max-width: 1180px) { .cat-grid > .cat-tile:last-child:nth-child(4n + 3) .cat-photo { aspect-ratio: 8 / 3; } }
+
+/* ---------- Premium visual pass (feature/premium-visual, D-074) ---------- */
+/* Hero: five verified departments / buying features as a check list instead of a paragraph. */
+.hero-points { list-style: none; margin: 0 0 28px; padding: 0; display: grid; gap: 10px; max-width: 34rem; }
+.hero-points li { display: flex; gap: 10px; align-items: flex-start; margin: 0; color: #e3edf3; font-size: var(--bh-fs-md); line-height: 1.45; }
+.hero-points .icon { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--bh-orange); }
+
+/* Service facts directly under the homepage hero (same content as the site-wide strip; claims stay "pending"). */
+main .trust-strip { margin-top: 16px; border: 1px solid var(--bh-border); border-radius: var(--bh-radius-lg); box-shadow: var(--bh-shadow-sm); }
+main .trust-strip .container { max-width: none; padding: 16px 20px; }
+
+/* Department tiles: photo with the department icon, a live product count, then the first aisles. */
+.cat-media { position: relative; margin: -16px -16px 4px; }
+.cat-media .cat-photo { margin: 0; width: 100%; }
+.cat-badge { position: absolute; left: 12px; bottom: -16px; width: 36px; height: 36px; border-radius: 50%; background: #fff; color: var(--bh-teal);
+  display: grid; place-items: center; box-shadow: 0 2px 8px rgba(8, 45, 70, 0.16); }
+.cat-badge .icon { width: 18px; height: 18px; }
+.cat-media + h3 { margin-top: 18px; }
+.cat-count { margin: -4px 0 2px; font-size: var(--bh-fs-xs); color: var(--bh-teal-text); font-weight: 600; }
+.cat-tile:hover .cat-photo { transform: scale(1.03); }
+.cat-photo { transition: transform 300ms var(--bh-ease); }
+
+/* Featured products by department (progressive tabs). */
+.dept-tabs .tabs { margin-bottom: 16px; }
+.dept-tabs .tab { display: inline-flex; align-items: center; gap: 6px; }
+.dept-tabs .tab .icon { width: 16px; height: 16px; }
+.dept-panel + .dept-panel { margin-top: 24px; }
+.dept-panel-title { font-size: var(--bh-fs-lg); margin: 0 0 12px; }
+.tabs-ready .dept-panel-title { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.tabs-ready .dept-panel + .dept-panel { margin-top: 0; }
+.dept-more { margin: 12px 0 0; text-align: right; }
+.dept-more a { font-weight: 600; font-size: var(--bh-fs-sm); text-decoration: none; }
+
+/* Café, catering & takeaway band: photo + links to the real sub-categories. */
+.catering-band { display: grid; grid-template-columns: 0.9fr 1.1fr; margin-top: 16px; background: #fff; border: 1px solid var(--bh-border); border-radius: var(--bh-radius-lg); overflow: hidden; }
+.catering-band img { display: block; width: 100%; height: 100%; min-height: 220px; object-fit: cover; }
+.catering-copy { padding: 28px; align-self: center; }
+.catering-copy h3 { font-size: var(--bh-fs-xl); margin: 0 0 8px; color: var(--bh-navy); }
+.catering-copy p { color: var(--bh-muted); margin: 0 0 16px; }
+.chip-links { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; }
+.chip-links a { display: inline-flex; align-items: center; min-height: 36px; padding: 0 14px; border-radius: 999px; background: var(--bh-teal-soft);
+  color: var(--bh-teal-text); font-weight: 600; font-size: var(--bh-fs-sm); text-decoration: none; }
+.chip-links a:hover { background: var(--bh-teal); color: #fff; }
+@media (max-width: 960px) { .catering-band { grid-template-columns: 1fr; } .catering-band img { aspect-ratio: 16 / 9; height: auto; min-height: 0; } }
+
+.b2b-icon { width: 44px; height: 44px; border-radius: 12px; background: var(--bh-teal-soft); color: var(--bh-teal); display: grid; place-items: center; margin-bottom: 12px; }
+
+/* Product cards: stock line, selection action vs. direct add, uniform white image frame. */
+.pcard .media .rep-photo, .pcard .media .ph { background: #fff; }
+.pcard-stock { margin: 4px 0 0; font-weight: 600; }
+.pcard-stock.is-in { color: var(--bh-success); }
+.pcard-stock.is-out { color: var(--bh-muted); }
+.pcard form { margin: 0; }
+.btn-select { background: #fff; color: var(--bh-navy); border-color: var(--bh-orange); }
+.btn-select:hover { background: var(--bh-orange-soft); }
+.btn.is-disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Category header with the department photo. */
+.category-head.has-photo { position: relative; overflow: hidden; min-height: 180px; padding-right: calc(38% + 24px); }
+.category-photo { position: absolute; top: 0; right: 0; width: 38%; height: 100%; object-fit: cover; }
+.category-head.has-photo::after { content: ""; position: absolute; top: 0; bottom: 0; right: 38%; width: 48px; pointer-events: none;
+  background: linear-gradient(90deg, #fff, rgba(255, 255, 255, 0)); transform: translateX(100%); }
+.category-count { margin: 0 0 10px; font-size: var(--bh-fs-sm); font-weight: 600; color: var(--bh-teal-text); }
+@media (max-width: 960px) {
+  .category-head.has-photo { padding: 0 20px 18px; padding-right: 20px; }
+  .category-photo { position: static; width: auto; max-width: none; align-self: stretch; margin: 0 -20px 4px; height: auto; aspect-ratio: 16 / 7; }
+  .category-head.has-photo::after { display: none; }
+}
+
+/* Gallery thumbnails switch the main image in place. */
+.gallery-thumbs a { display: block; border: 2px solid transparent; border-radius: var(--bh-radius-sm); }
+.gallery-thumbs a[aria-current="true"] { border-color: var(--bh-orange); }
+@media (prefers-reduced-motion: reduce) { .cat-tile:hover .cat-photo { transform: none; } }
+.dept-tabs .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 4px; }
+.dept-tabs .tab { flex: none; white-space: nowrap; }
+
+/* Admin dashboard: KPI accent, orders-per-day chart (real records), quick actions. */
+.ops-kpis .kpi { border-top: 3px solid var(--bh-teal); }
+.ops-kpis .kpi-link:hover { border-top-color: var(--bh-orange); }
+.dash-row { display: grid; grid-template-columns: 1.6fr 1fr; gap: 16px; margin-bottom: 16px; }
+.dash-row > :only-child { grid-column: 1 / -1; }
+.chart-card .panel-title { gap: 12px; }
+.trend { display: block; width: 100%; height: auto; padding: 16px 16px 8px; }
+.trend .grid { stroke: var(--bh-border); stroke-width: 1; }
+.trend .axis { fill: var(--bh-muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.trend .bar { fill: var(--bh-teal); }
+.trend .hit { fill: transparent; }
+.trend .bar-hit:hover .bar { fill: var(--bh-navy); }
+.trend .bar-hit:hover .hit { fill: rgba(8, 125, 136, 0.06); }
+.shortcuts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 16px; }
+.shortcuts a { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 0 12px; border: 1px solid var(--bh-border); border-radius: var(--bh-radius);
+  color: var(--bh-navy); font-weight: 600; font-size: var(--bh-fs-sm); text-decoration: none; transition: border-color var(--bh-dur-fast) var(--bh-ease), background-color var(--bh-dur-fast) var(--bh-ease); }
+.shortcuts a:hover { border-color: var(--bh-teal); background: var(--bh-teal-soft); }
+.shortcuts .icon { color: var(--bh-teal); width: 18px; height: 18px; }
+@media (max-width: 960px) { .dash-row { grid-template-columns: 1fr; } }
+
+/* Business / reseller portals: role colour on the header and KPI cards, quick actions. */
+.portal-business .page-head { border-left: 4px solid var(--bh-teal); padding-left: 14px; }
+.portal-reseller .page-head { border-left: 4px solid var(--bh-orange); padding-left: 14px; }
+.portal-business .kpi { border-top: 3px solid var(--bh-teal); }
+.portal-reseller .kpi { border-top: 3px solid var(--bh-navy); }
+.portal-actions { margin-bottom: 16px; }
+.shortcuts-4 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 640px) { .shortcuts-4 { grid-template-columns: 1fr 1fr; } }
+
+/* Short pages (empty dashboards, small categories): keep the footer low instead of mid-screen. */
+#main { min-height: 62vh; }
+/* Checkout: payment rows respond to hover as well as selection (selection styles unchanged). */
+.pay-opt { transition: border-color var(--bh-dur-fast) var(--bh-ease), background-color var(--bh-dur-fast) var(--bh-ease); }
+.pay-opt:hover:not(:has(input:disabled)) { border-color: var(--bh-teal); }
+
+/* 320 px phones: the masthead (menu, logo, account, cart) must fit without horizontal scroll. */
+@media (max-width: 359px) {
+  .masthead .container { gap: 4px; padding-left: 12px; padding-right: 12px; }
+  .logo { gap: 6px; }
+  .logo-text strong { font-size: 1.0625rem; }
+  .head-actions { gap: 0; }
+}
