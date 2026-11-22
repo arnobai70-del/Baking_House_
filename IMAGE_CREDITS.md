@@ -35,9 +35,11 @@ Originals of photos that are no longer used are in its `retired/` folder.
 
 | Files (`platform/public/images/…`) | Used on | Source | Photographer | Published | Camera | Edits |
 |---|---|---|---|---|---|---|
-| `hero/kitchen-line-{800,1200,1600,2400}.webp` | Homepage hero (right ~55%), EN and BN | [Pexels 4947388](https://www.pexels.com/photo/4947388/) | Maria Orlova | 24 Jul 2020 | not stated | 1.4:1 centre crop of the 2784×1856 original; resized |
+| `hero/kitchen-range-{600,900,1200}.webp` | Homepage hero main photo (4:5), EN and BN | [Pexels 34276646](https://www.pexels.com/photo/34276646/) | Özkan Keklik | 12 Oct 2025 | not stated | 4:5 crop of the 4160×6240 original; resized |
+| `hero/cake-piping-{400,800}.webp` | Homepage hero bakery inset (1:1) | [Pexels 8478181](https://www.pexels.com/photo/8478181/) | Los Muertos Crew | 25 Jun 2021 | not stated | square crop on the cake and piping bag (no face); resized |
 | `banners/restaurant-wok-{600,1200}.webp` | Homepage "For Restaurants & Cafés" banner | [Pexels 10324702](https://www.pexels.com/photo/10324702/) | Taha Samet Arslan | 22 Nov 2021 | not stated | 3:2 crop around the wok and flame; resized |
 | `banners/bakery-cake-{600,1200}.webp` | Homepage "For Bakeries & Home Bakers" banner | [Pexels 3983578](https://www.pexels.com/photo/3983578/) | Gustavo Fring | 22 Mar 2020 | Canon EOS 5D Mk III, 50 mm | Whole 3:2 frame (no face in frame); resized |
+| `banners/catering-buffet-{600,1200}.webp` | Homepage "Café, catering & takeaway" band | [Pexels 2337843](https://www.pexels.com/photo/2337843/) | Vidal Balielo Jr. | 19 May 2019 | Canon EOS 6D, 58 mm | 3:2 crop; resized |
 | `banners/catering-buffet-{600,1200}.webp` | Homepage "Café, catering & takeaway" band | [Pexels 2337843](https://www.pexels.com/photo/2337843/) | Vidal Balielo Jr. | 19 May 2019 | Canon EOS 6D, 58 mm | 3:2 crop; resized |
 | `banners/catering-buffet-{600,1200}.webp` | Homepage "Café, catering & takeaway" band | [Pexels 2337843](https://www.pexels.com/photo/2337843/) | Vidal Balielo Jr. | 19 May 2019 | Canon EOS 6D, 58 mm | 3:2 crop; resized |
 | `banners/catering-buffet-{600,1200}.webp` | Homepage "Café, catering & takeaway" band | [Pexels 2337843](https://www.pexels.com/photo/2337843/) | Vidal Balielo Jr. | 19 May 2019 | Canon EOS 6D, 58 mm | 3:2 crop; resized |
@@ -118,8 +120,7 @@ All seven tiles share one format:
 **Retired on 2026-11-22 (files deleted, originals moved to `retired/`):**
 - the old hero, Pexels 7405059 (a dark display counter);
 - the bread-shelves hero, Pexels 35993723 (replaced by a mixed restaurant / kitchen scene so the hero is not bakery-only);
-- the bread-shelves hero, Pexels 35993723 (replaced by a mixed restaurant / kitchen scene so the hero is not bakery-only);
-- the bread-shelves hero, Pexels 35993723 (replaced by a mixed restaurant / kitchen scene so the hero is not bakery-only);
+- the dark kitchen-line hero, Pexels 4947388 (owner review: replaced by the light split hero);
 - the old flour, Pexels 5734741 (dark background);
 - the old cocoa, Pexels 9179843 (texture only);
 - the old sprinkles, Pexels 8471600 (blue surface);
@@ -134,10 +135,11 @@ All seven tiles share one format:
 
 | File | SHA-256 |
 |---|---|
-| `hero/kitchen-line-1200.webp` | `fac5d312a3b290522dfb1a103063d199ff667a9f78d799d92829aa4ef8b31f7b` |
-| `hero/kitchen-line-1600.webp` | `154acc7facbabd9331a3cfde8f4421775f9b6422bf86a40c2ff695ac7318997d` |
-| `hero/kitchen-line-2400.webp` | `d1b16a6f657d522078c8b9202436374efe69e28d4757cdd25f5bcba12833e836` |
-| `hero/kitchen-line-800.webp` | `e7c66a305f1ceb445b1ffcaa0294a209511daaa331bf2312eace05e96d895989` |
+| `hero/cake-piping-400.webp` | `d120900e33fc787734f347479b1346dddf58c9de5f3ca6ccf7971ea01605b510` |
+| `hero/cake-piping-800.webp` | `89cc54a83d1d88326d78d8d6bb0b72e03e1add298d3383eca37ebbd9bb8bf81d` |
+| `hero/kitchen-range-1200.webp` | `fa8b9347da021573e70462eca81532918752256cc87f1e3d64706826b8eb4e69` |
+| `hero/kitchen-range-600.webp` | `44e00e844b0342eedb241c8c0a03597a525f383c4a17a6c2d36d3636f6332a94` |
+| `hero/kitchen-range-900.webp` | `18724d42fd4ff192e08f09d18e879804d2a12a7a67288d5382b86983125c2957` |
 | `banners/bakery-cake-1200.webp` | `d0f97377e73bf6302041c03cc8978ae54f37161aebd7375d90b8f473a5cb2b1c` |
 | `banners/bakery-cake-600.webp` | `8f192fc1c9860b2958bdb44723fd2b36da4a8b78f1387fe3fbbc0fd859365ed6` |
 | `banners/catering-buffet-1200.webp` | `f80197d4e0b8fed6bf3958db5e90e8ebb77dd32d6372e4412d0a42f241279ee9` |
@@ -195,9 +197,9 @@ All seven tiles share one format:
 | `original: pexels-2337843-vidal-balielo-jr.jpg` | `cf5c16ebe72377e7ad0689d6a387cb629a63a6e45b2c1e8c65b6091b31ac2e4d` |
 | `original: pexels-2522610-zhugewala.jpg` | `c0f10e65367460dabcebc896149f2328b23fff8943f2db589c316ae4358d3ef6` |
 | `original: pexels-31703552-natalia-s.jpg` | `002686734dccd6b0679e189f4b5d6715930adcb19c83766084b09885971fd688` |
+| `original: pexels-34276646-ozkan-keklik.jpg` | `3c4156824051c2fa046dde3cc26893668c928193100c3afe1e41eaf6379b4204` |
 | `original: pexels-3983578-gustavo-fring.jpg` | `98090bbbfbb691ab6ef85760bcfcc34609f01a9fd710fed7fbfc497052f7977b` |
 | `original: pexels-4271686-alleksana.jpg` | `8643d700174a48adc7312bb797b3b8e01b9454b28df5c63d9eb0f126ce0f6c56` |
-| `original: pexels-4947388-maria-orlova.jpg` | `3347bc182c792c3903f5ace5abf80596d8d2bf58931a61f19fd83213a54d12df` |
 | `original: pexels-5078591-nataliya-vaitkevich.jpg` | `96fec6a13a8b7f94e9d2c26838674ac46dd1b05780836c6fe15ce21d915c6558` |
 | `original: pexels-5156696-maor-attias.jpg` | `9ef52386a8fa493454750bb13c00e1b06f805b323d752b45e3a68fefe80df381` |
 | `original: pexels-6375558-skylar-kang.jpg` | `b6cf6767b3ef93dafb5a28b112d371dbc173d3f246ed19606abcb693d7027fba` |
@@ -208,6 +210,7 @@ All seven tiles share one format:
 | `original: pexels-7110179-tara-winstead.jpg` | `0d619ca523431a228bfee729ff9d740ff09b968dcd71a925fbb80af542792630` |
 | `original: pexels-7140435-julia-filirovska.jpg` | `5a19fa380a248ebb34ee45000346ec3ef6f3b237f4a147a3c5cc8853e528cab9` |
 | `original: pexels-7525172-shvets-production.jpg` | `0856bbbc669d734dd78830283c89d91177306866fa2f9fb4b9278c9aec225ef8` |
+| `original: pexels-8478181-los-muertos-crew.jpg` | `0df31a80edcc63366fc85b5d782f11c29aabca7e8d9fce1a61df44d60251f95f` |
 | `original: unsplash-D0FWHT-eW_I-agenlaku-indonesia.jpg` | `6ccf6db52efd72ab51edd69804542ffa8fcd41d94c9b87e03066dcd35e0627db` |
 
 If a licence is withdrawn or a photo is reported, delete its file (and, for products, its config line). The page then falls back to the placeholder automatically.

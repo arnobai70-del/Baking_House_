@@ -7,7 +7,9 @@ repository.
 ## What changed
 
 **Homepage**
-- **Hero:** a restaurant / commercial-kitchen photo. It replaces the bread shelves, which read as bakery-only.
+- **Hero (v3, after owner review):** light split design — navy text on white; a bright commercial-kitchen photo
+  (Pexels 34276646) with a bakery inset (Pexels 8478181), so restaurant and bakery read together. It replaces the dark
+  kitchen-line hero, which the owner did not approve, and the earlier bread shelves (bakery-only).
 - **Hero list:** five verified departments and buying features instead of the paragraph.
 - **Service facts:** directly under the hero. Same text as before; the "pending" notes stay.
 - **Department tiles:** each tile has an icon badge and a live product count.
@@ -44,7 +46,7 @@ repository.
 - The media workflow has an `ai_generated` source. Files whose metadata declares AI must use it; all other checks and
   the second-person approval are unchanged.
 - No image was generated (no tool in this environment). Prompts and slots are in `docs/image-asset-manifest.md`.
-- New licensed photos: hero (Pexels 4947388) and the catering band (Pexels 2337843). Both are recorded in
+- New licensed photos: hero (Pexels 34276646 + 8478181) and the catering band (Pexels 2337843). Both are recorded in
   `IMAGE_CREDITS.md` with checksums.
 
 **Untouched:** pricing / gram–kg engine, stock and reservations, checkout rules, payments, refunds, CRM logic, roles,

@@ -4,17 +4,11 @@
 @section('trust-strip-inline', '1')
 
 @section('content')
-    <section class="hero hero--photo" aria-labelledby="hero-title">
-        @if (is_file(public_path('images/hero/kitchen-line-1600.webp')))
-            {{-- Licensed scene (Pexels 4947388, IMAGE_CREDITS.md) on the right ~55%; the LCP image: eager, high priority. --}}
-            <div class="hero-media">
-                <img src="{{ asset('images/hero/kitchen-line-1600.webp') }}"
-                     srcset="{{ asset('images/hero/kitchen-line-800.webp') }} 800w, {{ asset('images/hero/kitchen-line-1200.webp') }} 1200w, {{ asset('images/hero/kitchen-line-1600.webp') }} 1600w, {{ asset('images/hero/kitchen-line-2400.webp') }} 2400w"
-                     sizes="(max-width: 960px) 100vw, (min-width: 1400px) 740px, 55vw" width="2400" height="1715" fetchpriority="high" decoding="async"
-                     alt="{{ __('Commercial restaurant kitchen line with pans, prep stations and stacked plates') }}">
-            </div>
-        @endif
-        <div class="hero-copy">
+    {{-- Hero v3 (owner review 2026-11-22): light split. Navy text on white; a bright commercial-kitchen photo with a
+         bakery inset so restaurant and bakery read together. Licensed photos (Pexels 34276646, 8478181; IMAGE_CREDITS.md). --}}
+    <section class="hero-v3" aria-labelledby="hero-title">
+        <div class="hero-v3-copy">
+            <p class="hero-eyebrow reveal">{{ __('Bakery · Restaurant · Café · Commercial kitchen') }}</p>
             <h1 id="hero-title" class="reveal">{!! __('Complete supply for bakeries, restaurants, cafés and <em>food businesses</em> in Bangladesh') !!}</h1>
             <ul class="hero-points reveal reveal-2">
                 <li><x-icon name="check" /> {{ __('Baking ingredients, cake tools and decoration') }}</li>
@@ -28,6 +22,19 @@
                 <a class="btn btn-outline" href="{{ route('business.landing') }}">{{ __('Business & bulk buying') }}</a>
             </div>
         </div>
+        @if (is_file(public_path('images/hero/kitchen-range-900.webp')))
+            <div class="hero-v3-media">
+                {{-- The LCP image: eager, high priority, fixed 4:5 frame. --}}
+                <img class="hero-main" src="{{ asset('images/hero/kitchen-range-900.webp') }}"
+                     srcset="{{ asset('images/hero/kitchen-range-600.webp') }} 600w, {{ asset('images/hero/kitchen-range-900.webp') }} 900w, {{ asset('images/hero/kitchen-range-1200.webp') }} 1200w"
+                     sizes="(max-width: 960px) 100vw, 480px" width="1200" height="1500" fetchpriority="high" decoding="async"
+                     alt="{{ __('Commercial kitchen range with stainless shelves of pans and pots') }}">
+                <img class="hero-inset" src="{{ asset('images/hero/cake-piping-400.webp') }}"
+                     srcset="{{ asset('images/hero/cake-piping-400.webp') }} 400w, {{ asset('images/hero/cake-piping-800.webp') }} 800w"
+                     sizes="(max-width: 960px) 40vw, 210px" width="800" height="800" decoding="async"
+                     alt="{{ __('Pastry chef piping cream rosettes onto a cake') }}">
+            </div>
+        @endif
     </section>
 
     @include('storefront.partials.trust-strip')

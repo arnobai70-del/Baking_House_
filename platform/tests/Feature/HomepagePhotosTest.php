@@ -28,16 +28,17 @@ class HomepagePhotosTest extends TestCase
     public function test_the_hero_is_one_eager_responsive_photo_with_a_five_point_list_and_service_facts_below(): void
     {
         $html = $this->get('/')->assertOk()
-            ->assertSee('images/hero/kitchen-line-800.webp 800w', false)
-            ->assertSee('images/hero/kitchen-line-1600.webp 1600w', false)
-            ->assertSee('images/hero/kitchen-line-2400.webp 2400w', false)
-            ->assertSee('alt="Commercial restaurant kitchen line with pans, prep stations and stacked plates"', false)
+            ->assertSee('images/hero/kitchen-range-600.webp 600w', false)
+            ->assertSee('images/hero/kitchen-range-900.webp 900w', false)
+            ->assertSee('images/hero/kitchen-range-1200.webp 1200w', false)
+            ->assertSee('alt="Commercial kitchen range with stainless shelves of pans and pots"', false)
+            ->assertSee('alt="Pastry chef piping cream rosettes onto a cake"', false)
             ->getContent();
 
-        preg_match('/<div class="hero-media">\s*<img[^>]+>/', $html, $hero);
+        preg_match('/<img class="hero-main"[^>]+>/', $html, $hero);
         $this->assertNotEmpty($hero, 'The hero photo is rendered.');
         $this->assertStringContainsString('fetchpriority="high"', $hero[0]);
-        $this->assertStringContainsString('width="2400" height="1715"', $hero[0]);
+        $this->assertStringContainsString('width="1200" height="1500"', $hero[0]);
         $this->assertStringNotContainsString('loading=', $hero[0], 'The LCP image is never lazy-loaded.');
 
         preg_match('/<ul class="hero-points[^"]*">(.*?)<\/ul>/s', $html, $points);
@@ -80,7 +81,7 @@ class HomepagePhotosTest extends TestCase
         Setting::put(Setting::LANGUAGES_ENABLED, ['en', 'bn']);
 
         $this->get('/bn')->assertOk()
-            ->assertSee('alt="প্যান, প্রস্তুতি স্টেশন ও প্লেটের সারিসহ বাণিজ্যিক রেস্টুরেন্ট কিচেন"', false)
+            ->assertSee('alt="স্টেইনলেস তাকে প্যান ও হাঁড়িসহ বাণিজ্যিক কিচেন রেঞ্জ"', false)
             ->assertSee('alt="বাণিজ্যিক রান্নাঘরে উঁচু আগুনে কালো ওক নাড়ছেন রাঁধুনি"', false)
             ->assertSee('alt="কেক টার্নটেবিলে চকলেট ড্রিপ কেক সাজাচ্ছেন পেস্ট্রি শেফ"', false);
     }
