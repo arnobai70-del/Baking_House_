@@ -3,8 +3,8 @@
 namespace App\Enums;
 
 /**
- * Where a product photo came from. Every option is a real photograph; AI-generated or
- * AI-altered images are not accepted under any source.
+ * Where a product image came from. Since owner decision D-074 (2026-11-22) AI-generated images are
+ * accepted too, but only when declared as such: provenance stays recorded for every image.
  */
 enum ImageSourceType: string
 {
@@ -12,6 +12,7 @@ enum ImageSourceType: string
     case Commissioned = 'commissioned';
     case Supplier = 'supplier';
     case LicensedStock = 'licensed_stock';
+    case AiGenerated = 'ai_generated';
 
     public function label(): string
     {
@@ -20,6 +21,7 @@ enum ImageSourceType: string
             self::Commissioned => 'Commissioned photographer',
             self::Supplier => 'Supplier / manufacturer photo (with permission)',
             self::LicensedStock => 'Licensed stock photograph',
+            self::AiGenerated => 'AI-generated image (tool recorded as creator)',
         };
     }
 }

@@ -91,7 +91,7 @@ class Product extends Model
     }
 
     /**
-     * Only photos that passed the licence / accuracy review (real-images-only policy).
+     * Only photos that passed the licence / accuracy review (provenance review, D-074).
      *
      * @return HasMany<ProductImage, $this>
      */

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ImageSourceType;
 use App\Models\Permission;
 use App\Models\Product;
 use App\Models\ProductImage;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 /**
- * Real-images-only workflow: private until a second staff member approves complete provenance;
+ * Provenance workflow (D-074: declared AI images allowed): private until a second staff member approves complete provenance;
  * only approved photos ever get public files or appear on the storefront.
  */
 class MediaApprovalTest extends TestCase
@@ -92,6 +93,19 @@ class MediaApprovalTest extends TestCase
         $this->assertDatabaseHas('audit_logs', ['action' => 'media.uploaded']);
 
         $this->get($this->product->url())->assertOk()->assertSee('Real product photo pending')->assertDontSee('<picture', false);
+    }
+
+    public function test_ai_generated_images_are_accepted_only_when_declared_as_such(): void
+    {
+        $aiFile = fn () => $this->photo(comment: 'Made with Midjourney v6');
+        $post = fn (array $details) => $this->actingAsStaff($this->uploader)->post(route('admin.media.store', $this->product), ['photo' => $aiFile()] + $this->details($details));
+
+        $post([])->assertSessionHasErrors('photo'); // declared AI in metadata, but recorded as licensed stock
+        $post(['source_type' => 'ai_generated', 'creator' => 'Midjourney v6 (prompt on file)'])->assertSessionHasNoErrors();
+
+        $image = ProductImage::query()->sole();
+        $this->assertSame(ImageSourceType::AiGenerated, $image->source_type);
+        $this->assertSame(ProductImage::STATUS_PENDING, $image->review_status, 'AI images still wait for human approval.');
     }
 
     public function test_unsafe_fake_small_ai_declared_and_duplicate_files_are_refused(): void

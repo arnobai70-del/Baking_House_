@@ -4,7 +4,7 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Real-images-only product photography
+    | Product image pipeline (provenance-controlled; AI images allowed when declared, D-074)
     |--------------------------------------------------------------------------
     |
     | Approval needs a second staff member (four-eyes) unless explicitly disabled. AVIF renditions

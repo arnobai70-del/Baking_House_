@@ -1,5 +1,5 @@
 @props(['image', 'sizes' => '100vw', 'width' => 800, 'eager' => false])
-{{-- Approved, licensed real photo only. AVIF / WebP where generated, JPEG fallback; responsive widths. --}}
+{{-- Approved image only (provenance reviewed, D-074). AVIF / WebP where generated, JPEG fallback; responsive widths. --}}
 @php
     $jpeg = collect($image->renditions ?? [])->where('format', 'jpg')->sortBy('width');
     $fallback = $jpeg->first(fn ($rendition) => $rendition['width'] >= $width) ?? $jpeg->last();

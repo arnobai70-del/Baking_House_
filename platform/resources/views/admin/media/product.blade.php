@@ -6,7 +6,7 @@
         @can('media.approve')<a class="btn btn-outline btn-sm" href="{{ route('admin.media.queue') }}">Review queue</a>@endcan
         <a class="btn btn-ghost btn-sm" href="{{ route('admin.products.edit', $product) }}">← Product</a>
     </div>
-    <div class="alert alert-info" style="margin-bottom:16px"><x-icon name="info" /><span>Real images only: authentic photos of this exact product or licensed real photographs. AI-generated or AI-altered images are not allowed. Uploads stay private until a <strong>different</strong> staff member approves them; only approved photos get public files.</span></div>
+    <div class="alert alert-info" style="margin-bottom:16px"><x-icon name="info" /><span>Images must truthfully show this exact product: own or supplier photos, licensed photographs, or declared AI-generated images (decision D-074). Uploads stay private until a <strong>different</strong> staff member approves them; only approved photos get public files.</span></div>
 
     <div class="card" style="margin-bottom:16px">
         <div class="panel-title"><h2>Gallery ({{ $product->images->count() }})</h2></div>
