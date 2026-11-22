@@ -16,7 +16,7 @@ enum ImageSourceType: string
     public function label(): string
     {
         return match ($this) {
-            self::OwnPhotography => 'Own photography (Baking House)',
+            self::OwnPhotography => 'Own photography ('.config('brand.name').')',
             self::Commissioned => 'Commissioned photographer',
             self::Supplier => 'Supplier / manufacturer photo (with permission)',
             self::LicensedStock => 'Licensed stock photograph',

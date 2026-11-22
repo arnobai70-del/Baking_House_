@@ -60,8 +60,8 @@ class TeamService
 
         $this->audit->record('organization.member_invited', $organization, after: ['email' => $email, 'role' => $role->value], actorId: $owner->id);
 
-        $this->notifier->direct('team_invitation', null, $email, 'Invitation to join '.$organization->name.' on Baking House',
-            "{$owner->name} invited you to join {$organization->name} on Baking House as {$role->label()}. Accept within ".self::INVITATION_DAYS.' days: '.route('invitations.show', $token));
+        $this->notifier->direct('team_invitation', null, $email, 'Invitation to join '.$organization->name.' on '.config('brand.name'),
+            "{$owner->name} invited you to join {$organization->name} on ".config('brand.name')." as {$role->label()}. Accept within ".self::INVITATION_DAYS.' days: '.route('invitations.show', $token));
 
         return ['invitation' => $invitation, 'token' => $token];
     }

@@ -1,4 +1,4 @@
-# Baking House — Laravel platform
+# NadimShop.com — Laravel platform (formerly Baking House)
 
 Server-side application (Phase 2 onward). Product decisions live in [`../docs`](../docs).
 

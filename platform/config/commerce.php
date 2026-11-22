@@ -45,7 +45,7 @@ return [
 
     // Seller block on portal invoices. Placeholders until the owner confirms legal / VAT details.
     'seller' => [
-        'name' => env('SELLER_LEGAL_NAME', 'Baking House'),
+        'name' => env('SELLER_LEGAL_NAME') ?: env('APP_NAME', 'NadimShop.com'), // trading name until the owner supplies the registered legal name
         'address' => env('SELLER_ADDRESS', 'Address pending owner confirmation'),
         'phone' => env('SELLER_PHONE', 'Pending owner confirmation'),
         'vat_registration' => env('SELLER_VAT_BIN'),

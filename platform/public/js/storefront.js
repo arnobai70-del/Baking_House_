@@ -1,5 +1,5 @@
 /**
- * Baking House storefront — progressive enhancement over server-rendered pages.
+ * NadimShop.com storefront — progressive enhancement over server-rendered pages.
  * Everything works without JS except live price previews and search suggestions.
  * Motion: CSS transform/opacity only; prefers-reduced-motion handled in tokens.css.
  */

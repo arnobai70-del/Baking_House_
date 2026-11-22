@@ -15,7 +15,7 @@ return [
 
     'indexing_enabled' => (bool) env('SEO_INDEXING_ENABLED', false),
 
-    'site_name' => env('APP_NAME', 'Baking House'),
+    'site_name' => env('APP_NAME', 'NadimShop.com'),
 
     'default_description' => 'Complete supply for bakery, restaurant, café, Chinese kitchen and food businesses in Bangladesh: ingredients, tools, commercial kitchen equipment, packaging, bulk and wholesale.',
 

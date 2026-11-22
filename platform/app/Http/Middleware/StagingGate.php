@@ -32,7 +32,7 @@ class StagingGate
         $valid = $user !== '' && $hash !== '' && hash_equals($user, $given) && Hash::check($password, $hash);
         if (! $valid) {
             return response('Staging site: authorised testers only.', 401, [
-                'WWW-Authenticate' => 'Basic realm="Baking House staging", charset="UTF-8"',
+                'WWW-Authenticate' => 'Basic realm="'.config('brand.name').' staging", charset="UTF-8"',
                 'X-Robots-Tag' => 'noindex, nofollow',
                 'Content-Type' => 'text/plain; charset=UTF-8',
             ]);

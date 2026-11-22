@@ -32,7 +32,7 @@ class PriceController extends PortalController
         $organization = $this->organization($request);
 
         return CsvDownload::response(
-            'baking-house-prices-'.Str::slug($organization->name).'-'.now('Asia/Dhaka')->format('Y-m-d').'.csv',
+            config('brand.slug').'-prices-'.Str::slug($organization->name).'-'.now('Asia/Dhaka')->format('Y-m-d').'.csv',
             $this->rateCard->csv($this->context($request)),
         );
     }

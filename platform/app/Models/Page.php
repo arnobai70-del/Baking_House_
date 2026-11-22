@@ -20,7 +20,7 @@ class Page extends Model
      * Pages the footer links to once published (slug => English label). Until then the footer says "pending".
      */
     public const STANDARD = [
-        'about-us' => 'About Baking House',
+        'about-us' => 'About us',
         'contact-information' => 'Contact information',
         'delivery-policy' => 'Delivery policy',
         'returns-policy' => 'Returns & refunds policy',

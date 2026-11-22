@@ -399,7 +399,7 @@
     "No": "না",
     "Invite a member": "মেম্বার আমন্ত্রণ",
     "Email address": "ইমেইল ঠিকানা",
-    "The invitation is valid for 7 days and only for this email address. The person needs a Baking House account with that email.": "আমন্ত্রণটি 7 দিন বৈধ এবং শুধু এই ইমেইলের জন্য। ওই ইমেইল দিয়ে তার একটি Baking House অ্যাকাউন্ট লাগবে।",
+    "The invitation is valid for 7 days and only for this email address. The person needs a :brand account with that email.": "আমন্ত্রণটি 7 দিন বৈধ এবং শুধু এই ইমেইলের জন্য। ওই ইমেইল দিয়ে তার একটি :brand অ্যাকাউন্ট লাগবে।",
     "Send invitation": "আমন্ত্রণ পাঠান",
     "Pending invitations": "অপেক্ষমাণ আমন্ত্রণ",
     "No pending invitations.": "কোনো অপেক্ষমাণ আমন্ত্রণ নেই।",
@@ -577,7 +577,7 @@
     "Retail shop": "খুচরা দোকান",
     "Distributor": "ডিস্ট্রিবিউটর",
     "Other": "অন্যান্য",
-    "About Baking House": "Baking House সম্পর্কে",
+    "About us": "আমাদের সম্পর্কে",
     "Contact information": "যোগাযোগের তথ্য",
     "Delivery policy": "ডেলিভারি নীতি",
     "Returns & refunds policy": "রিটার্ন ও রিফান্ড নীতি",
@@ -593,7 +593,7 @@
     "Grid view": "গ্রিড ভিউ",
     "List view": "তালিকা ভিউ",
     "Open menu": "মেনু খুলুন",
-    "Baking House home": "Baking House হোম",
+    ":brand home": ":brand হোম",
     "Search products": "পণ্য খুঁজুন",
     "Suggestions": "পরামর্শ",
     "Login or register": "লগইন বা রেজিস্টার",
@@ -601,7 +601,7 @@
     "All categories": "সব ক্যাটাগরি",
     "Menu": "মেনু",
     "Close menu": "মেনু বন্ধ করুন",
-    "Why Baking House": "কেন Baking House",
+    "Why :brand": "কেন :brand",
     "Quick navigation": "দ্রুত নেভিগেশন",
     "Page navigation": "পৃষ্ঠা নেভিগেশন",
     "Need help? Contact & support": "সাহায্য দরকার? যোগাযোগ ও সহায়তা",
@@ -631,5 +631,6 @@
     "Store": "স্টোর",
     "View store": "স্টোর দেখুন",
     "Business portal": "বিজনেস পোর্টাল",
-    "Reseller portal": "রিসেলার পোর্টাল"
+    "Reseller portal": "রিসেলার পোর্টাল",
+    "Welcome to :brand. Your account is ready.": ":brand-এ স্বাগতম। আপনার অ্যাকাউন্ট তৈরি হয়েছে।"
 }

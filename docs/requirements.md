@@ -1,4 +1,4 @@
-# Requirements — Baking House
+# Requirements — NadimShop.com (formerly Baking House)
 
 Source: *Baking House Final UI and Phased Development Blueprint v1.1* (20 Nov 2026).
 
@@ -11,7 +11,7 @@ the site must **not** read as a cake-only shop.
 
 | # | Question | Decision |
 |---|----------|----------|
-| 1 | Name | Baking House |
+| 1 | Name | NadimShop.com (renamed from Baking House on 2026-11-22, D-070; domain not yet confirmed) |
 | 2 | Goal | Sell baking, cake-making, Chinese restaurant, café and commercial kitchen tools, ingredients, equipment and supplies |
 | 3 | Type | E-commerce; marketplace-ready architecture (single seller at launch) |
 | 4 | Audience | Bangladesh nationwide: home buyers, bakeries, restaurants/cafés, resellers |
@@ -53,4 +53,4 @@ the site must **not** read as a cake-only shop.
 2. Restaurant owner requests a bulk quote (cookware, chocolate, packaging), gets business-only terms, reorders from dashboard.
 3. Reseller sees only their assigned rate card and cannot see another business's invoice.
 4. Admin changes a price and schedules a discount without code, with an audit record.
-5. A visitor immediately understands Baking House serves bakery, restaurant, café, Chinese kitchen **and** commercial kitchens.
+5. A visitor immediately understands NadimShop.com serves bakery, restaurant, café, Chinese kitchen **and** commercial kitchens.

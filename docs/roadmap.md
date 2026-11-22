@@ -201,6 +201,12 @@ TOTP via `pragmarx/google2fa` 9.1.0 and `bacon/bacon-qr-code` 3.1.1, built into 
   four permission-gated admin counts; G8 report KPI grid, no zero bars, readable breakdown tables; G9 press and colour
   transitions, reduced-motion safe; G10 Western digit in the demo Bangla product name.
 
+## Rebrand — NadimShop.com (2026-11-22)
+- Public name, page titles, structured data, header / footer, notifications, admin, staging prompt and authenticator label now
+  come from one setting (`APP_NAME`, default NadimShop.com). Favicon added from the approved logo mark. D-070.
+- Still needed from the owner: confirm the domain registration and DNS, the registered legal name for invoices
+  (`SELLER_LEGAL_NAME`), a sending email domain (SPF / DKIM / DMARC), and whether a new logo mark is wanted.
+
 ## Launch blockers (owner / business)
 1. Real, licensed product photography (none uploaded; placeholders are labelled).
 2. Payment provider contracts and live credentials (live payments not authorised; test mode only).

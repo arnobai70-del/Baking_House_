@@ -53,8 +53,8 @@ class QuotationService
         $this->crm->captureRfq($quotation);
 
         $this->notifier->direct('quotation_requested', $quotation->contact_phone, $quotation->contact_email,
-            'Baking House quotation request '.$quotation->number,
-            "Baking House: we received your quotation request {$quotation->number}. Our team will reply soon.");
+            config('brand.name').' quotation request '.$quotation->number,
+            config('brand.name').": we received your quotation request {$quotation->number}. Our team will reply soon.");
 
         return $quotation;
     }
@@ -190,8 +190,8 @@ class QuotationService
         $this->crm->quotationChanged($quotation, 'issued');
 
         $this->notifier->direct('quotation_issued', $quotation->contact_phone, $quotation->contact_email,
-            'Baking House quotation '.$quotation->number,
-            "Baking House: your quotation {$quotation->number} is ready (".Taka::format($total).', valid until '.$validUntil->timezone('Asia/Dhaka')->format('d M Y').'). Review it in your business dashboard.');
+            config('brand.name').' quotation '.$quotation->number,
+            config('brand.name').": your quotation {$quotation->number} is ready (".Taka::format($total).', valid until '.$validUntil->timezone('Asia/Dhaka')->format('d M Y').'). Review it in your business dashboard.');
 
         return $quotation;
     }

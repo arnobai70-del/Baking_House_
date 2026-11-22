@@ -20,5 +20,5 @@
             </select></div>
     @endif
     <div class="field full"><label class="row" style="gap:8px;align-items:flex-start"><input type="checkbox" name="attested" value="1" @checked(old('attested', $image?->authenticity_attested)) style="margin-top:4px">
-        <span>I confirm this is a <strong>real photograph</strong> of this exact product (or a licensed real photograph), <strong>not AI-generated or AI-altered</strong>, and that Baking House may use it.</span></label></div>
+        <span>I confirm this is a <strong>real photograph</strong> of this exact product (or a licensed real photograph), <strong>not AI-generated or AI-altered</strong>, and that {{ config('brand.name') }} may use it.</span></label></div>
 </div>

@@ -40,7 +40,7 @@ class SeoTest extends TestCase
         $this->get("/product/{$product->slug}?utm_source=x")
             ->assertSee('<meta name="robots" content="index, follow">', false)
             ->assertSee('<link rel="canonical" href="'.route('catalog.product', $product->slug).'">', false)
-            ->assertSee('<title>Custom SEO Title — Baking House</title>', false);
+            ->assertSee('<title>Custom SEO Title — '.config('seo.site_name').'</title>', false);
     }
 
     public function test_filtered_sorted_and_search_pages_are_noindex_with_clean_canonical(): void
