@@ -26,7 +26,7 @@ class HomepagePhotosTest extends TestCase
         }
     }
 
-    public function test_the_hero_has_one_eager_responsive_photo_a_five_point_list_and_service_facts_below(): void
+    public function test_the_hero_has_one_eager_responsive_photo_and_a_five_point_list(): void
     {
         $html = $this->get('/')->assertOk()
             ->assertSee('images/hero/supply-scene-800.webp 800w', false)
@@ -44,10 +44,8 @@ class HomepagePhotosTest extends TestCase
         preg_match('/<ul class="hero-points[^"]*">(.*?)<\/ul>/s', $html, $points);
         $this->assertSame(5, substr_count($points[1] ?? '', '<li>'), 'Five verified departments / buying features.');
 
-        // Service facts appear once, right after the hero (not again above the footer), still marked "pending".
-        $this->assertSame(1, substr_count($html, 'class="trust-strip"'));
-        $this->assertLessThan(strpos($html, 'class="trust-strip"'), strpos($html, 'class="dept-rail"'));
-        $this->assertStringContainsString('Courier partners pending', $html);
+        // Owner decision 2026-11-23: no service-facts strip on any page.
+        $this->assertStringNotContainsString('class="trust-strip"', $html);
     }
 
     public function test_departments_are_listed_once_as_cards_with_photos_and_live_counts(): void

@@ -234,8 +234,6 @@ summary.small { padding-block: 3px; }
 .hero-points .icon { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--bh-orange); }
 
 /* Service facts directly under the homepage hero (same content as the site-wide strip; claims stay "pending"). */
-main .trust-strip { margin-top: 16px; border: 1px solid var(--bh-border); border-radius: var(--bh-radius-lg); box-shadow: var(--bh-shadow-sm); }
-main .trust-strip .container { max-width: none; padding: 16px 20px; }
 
 
 
@@ -398,7 +396,6 @@ main .trust-strip .container { max-width: none; padding: 16px 20px; }
 .b2b-x-card:hover { background: rgba(255, 255, 255, 0.11); transform: translateY(-2px); }
 .b2b-x-card:focus-visible { outline: 3px solid var(--bh-orange); outline-offset: 2px; }
 
-main .trust-strip { margin-top: 20px; }
 
 @media (max-width: 1180px) {
   /* Departments become a snap-scrolling row instead of squeezing seven cards. */

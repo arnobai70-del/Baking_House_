@@ -1,8 +1,5 @@
 @extends('layouts.app')
 
-{{-- Service facts sit directly under the hero on this page instead of above the footer. --}}
-@section('trust-strip-inline', '1')
-
 @section('content')
     {{-- 1. Hero: who we are and what we sell, with the departments as the way in (owner reference, 2026-11-22).
          Owner-supplied AI scene (D-074; IMAGE_CREDITS.md). --}}
@@ -58,9 +55,6 @@
             @endforeach
         </nav>
     </section>
-
-    {{-- 3. Service facts (once; claims stay "pending" until verified). --}}
-    @include('storefront.partials.trust-strip')
 
     {{-- 4. Featured products by department (restaurant and equipment have their own block below: no product twice). --}}
     @if ($departments->isNotEmpty())
