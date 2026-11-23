@@ -197,9 +197,6 @@
         @yield('content')
     </main>
 
-    @if (! $workspace && ! $__env->hasSection('trust-strip-inline'))
-        @include('storefront.partials.trust-strip')
-    @endif
     <footer class="site-footer">
         @unless ($workspace)
         <div class="container">

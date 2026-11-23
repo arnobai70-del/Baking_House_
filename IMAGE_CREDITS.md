@@ -8,7 +8,8 @@ real photographs from one of two sources:
 Each source page was checked on 2026-11-22.
 
 **Since D-074 (2026-11-22) AI-generated images are also allowed** anywhere on the site. Record each one here like any
-other image, with the generating tool as the source and the generation date. None are in use yet.
+other image, with the generating tool as the source and the generation date. In use: the homepage hero scene
+(owner-supplied, 23 Nov 2026).
 
 **What both licences allow:**
 - free commercial use and editing;
@@ -35,8 +36,7 @@ Originals of photos that are no longer used are in its `retired/` folder.
 
 | Files (`platform/public/images/…`) | Used on | Source | Photographer | Published | Camera | Edits |
 |---|---|---|---|---|---|---|
-| `hero/bakery-kitchen-{800,1200,1600}.webp` | Homepage hero photo (1.4:1, full-width hero, right side behind a navy fade), EN and BN | [Unsplash u7egjbn8tzk](https://unsplash.com/photos/grey-metal-rolling-rack-u7egjbn8tzk) | Isaac Smith | 18 Jul 2019 | Canon EOS 6D | 1.4:1 crop (78%) of the 5089×3392 original, shifted right to leave out people by the windows; resized |
-| `hero/cake-piping-{400,800}.webp` | Homepage hero bakery inset (1:1) | [Pexels 8478181](https://www.pexels.com/photo/8478181/) | Los Muertos Crew | 25 Jun 2021 | not stated | square crop on the cake and piping bag (no face); resized |
+| `hero/supply-scene-{800,1200,1312}.webp` | Homepage hero scene (full-width hero, right ~60%), EN and BN | **AI-generated, supplied by the owner** (homepage design preview, 23 Nov 2026; D-074) | Owner (generating tool not recorded) | 23 Nov 2026 | — | Crop of the preview’s scene area only (x 860–2172, y 60–724; the preview’s own text and menu excluded); resized, no upscaling. Untouched preview kept as `owner-ai-hero-preview-2026-11-23.png` |
 | `banners/restaurant-wok-{600,1200}.webp` | Homepage "restaurants, cafés & commercial kitchens" panel | [Pexels 10324702](https://www.pexels.com/photo/10324702/) | Taha Samet Arslan | 22 Nov 2021 | not stated | 3:2 crop around the wok and flame; resized |
 | `contextual/business-restaurant-kitchen-{800,1600}.webp` | `/business` landing | [Pexels 6375558](https://www.pexels.com/photo/a-stainless-table-in-the-kitchen-6375558/) | [Skylar Kang](https://www.pexels.com/@skylar-kang/) | 2 Jan 2021 | Nikon D7000 | 4:3 crop that excludes a branded can |
 | `contextual/reseller-warehouse-aisle-{800,1600}.webp` | `/reseller` landing | [Pexels 5156696](https://www.pexels.com/photo/boxes-on-shelves-inside-a-warehouse-5156696/) | [Maor Attias](https://www.pexels.com/@maorattias/) | 21 Aug 2020 | Canon EOS 6D | 4:3 crop that excludes people, a branded forklift and box labels |
@@ -117,6 +117,7 @@ All seven tiles share one format:
 - the bread-shelves hero, Pexels 35993723 (replaced by a mixed restaurant / kitchen scene so the hero is not bakery-only);
 - the dark kitchen-line hero, Pexels 4947388 (owner review: replaced by the light split hero);
 - the kitchen-range hero, Pexels 34276646 (owner review: replaced by a bright bakery-production kitchen closer to the approved reference);
+- the bakery-kitchen hero (Unsplash u7egjbn8tzk) and the cake inset (Pexels 8478181): replaced on 23 Nov 2026 by the owner's own AI scene;
 - the bakery banner (Pexels 3983578) and the catering band (Pexels 2337843): the homepage no longer repeats department links in banners;
 - the old flour, Pexels 5734741 (dark background);
 - the old cocoa, Pexels 9179843 (texture only);
@@ -132,11 +133,9 @@ All seven tiles share one format:
 
 | File | SHA-256 |
 |---|---|
-| `hero/bakery-kitchen-1200.webp` | `620f01e9558705242b2d95c55fe7a3eb6b4cc1b60972f79cca6e26003fe21eb7` |
-| `hero/bakery-kitchen-1600.webp` | `f86ac0d6ed73b5f791199f3eff2ad05bdfb6252baf20cdf4bffb2fca01f3c05e` |
-| `hero/bakery-kitchen-800.webp` | `9a6aa12284a338663549cc7f630270ee8a5856d1517c73f84478e904672403bd` |
-| `hero/cake-piping-400.webp` | `d120900e33fc787734f347479b1346dddf58c9de5f3ca6ccf7971ea01605b510` |
-| `hero/cake-piping-800.webp` | `89cc54a83d1d88326d78d8d6bb0b72e03e1add298d3383eca37ebbd9bb8bf81d` |
+| `hero/supply-scene-1200.webp` | `d9f0d10f2b104e74d186ed63cd2ffe02593a032a27e58d8a09ec82bac088f53e` |
+| `hero/supply-scene-1312.webp` | `f801d8343831c7d98d1284809c1269e3038475d04bc9ef7386a1e14dccae9c65` |
+| `hero/supply-scene-800.webp` | `faf2e11ca7e6a5e9d9c5a8491180a645d01e1ef21e8ef0e2a4d48d2c208df00d` |
 | `banners/restaurant-wok-1200.webp` | `88aecffb51b5af70ea4708e6b31579cab96524e00c31b74ac4a44c61016e50fb` |
 | `banners/restaurant-wok-600.webp` | `991a9d803134df9c0d34b2d36fc79dd3a241fa481fe40890f192784109e5e6f1` |
 | `categories/baking-tools-400.webp` | `d02742ddb656d3c6fce074e3a716f1683860b50f76469d7d7473a7b7ca9cab10` |
@@ -182,6 +181,7 @@ All seven tiles share one format:
 | `representative/soy-sauce-bulk.webp` | `303c948f021fdfb091def92f07e76cb1efebbfe7ab51e110ca70a02a924b935a` |
 | `representative/takeaway-container-750-ml-400.webp` | `043c356ec1b61c18fe79b1128a599dd4fdf1e0188e82739dc1eb19c74aca9c93` |
 | `representative/takeaway-container-750-ml.webp` | `589717d0d664a64ad9b2d8e36b96188ac5de9dc159f48486470a0a1400b6f2c9` |
+| `original: owner-ai-hero-preview-2026-11-23.png` | `009cedd6c6e6b01f896a110961a9903625a54a6a8795eb92f54572c526fd8760` |
 | `original: pexels-10324702-taha-samet-arslan.jpg` | `112ffcbbd2fa71e02ba24b3b962cde64c7105aca66d6f3f61d351f3c1b8a8e7e` |
 | `original: pexels-11477544-towfiqu-barbhuiya.jpg` | `b64a1a02d6f5de8430966194bdec520f2a1fa657ec8f270315276fa14b221604` |
 | `original: pexels-12354555-ayrat.jpg` | `c8b117f9fb7575866e1872531da97564aa5353a532236aff4329a18461dcf550` |
@@ -200,8 +200,6 @@ All seven tiles share one format:
 | `original: pexels-7110179-tara-winstead.jpg` | `0d619ca523431a228bfee729ff9d740ff09b968dcd71a925fbb80af542792630` |
 | `original: pexels-7140435-julia-filirovska.jpg` | `5a19fa380a248ebb34ee45000346ec3ef6f3b237f4a147a3c5cc8853e528cab9` |
 | `original: pexels-7525172-shvets-production.jpg` | `0856bbbc669d734dd78830283c89d91177306866fa2f9fb4b9278c9aec225ef8` |
-| `original: pexels-8478181-los-muertos-crew.jpg` | `0df31a80edcc63366fc85b5d782f11c29aabca7e8d9fce1a61df44d60251f95f` |
 | `original: unsplash-D0FWHT-eW_I-agenlaku-indonesia.jpg` | `6ccf6db52efd72ab51edd69804542ffa8fcd41d94c9b87e03066dcd35e0627db` |
-| `original: unsplash-u7egjbn8tzk-isaac-smith.jpg` | `1b12172602e1e2ad28b62941e15b128caefd95a2174b35cf37b65b5fe01fe758` |
 
 If a licence is withdrawn or a photo is reported, delete its file (and, for products, its config line). The page then falls back to the placeholder automatically.

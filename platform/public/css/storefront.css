@@ -234,8 +234,6 @@ summary.small { padding-block: 3px; }
 .hero-points .icon { flex: none; width: 20px; height: 20px; margin-top: 2px; color: var(--bh-orange); }
 
 /* Service facts directly under the homepage hero (same content as the site-wide strip; claims stay "pending"). */
-main .trust-strip { margin-top: 16px; border: 1px solid var(--bh-border); border-radius: var(--bh-radius-lg); box-shadow: var(--bh-shadow-sm); }
-main .trust-strip .container { max-width: none; padding: 16px 20px; }
 
 
 
@@ -398,7 +396,6 @@ main .trust-strip .container { max-width: none; padding: 16px 20px; }
 .b2b-x-card:hover { background: rgba(255, 255, 255, 0.11); transform: translateY(-2px); }
 .b2b-x-card:focus-visible { outline: 3px solid var(--bh-orange); outline-offset: 2px; }
 
-main .trust-strip { margin-top: 20px; }
 
 @media (max-width: 1180px) {
   /* Departments become a snap-scrolling row instead of squeezing seven cards. */
@@ -426,7 +423,6 @@ main .trust-strip { margin-top: 20px; }
 
 /* Header: department icons in the category bar where there is room. */
 .catnav a .icon { display: none; width: 16px; height: 16px; margin-right: 6px; vertical-align: -3px; opacity: 0.85; }
-@media (min-width: 1560px) { .catnav a .icon { display: inline-block; } }
 
 /* ======================================================================================================
    Motion, project-wide (transform / opacity only; everything is off for prefers-reduced-motion).
@@ -493,4 +489,47 @@ body { overflow-x: clip; } /* the full-bleed band must never add a horizontal sc
   .hero-x-media { width: 52%; }
   .hero-x h1 { font-size: clamp(1.875rem, 1.05rem + 1.65vw, 2.45rem); max-width: 22ch; }
   .hero-x-inset { left: 10%; }
+}
+
+/* Hero, owner review 3 (2026-11-23): match the owner's AI preview — narrow text column on the left (~42%), the
+   owner-supplied scene filling the right ~62% behind a short navy fade. */
+@media (min-width: 961px) {
+  .hero-x-stage { grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr); min-height: clamp(420px, 31vw, 600px); }
+  .hero-x-media { width: 62%; }
+  .hero-x-photo { object-position: 0% 50%; }
+  .hero-x-media::after { background: linear-gradient(90deg, var(--bh-navy) 0%, rgba(16, 59, 86, 0.5) 9%, rgba(16, 59, 86, 0) 20%),
+                                       linear-gradient(0deg, rgba(8, 45, 70, 0.45) 0%, rgba(8, 45, 70, 0) 22%); }
+  .hero-x h1 { font-size: clamp(1.75rem, 2.3vw, 3rem); max-width: none; }
+  .hero-x .hero-points li { font-size: clamp(0.9375rem, 0.95vw, 1.1875rem); }
+  .hero-x-copy { padding-top: clamp(28px, 2.6vw, 56px); padding-right: 20px; }
+}
+@media (max-width: 960px) {
+  .hero-x-media { aspect-ratio: 1312 / 664; }
+  .hero-x-photo { object-position: 30% 50%; }
+}
+
+/* Category bar: every department always fits on one row (no hidden overflow).
+   Wide screens get extra width for the icons; mid widths use smaller labels that may wrap onto two lines. */
+.catnav .container { justify-content: space-between; }
+.catnav a { flex: 0 1 auto; min-width: 0; }
+@media (min-width: 1440px) {
+  .catnav .container { max-width: 1540px; }
+  .catnav a .icon { display: inline-block; }
+}
+@media (min-width: 961px) and (max-width: 1279px) {
+  .catnav .container { gap: 2px; }
+  .catnav a { white-space: normal; text-align: center; justify-content: center; line-height: 1.15; font-size: 0.8125rem; padding: 4px 8px; }
+  .catnav button.all { padding: 0 10px; margin-right: 4px; }
+}
+/* Wide screens: the text column is measured from the page's content edge, so it keeps the preview's proportions
+   from 1024 px to very wide monitors; the scene fills the rest and starts just under the end of the navy fade. */
+@media (min-width: 961px) {
+  .hero-x-stage { --copy-end: calc(max(var(--bh-gutter), (100vw - var(--bh-max)) / 2 + var(--bh-gutter)) + clamp(540px, 36vw, 660px));
+    grid-template-columns: var(--copy-end) minmax(0, 1fr); }
+  .hero-x-media { width: calc(100% - var(--copy-end) + 120px); }
+}
+@media (min-width: 961px) and (max-width: 1279px) {
+  .hero-x-stage { --copy-end: calc(var(--bh-gutter) + 500px); }
+  .hero-x-media { width: calc(100% - var(--copy-end) + 40px); }
+  .hero-x h1 { font-size: 1.9rem; }
 }

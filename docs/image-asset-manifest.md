@@ -2,8 +2,8 @@
 
 Status on 22 Nov 2026 (branch `feature/premium-visual`).
 
-**Limitation:** the Claude Code environment used for this pass has no image-generation tool, so **no image in this
-repository was AI-generated**. Every published image today is a licensed real photograph (see `IMAGE_CREDITS.md`).
+**Limitation:** the Claude Code environment used for this pass has no image-generation tool, so Claude generated no
+image. The one AI image in use (homepage hero scene) was supplied by the owner. Every published image today is a licensed real photograph (see `IMAGE_CREDITS.md`).
 The prompts below are ready to run in any photorealistic generator. Each result must then go through the normal
 route (Admin › Photo review for product images, or a file swap plus an `IMAGE_CREDITS.md` row for scenes).
 
@@ -45,7 +45,7 @@ hands, warped utensils, melted objects, duplicate objects, oversaturated, cartoo
 
 | # | Slot (files in `platform/public/images/`) | Size / ratio | Today | Prompt (append the style suffix) |
 |---|---|---|---|---|
-| 1 | Homepage hero `hero/bakery-kitchen-{800,1200,1600}.webp` (main, 1.4:1, full-width dark hero) + `hero/cake-piping-{400,800}.webp` (inset, 1:1) | 1600×1143 and 800×800; keep the left 40% calm (navy fade behind the text) | Licensed photos, Unsplash u7egjbn8tzk + Pexels 8478181 | "Bright modern commercial kitchen in Dhaka. On a long stainless prep counter on the right: a professional planetary stand mixer, a carbon-steel wok on a gas burner, trays of fresh pastries and a decorated cake, stacked kraft takeaway boxes and steel GN pans. Left third softly out of focus, clean white tile wall, morning light from the left." |
+| 1 | Homepage hero `hero/supply-scene-{800,1200,1312}.webp` | 1312×664 (≈2:1), scene on the right ~60% | **In use: owner-supplied AI scene (23 Nov 2026)** | For a sharper 2× version, regenerate the same scene at ≥2600×1320 with the prompt below and replace the three files. |
 | 2 | Restaurant banner `banners/restaurant-wok-{600,1200}.webp` | 1200×800 (3:2) | Licensed photo, Pexels 10324702 | "Close view of a black carbon-steel wok tossed over a high gas flame in a restaurant kitchen, stir-fried vegetables in mid-air, chef's gloved hand and forearm only, stainless range, warm flame light." |
 | 3 | Bakery banner (removed in D-076; the cake inset in the hero carries bakery) | 1200×800 | — | "Pastry chef's hands piping cream onto a two-layer celebration cake on an aluminium turntable on a bakery bench, piping bags, palette knife and nozzles beside it, flour-dusted wood, soft window light." |
 | 4 | Café / catering (not on the homepage since D-076; optional for a future category header) | 1200×800 | — | "Bright café and catering counter: stainless chafing dishes with lids, a tiered pastry stand, white serving bowls and stacked kraft takeaway cups and food containers, light wood and white tile." |

@@ -26,29 +26,26 @@ class HomepagePhotosTest extends TestCase
         }
     }
 
-    public function test_the_hero_has_one_eager_responsive_photo_a_five_point_list_and_service_facts_below(): void
+    public function test_the_hero_has_one_eager_responsive_photo_and_a_five_point_list(): void
     {
         $html = $this->get('/')->assertOk()
-            ->assertSee('images/hero/bakery-kitchen-800.webp 800w', false)
-            ->assertSee('images/hero/bakery-kitchen-1200.webp 1200w', false)
-            ->assertSee('images/hero/bakery-kitchen-1600.webp 1600w', false)
-            ->assertSee('alt="Bright commercial bakery kitchen with spiral dough mixers, a sheet-pan rack and prep tables"', false)
-            ->assertSee('alt="Pastry chef piping cream rosettes onto a cake"', false)
+            ->assertSee('images/hero/supply-scene-800.webp 800w', false)
+            ->assertSee('images/hero/supply-scene-1200.webp 1200w', false)
+            ->assertSee('images/hero/supply-scene-1312.webp 1312w', false)
+            ->assertSee('alt="Commercial kitchen counter with a stand mixer, decorated cake, wok over a flame, combi oven and takeaway packaging"', false)
             ->getContent();
 
         preg_match('/<img class="hero-x-photo"[^>]+>/', $html, $hero);
         $this->assertNotEmpty($hero, 'The hero photo is rendered.');
         $this->assertStringContainsString('fetchpriority="high"', $hero[0]);
-        $this->assertStringContainsString('width="1600" height="1143"', $hero[0]);
+        $this->assertStringContainsString('width="1312" height="664"', $hero[0]);
         $this->assertStringNotContainsString('loading=', $hero[0], 'The LCP image is never lazy-loaded.');
 
         preg_match('/<ul class="hero-points[^"]*">(.*?)<\/ul>/s', $html, $points);
         $this->assertSame(5, substr_count($points[1] ?? '', '<li>'), 'Five verified departments / buying features.');
 
-        // Service facts appear once, right after the hero (not again above the footer), still marked "pending".
-        $this->assertSame(1, substr_count($html, 'class="trust-strip"'));
-        $this->assertLessThan(strpos($html, 'class="trust-strip"'), strpos($html, 'class="dept-rail"'));
-        $this->assertStringContainsString('Courier partners pending', $html);
+        // Owner decision 2026-11-23: no service-facts strip on any page.
+        $this->assertStringNotContainsString('class="trust-strip"', $html);
     }
 
     public function test_departments_are_listed_once_as_cards_with_photos_and_live_counts(): void
@@ -91,8 +88,7 @@ class HomepagePhotosTest extends TestCase
         Product::factory()->withFixedVariant()->create(['primary_category_id' => $restaurant->id]);
 
         $this->get('/bn')->assertOk()
-            ->assertSee('alt="স্পাইরাল ডো মিক্সার, শিট-প্যান র‍্যাক ও প্রস্তুতি টেবিলসহ উজ্জ্বল বাণিজ্যিক বেকারি কিচেন"', false)
-            ->assertSee('alt="কেকের ওপর ক্রিমের নকশা করছেন পেস্ট্রি শেফ"', false)
+            ->assertSee('alt="স্ট্যান্ড মিক্সার, সাজানো কেক, আগুনে ওক, কম্বি ওভেন ও টেকঅ্যাওয়ে প্যাকেজিংসহ বাণিজ্যিক কিচেন কাউন্টার"', false)
             ->assertSee('alt="বাণিজ্যিক রান্নাঘরে উঁচু আগুনে কালো ওক নাড়ছেন রাঁধুনি"', false);
     }
 }
