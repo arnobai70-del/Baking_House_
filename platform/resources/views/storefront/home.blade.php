@@ -5,19 +5,17 @@
 
 @section('content')
     {{-- 1. Hero: who we are and what we sell, with the departments as the way in (owner reference, 2026-11-22).
-         Licensed photos (Unsplash u7egjbn8tzk bakery kitchen, Pexels 8478181 cake inset; IMAGE_CREDITS.md). --}}
+         Owner-supplied AI scene (D-074; IMAGE_CREDITS.md). --}}
     <section class="hero-x" aria-labelledby="hero-title">
         <div class="hero-x-stage">
-            @if (is_file(public_path('images/hero/bakery-kitchen-1200.webp')))
+            @if (is_file(public_path('images/hero/supply-scene-1200.webp')))
+                {{-- Owner-supplied AI-generated scene (decision D-074; provenance in IMAGE_CREDITS.md): bakery, restaurant,
+                     Chinese kitchen, equipment and packaging in one counter. The LCP image: eager, high priority. --}}
                 <div class="hero-x-media">
-                    <img class="hero-x-photo" src="{{ asset('images/hero/bakery-kitchen-1200.webp') }}"
-                         srcset="{{ asset('images/hero/bakery-kitchen-800.webp') }} 800w, {{ asset('images/hero/bakery-kitchen-1200.webp') }} 1200w, {{ asset('images/hero/bakery-kitchen-1600.webp') }} 1600w"
-                         sizes="(max-width: 960px) 100vw, 760px" width="1600" height="1143" fetchpriority="high" decoding="async"
-                         alt="{{ __('Bright commercial bakery kitchen with spiral dough mixers, a sheet-pan rack and prep tables') }}">
-                    <img class="hero-x-inset" src="{{ asset('images/hero/cake-piping-400.webp') }}"
-                         srcset="{{ asset('images/hero/cake-piping-400.webp') }} 400w, {{ asset('images/hero/cake-piping-800.webp') }} 800w"
-                         sizes="(max-width: 960px) 34vw, 220px" width="800" height="800" decoding="async"
-                         alt="{{ __('Pastry chef piping cream rosettes onto a cake') }}">
+                    <img class="hero-x-photo" src="{{ asset('images/hero/supply-scene-1200.webp') }}"
+                         srcset="{{ asset('images/hero/supply-scene-800.webp') }} 800w, {{ asset('images/hero/supply-scene-1200.webp') }} 1200w, {{ asset('images/hero/supply-scene-1312.webp') }} 1312w"
+                         sizes="(max-width: 960px) 100vw, 62vw" width="1312" height="664" fetchpriority="high" decoding="async"
+                         alt="{{ __('Commercial kitchen counter with a stand mixer, decorated cake, wok over a flame, combi oven and takeaway packaging') }}">
                 </div>
             @endif
             <div class="hero-x-copy">
