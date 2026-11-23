@@ -336,7 +336,6 @@ summary.small { padding-block: 3px; }
 .hero-x-media::after { content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(90deg, var(--bh-navy) 0%, rgba(16, 59, 86, 0.55) 16%, rgba(16, 59, 86, 0) 38%),
               linear-gradient(0deg, rgba(8, 45, 70, 0.55) 0%, rgba(8, 45, 70, 0) 30%); }
-.hero-x-inset { position: absolute; z-index: 1; left: 18%; bottom: 96px; width: 190px; height: auto; aspect-ratio: 1; object-fit: cover;
   border-radius: 16px; border: 5px solid #fff; box-shadow: 0 18px 40px rgba(3, 20, 32, 0.4); }
 .hero-x-copy { position: relative; z-index: 1; grid-column: 1; padding: 52px 40px 40px 56px; max-width: 600px; }
 .hero-x .hero-eyebrow { color: var(--bh-on-navy-muted); }
@@ -411,7 +410,6 @@ summary.small { padding-block: 3px; }
   .hero-x-stage { display: block; min-height: 0; padding-bottom: 64px; }
   .hero-x-media { position: relative; width: 100%; height: auto; aspect-ratio: 16 / 10; }
   .hero-x-media::after { background: linear-gradient(0deg, var(--bh-navy-deep) 0%, rgba(8, 45, 70, 0) 45%); }
-  .hero-x-inset { width: 30%; left: auto; right: 16px; bottom: -28px; border-width: 4px; border-radius: 12px; }
   .hero-x-copy { padding: 24px 20px 12px; max-width: none; }
   .hero-x h1 { max-width: none; }
   .commercial { grid-template-columns: 1fr; }
@@ -437,7 +435,6 @@ summary.small { padding-block: 3px; }
 
   /* Hero: photo settles (scale only, so LCP is not delayed), inset rises, stroke draws, departments follow. */
   .hero-x-photo { animation: hero-settle 1400ms cubic-bezier(0.2, 0.7, 0.2, 1) both; transform-origin: 60% 50%; }
-  .hero-x-inset { animation: rise-in 700ms 350ms var(--bh-ease) both; }
   .hero-swoosh path { stroke-dasharray: 250; stroke-dashoffset: 250; animation: draw 900ms 450ms cubic-bezier(0.6, 0, 0.2, 1) forwards; }
   .dept-card { animation: rise-in 520ms calc(300ms + var(--i, 0) * 60ms) var(--bh-ease) both; }
 
@@ -456,7 +453,6 @@ summary.small { padding-block: 3px; }
 }
 @keyframes hero-settle { from { transform: scale(1.06); } to { transform: scale(1); } }
 @keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
-@keyframes draw { to { stroke-dashoffset: 0; } }
 @keyframes slide-down { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
 @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
@@ -474,21 +470,18 @@ body { overflow-x: clip; } /* the full-bleed band must never add a horizontal sc
 .hero-x .hero-points { gap: 6px; margin-bottom: 22px; }
 .hero-x .hero-points li { font-size: var(--bh-fs-base, 1rem); }
 .hero-swoosh { margin: 8px 0 16px; }
-.hero-x-inset { width: 160px; bottom: 92px; }
 .dept-rail { max-width: calc(var(--bh-max) - 2 * var(--bh-gutter)); margin-left: auto; margin-right: auto; }
 @media (max-width: 1180px) { .dept-rail { margin-left: 12px; margin-right: 12px; } }
 @media (max-width: 960px) {
   .hero-x { margin-top: -20px; }
   .hero-x-media { width: 100%; aspect-ratio: 16 / 8; }
   .hero-x-copy { padding: 20px var(--bh-gutter) 8px; }
-  .hero-x-inset { width: 26%; bottom: -24px; }
 }
 @media (max-width: 640px) { .dept-rail { margin-left: 8px; margin-right: 8px; } }
 @media (min-width: 961px) {
   .hero-x-stage { grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr); }
   .hero-x-media { width: 52%; }
   .hero-x h1 { font-size: clamp(1.875rem, 1.05rem + 1.65vw, 2.45rem); max-width: 22ch; }
-  .hero-x-inset { left: 10%; }
 }
 
 /* Hero, owner review 3 (2026-11-23): match the owner's AI preview — narrow text column on the left (~42%), the
@@ -533,3 +526,79 @@ body { overflow-x: clip; } /* the full-bleed band must never add a horizontal sc
   .hero-x-media { width: calc(100% - var(--copy-end) + 40px); }
   .hero-x h1 { font-size: 1.9rem; }
 }
+
+/* ======================================================================================================
+   Cinematic motion layer (feature/cinematic-motion). Builds on the existing motion (hero entrance, stroke
+   draw, scroll reveal, card lift, menu / drawer, price tick, view transitions) instead of duplicating it.
+   Rules: transform / opacity / individual transform properties only; pointer effects only on devices with a
+   real hover pointer; everything off under prefers-reduced-motion; no decorative motion on checkout and
+   payment pages. Pointer positions come from public/js/motion.js as CSS variables (--hx, --hy, --mx, --my).
+   ====================================================================================================== */
+@media (prefers-reduced-motion: no-preference) {
+  /* Hero depth: the scene sits slightly enlarged so it can drift a few pixels against the pointer without showing
+     an edge; the orange stroke moves the other way at a smaller amplitude (foreground layer). */
+  .hero-x-photo { scale: 1.04; translate: var(--hx, 0px) var(--hy, 0px);
+    transition: translate 700ms cubic-bezier(0.16, 0.84, 0.3, 1); will-change: translate; }
+  .hero-swoosh { translate: calc(var(--hx, 0px) * -0.45) calc(var(--hy, 0px) * -0.45);
+    transition: translate 700ms cubic-bezier(0.16, 0.84, 0.3, 1); }
+
+  /* Floating: the scene "breathes" on a slow 8 s cycle; the stroke floats on its own 6 s cycle (different
+     periods give depth). Paused while the hero is off screen to save CPU. */
+  .hero-x-photo { animation: hero-settle 1400ms cubic-bezier(0.2, 0.7, 0.2, 1) both, scene-breathe 8s 1.4s ease-in-out infinite alternate; }
+  .hero-swoosh { animation: swoosh-float 6s 1.4s ease-in-out infinite; }
+  .hero-x.is-offscreen .hero-x-photo, .hero-x.is-offscreen .hero-swoosh { animation-play-state: paused; }
+
+  /* Magnetic CTAs (hero only): a 3–4 px pull toward the pointer, eased back on leave. Uses `translate`, so the
+     existing press `transform: scale()` still works and the hit area never moves away from the cursor. */
+  [data-magnetic] { translate: var(--mx, 0px) var(--my, 0px); transition: translate 260ms cubic-bezier(0.2, 0.7, 0.2, 1), background-color var(--bh-dur-fast), border-color var(--bh-dur-fast), color var(--bh-dur-fast); }
+
+  /* Price: the final server-rule price swaps in with a short cross-fade and the box glows once (150 ms). */
+  .calc-box:has(.total.tick) { animation: calc-glow 360ms var(--bh-ease); }
+  .calc-box .total.tick, #fixed-total.tick { animation: price-swap 180ms var(--bh-ease); }
+
+  /* Mega menu: columns follow the panel in a short stagger. */
+  .mega.open .container > * { animation: rise-in 260ms var(--bh-ease) both; }
+  .mega.open .container > :nth-child(2) { animation-delay: 30ms; }
+  .mega.open .container > :nth-child(3) { animation-delay: 60ms; }
+  .mega.open .container > :nth-child(4) { animation-delay: 90ms; }
+  .mega.open .container > :nth-child(n + 5) { animation-delay: 120ms; }
+
+  /* Category bar: an orange underline grows under the hovered / current department. */
+  .catnav a:not(.all) { position: relative; }
+  .catnav a:not(.all)::after { content: ""; position: absolute; left: 12px; right: 12px; bottom: 8px; height: 2px; border-radius: 2px; background: var(--bh-orange);
+    transform: scaleX(0); transform-origin: left center; transition: transform 220ms var(--bh-ease); }
+  .catnav a:not(.all):hover::after, .catnav a[aria-current="page"]::after { transform: scaleX(1); }
+
+  /* Header lifts once the page scrolls (state set by motion.js with an IntersectionObserver, no scroll listener). */
+  .masthead { transition: box-shadow 240ms var(--bh-ease); }
+  .masthead.is-raised { box-shadow: 0 6px 18px rgba(8, 45, 70, 0.1); }
+
+  /* Filtering / sorting: a thin indeterminate bar runs above the results while the next page loads. */
+  #results[aria-busy="true"] { position: relative; }
+  #results[aria-busy="true"]::before { content: ""; position: absolute; z-index: 2; left: 0; right: 0; top: -8px; height: 3px; border-radius: 3px;
+    background: linear-gradient(90deg, transparent, var(--bh-teal), transparent); background-size: 40% 100%; background-repeat: no-repeat;
+    animation: busy-bar 900ms linear infinite; }
+
+  /* No decorative motion on checkout and payment pages (messages appear instantly there). */
+  body[data-page^="checkout"] .alert, body[data-page^="payments"] .alert, body[data-page="pay"] .alert { animation: none; }
+}
+
+/* Cards and department tiles: hover effects only where a real hover exists (no stuck states on phones). */
+@media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+  .pcard { transition: transform 220ms var(--bh-ease), box-shadow 220ms var(--bh-ease), border-color 220ms var(--bh-ease); }
+  .pcard:hover { transform: translateY(-4px); box-shadow: 0 14px 30px rgba(8, 45, 70, 0.12); border-color: var(--bh-border-strong); }
+  .pcard .media img, .pcard .media > .ph { transition: transform 240ms var(--bh-ease); }
+  .pcard:hover .media img, .pcard:hover .media > .ph { transform: scale(1.035); }
+}
+@media (hover: none), (pointer: coarse) {
+  .pcard:hover, .dept-card:hover { transform: none; box-shadow: var(--bh-shadow-sm); }
+  .pcard:hover .media img, .pcard:hover .media > .ph, .dept-card:hover img { transform: none; }
+}
+
+@keyframes scene-breathe { from { scale: 1.04; } to { scale: 1.06; } }
+@keyframes swoosh-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes calc-glow { 0% { box-shadow: 0 0 0 0 rgba(241, 139, 10, 0); } 40% { box-shadow: 0 0 0 4px rgba(241, 139, 10, 0.22); } 100% { box-shadow: 0 0 0 0 rgba(241, 139, 10, 0); } }
+@keyframes price-swap { from { opacity: 0.35; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes busy-bar { from { background-position: -40% 0; } to { background-position: 140% 0; } }
+/* The enlarged, drifting scene stays inside its own frame (the navy fade covers the frame edge). */
+.hero-x-media { overflow: hidden; }

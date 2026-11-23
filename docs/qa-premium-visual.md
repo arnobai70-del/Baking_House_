@@ -129,3 +129,54 @@ The controller never shows a product in two blocks (tested). The page is ~340 px
 - 393 tests passed; Pint clean.
 - 8 widths, EN + BN, home / shop / product / admin: no overflow, CSP or JS errors.
 - Production-like vitals, home: desktop LCP 0.7 s (was 1.1 s); mobile slow-4G cold 3.1 s (was 3.8–4.3 s), warm 0.5 s; CLS 0.
+
+## Cinematic motion (D-079, branch `feature/cinematic-motion`)
+
+**Reused, not duplicated:**
+- hero entrance and the stroke draw;
+- scroll reveal (below-the-fold content only, once per element, nothing hidden without JS);
+- card lift and image zoom;
+- mega-menu and drawer transitions;
+- the price `tick`;
+- the cart badge bump;
+- busy buttons and dimmed results;
+- page view transitions.
+
+**Removed:**
+- a duplicate `draw` keyframe;
+- dead cake-inset rules.
+
+**Added** (`public/js/motion.js` + `public/css/storefront.css`):
+- **Hero parallax:** the scene moves up to 8 px; the stroke counter-moves.
+- **Floating:** slow scene breathing (8 s) and a stroke float (6 s), paused off screen.
+- **Magnetic CTAs:** the two hero buttons, up to 4 px within 40 px of the pointer.
+- **Hover:** cards and department tiles only on devices with a real hover.
+- **Price:** swap and glow (150–360 ms; only final prices are ever shown).
+- **Navigation:** staggered mega-menu columns, the category underline and the header lift.
+- **Loading:** a filter loading bar.
+- **Opt-outs:** pointer effects need a fine pointer; nothing decorative on checkout / payment pages; everything is off for
+  reduced motion.
+
+**Browser-verified** (Edge, CDP):
+
+| Interaction | Result |
+|---|---|
+| Parallax | scene −7.2 px, stroke +3.2 px |
+| Magnetic | 3.2 px near, 0 px far |
+| Header | lifts on scroll |
+| Hero animations off screen | paused |
+| 700 g at ৳650/kg | ৳455 with the swap and glow |
+| 1000 g | shows "1 kg" |
+| Reduced motion | no movement |
+| Touch | no pointer effects, no overflow |
+
+Evidence (filmstrip, parallax and magnetic frames) is in `qa-artifacts/cinematic-motion/`.
+
+**Checks:**
+- 393 tests passed; prototype tests 20/20; Pint clean; composer audit clean.
+- 8 widths, EN + BN, public and logged-in pages: clean.
+
+**Performance:**
+- LCP and CLS are unchanged or slightly better.
+- Mobile cold blocking time is noisy on this machine. On the product page the mean is ~110–160 ms after vs ~90 ms
+  before; both have spikes over 230 ms. That stays under 200 ms; `:has()` was ruled out by A/B.

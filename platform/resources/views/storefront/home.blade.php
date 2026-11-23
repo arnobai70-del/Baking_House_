@@ -28,8 +28,8 @@
                     <li><x-icon name="check" /> {{ __('Buy by the gram, the piece or in bulk, with business and reseller pricing') }}</li>
                 </ul>
                 <div class="row reveal reveal-3">
-                    <a class="btn btn-primary" href="{{ route('catalog.shop') }}"><x-icon name="cart" /> {{ __('Shop now') }}</a>
-                    <a class="btn btn-ghost-light" href="{{ route('business.landing') }}"><x-icon name="store" /> {{ __('Business & bulk buying') }}</a>
+                    <a class="btn btn-primary" data-magnetic href="{{ route('catalog.shop') }}"><x-icon name="cart" /> {{ __('Shop now') }}</a>
+                    <a class="btn btn-ghost-light" data-magnetic href="{{ route('business.landing') }}"><x-icon name="store" /> {{ __('Business & bulk buying') }}</a>
                 </div>
             </div>
         </div>
