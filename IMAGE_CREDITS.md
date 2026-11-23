@@ -38,7 +38,7 @@ Originals of photos that are no longer used are in its `retired/` folder.
 |---|---|---|---|---|---|---|
 | `hero/supply-scene-{800,1200,1312}.webp` | Homepage hero scene (full-width hero, right ~60%), EN and BN | **AI-generated, supplied by the owner** (homepage design preview, 23 Nov 2026; D-074) | Owner (generating tool not recorded) | 23 Nov 2026 | — | Crop of the preview’s scene area only (x 860–2172, y 60–724; the preview’s own text and menu excluded); resized, no upscaling. Untouched preview kept as `owner-ai-hero-preview-2026-11-23.png` |
 | `banners/restaurant-wok-{600,1200}.webp` | Homepage "restaurants, cafés & commercial kitchens" panel | [Pexels 10324702](https://www.pexels.com/photo/10324702/) | Taha Samet Arslan | 22 Nov 2021 | not stated | 3:2 crop around the wok and flame; resized |
-| `contextual/business-restaurant-kitchen-{800,1600}.webp` | `/business` landing | [Pexels 6375558](https://www.pexels.com/photo/a-stainless-table-in-the-kitchen-6375558/) | [Skylar Kang](https://www.pexels.com/@skylar-kang/) | 2 Jan 2021 | Nikon D7000 | 4:3 crop that excludes a branded can |
+| `contextual/business-kitchen-line-{800,1600}.webp` | `/business` landing | [Pexels 4947388](https://www.pexels.com/photo/4947388/) | Maria Orlova | 24 Jul 2020 | not stated | 4:3 centre crop of the 2784×1856 original; resized (replaces the darker stove photo, owner review 24 Nov 2026) |
 | `contextual/reseller-warehouse-aisle-{800,1600}.webp` | `/reseller` landing | [Pexels 5156696](https://www.pexels.com/photo/boxes-on-shelves-inside-a-warehouse-5156696/) | [Maor Attias](https://www.pexels.com/@maorattias/) | 21 Aug 2020 | Canon EOS 6D | 4:3 crop that excludes people, a branded forklift and box labels |
 
 ## 2. Homepage category tiles (contextual images, one matched set)
@@ -115,7 +115,8 @@ All seven tiles share one format:
 **Retired on 2026-11-22 (files deleted, originals moved to `retired/`):**
 - the old hero, Pexels 7405059 (a dark display counter);
 - the bread-shelves hero, Pexels 35993723 (replaced by a mixed restaurant / kitchen scene so the hero is not bakery-only);
-- the dark kitchen-line hero, Pexels 4947388 (owner review: replaced by the light split hero);
+- the `/business` stove photo, Pexels 6375558 (owner review 24 Nov 2026: too dark);
+- the dark kitchen-line hero, Pexels 4947388 (owner review: replaced by the light split hero; the photo now serves the `/business` landing, untinted);
 - the kitchen-range hero, Pexels 34276646 (owner review: replaced by a bright bakery-production kitchen closer to the approved reference);
 - the bakery-kitchen hero (Unsplash u7egjbn8tzk) and the cake inset (Pexels 8478181): replaced on 23 Nov 2026 by the owner's own AI scene;
 - the bakery banner (Pexels 3983578) and the catering band (Pexels 2337843): the homepage no longer repeats department links in banners;
@@ -159,8 +160,8 @@ All seven tiles share one format:
 | `categories/restaurant-supply-400.webp` | `ef42f087200e116f2d814b8862e9174e141f539d34e1628c77964b4080c3ce95` |
 | `categories/restaurant-supply-600.webp` | `d0021e544cdd5de40e28c082143e4682baceef8f23522dd465535edacafa41a2` |
 | `categories/restaurant-supply.webp` | `815e90656936885d3736939a3275ad7dde27ab12ed5e41a30f48c2763c534793` |
-| `contextual/business-restaurant-kitchen-1600.webp` | `9cce9daa69c292c4cb7e4102ceac8b5c1e1b7eede81641ac723010d0783e80dd` |
-| `contextual/business-restaurant-kitchen-800.webp` | `5721a909ae270813991afb14f4a600d54841b89c9b618cc4a542e27c2c21598a` |
+| `contextual/business-kitchen-line-1600.webp` | `97fd11f1e10ca92cca1786e20a429d2c406f6c50b8b8f3aee0c2925832b2ba03` |
+| `contextual/business-kitchen-line-800.webp` | `b6341898dd9cf688dcfc970ef76f29929699781cc773d00e41f0379160a20838` |
 | `contextual/reseller-warehouse-aisle-1600.webp` | `80b47aac3a088df76dd25fd1ba41189299ae15b874fe2c99dd62265ee2777820` |
 | `contextual/reseller-warehouse-aisle-800.webp` | `cc4f1ccfc7d92b95f53e176e5cac7a80dd207b2ea9b956e0f8d4a5c57fdbcda0` |
 | `representative/cake-box-10-400.webp` | `bc74fb0b656b606748df03510aa6e175c987df85d2ee880d85b4dc1a126b2ae6` |
@@ -190,9 +191,9 @@ All seven tiles share one format:
 | `original: pexels-2522610-zhugewala.jpg` | `c0f10e65367460dabcebc896149f2328b23fff8943f2db589c316ae4358d3ef6` |
 | `original: pexels-31703552-natalia-s.jpg` | `002686734dccd6b0679e189f4b5d6715930adcb19c83766084b09885971fd688` |
 | `original: pexels-4271686-alleksana.jpg` | `8643d700174a48adc7312bb797b3b8e01b9454b28df5c63d9eb0f126ce0f6c56` |
+| `original: pexels-4947388-maria-orlova.jpg` | `3347bc182c792c3903f5ace5abf80596d8d2bf58931a61f19fd83213a54d12df` |
 | `original: pexels-5078591-nataliya-vaitkevich.jpg` | `96fec6a13a8b7f94e9d2c26838674ac46dd1b05780836c6fe15ce21d915c6558` |
 | `original: pexels-5156696-maor-attias.jpg` | `9ef52386a8fa493454750bb13c00e1b06f805b323d752b45e3a68fefe80df381` |
-| `original: pexels-6375558-skylar-kang.jpg` | `b6cf6767b3ef93dafb5a28b112d371dbc173d3f246ed19606abcb693d7027fba` |
 | `original: pexels-6730181-son-tung-tran.jpg` | `c7afce1cd431fb97656730f6382c8c04dc2d28cecdae874abd66159644738471` |
 | `original: pexels-675955-snapwire.jpg` | `be6fdc9423e99cecbe026eb36c048c5e4d0d02d1cfa796c457abf0cb0e062537` |
 | `original: pexels-6996330-pavel-danilyuk.jpg` | `d6b5c6af24e36d55e969544031ea052e7e2aea96f525d498a1590473f3e1cb98` |
