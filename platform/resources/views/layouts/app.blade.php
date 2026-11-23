@@ -48,7 +48,7 @@
     <script type="module" src="{{ \App\Support\Asset::url('js/storefront.js') }}"></script>
     <script type="module" src="{{ \App\Support\Asset::url('js/motion.js') }}"></script>
 </head>
-<body class="has-tabbar{{ $workspace ? ' workspace' : '' }}">
+<body class="has-tabbar{{ $workspace ? ' workspace' : '' }}" data-page="{{ request()->route()?->getName() }}">
     <a class="skip-link" href="#main">{{ __('Skip to content') }}</a>
 
     @unless (app()->isProduction())

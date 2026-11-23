@@ -4,7 +4,7 @@
  * with a small stagger inside a grid. Content already on screen at load is never hidden, so the first paint and
  * LCP are unaffected; without JS or with prefers-reduced-motion nothing is hidden at all. Transform and opacity only.
  */
-const TARGETS = '.section-head, .grid > .pcard, .commercial-panel, .b2b-x > *, .b2b-band > .card, .portal-steps > *, .combo, .shortcuts > a, .kpi';
+const TARGETS = '.section-head, .dept-tabs .tabs, .grid > .pcard, .commercial-panel, .b2b-x > *, .b2b-band > .card, .portal-steps > *, .combo, .shortcuts > a, .kpi, .category-head';
 const STAGGER_MS = 60;
 const MAX_STAGGER = 5;
 
@@ -51,5 +51,88 @@ function initCountUp() {
   });
 }
 
+/* ---------------- Cinematic layer: hero depth, magnetic CTAs, header lift ----------------
+   Pointer effects run only for a real mouse on a hover-capable device and never with reduced motion. Pointer
+   input is coalesced into one requestAnimationFrame write of CSS variables; the CSS animates `translate`
+   (compositor-only), so nothing here causes layout. */
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const hasFinePointer = () => window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+const clamp = (value, limit) => Math.max(-limit, Math.min(limit, value));
+
+/** Write CSS variables at most once per frame. */
+function frameWriter(el) {
+  let frame = 0;
+  let pending = {};
+  return (vars) => {
+    pending = { ...pending, ...vars };
+    if (frame) return;
+    frame = requestAnimationFrame(() => {
+      frame = 0;
+      Object.entries(pending).forEach(([name, value]) => el.style.setProperty(name, `${value.toFixed(2)}px`));
+      pending = {};
+    });
+  };
+}
+
+/** Hero: the scene drifts up to 8 px against the pointer (the stroke follows the other way in CSS); the looping
+ *  float pauses while the hero is off screen. */
+function initHeroDepth() {
+  const hero = document.querySelector('.hero-x');
+  if (!hero) return;
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(([entry]) => hero.classList.toggle('is-offscreen', !entry.isIntersecting)).observe(hero);
+  }
+  if (prefersReducedMotion() || !hasFinePointer()) return;
+
+  const stage = hero.querySelector('.hero-x-stage') || hero;
+  const write = frameWriter(hero);
+  const MAX = 8;
+  stage.addEventListener('pointermove', (event) => {
+    if (event.pointerType !== 'mouse') return;
+    const box = stage.getBoundingClientRect();
+    const x = (event.clientX - box.left) / box.width - 0.5;
+    const y = (event.clientY - box.top) / box.height - 0.5;
+    write({ '--hx': clamp(-x * 2 * MAX, MAX), '--hy': clamp(-y * 2 * MAX * 0.6, MAX) });
+  });
+  stage.addEventListener('pointerleave', () => write({ '--hx': 0, '--hy': 0 }));
+}
+
+/** Magnetic CTAs ([data-magnetic]): within ~40 px of a button, it leans up to 4 px toward the pointer. */
+function initMagnetic() {
+  if (prefersReducedMotion() || !hasFinePointer()) return;
+  const RANGE = 40;
+  const MAX = 4;
+  document.querySelectorAll('[data-magnetic]').forEach((button) => {
+    const zone = button.closest('.hero-x') || button.parentElement;
+    const write = frameWriter(button);
+    zone.addEventListener('pointermove', (event) => {
+      if (event.pointerType !== 'mouse') return;
+      const box = button.getBoundingClientRect();
+      const dx = event.clientX - (box.left + box.width / 2);
+      const dy = event.clientY - (box.top + box.height / 2);
+      const reachX = box.width / 2 + RANGE;
+      const reachY = box.height / 2 + RANGE;
+      if (Math.abs(dx) > reachX || Math.abs(dy) > reachY) {
+        write({ '--mx': 0, '--my': 0 });
+        return;
+      }
+      write({ '--mx': clamp((dx / reachX) * MAX, MAX), '--my': clamp((dy / reachY) * MAX * 0.75, MAX) });
+    });
+    zone.addEventListener('pointerleave', () => write({ '--mx': 0, '--my': 0 }));
+    button.addEventListener('blur', () => write({ '--mx': 0, '--my': 0 }));
+  });
+}
+
+/** Header: a soft shadow once the utility bar has scrolled away (IntersectionObserver, no scroll listener). */
+function initHeaderLift() {
+  const masthead = document.querySelector('.masthead');
+  const marker = document.querySelector('.topbar');
+  if (!masthead || !marker || !('IntersectionObserver' in window)) return;
+  new IntersectionObserver(([entry]) => masthead.classList.toggle('is-raised', !entry.isIntersecting)).observe(marker);
+}
+
 initScrollReveal();
 initCountUp();
+initHeroDepth();
+initMagnetic();
+initHeaderLift();
