@@ -27,7 +27,7 @@
                 /* Contextual scene photo (licensed Pexels stock, see IMAGE_CREDITS.md): allowed for banners by
                    docs/image-policy.md, never used as a product photo. Falls back to the placeholder if missing. */
                 [$scene, $sceneAlt] = $isBusiness
-                    ? ['images/contextual/business-restaurant-kitchen', __('Stainless steel range with pots in a professional restaurant kitchen')]
+                    ? ['images/contextual/business-kitchen-line', __('Restaurant kitchen line with pendant lights, hanging pans and shelves of plates and serving ware')]
                     : ['images/contextual/reseller-warehouse-aisle', __('Warehouse aisle with tall shelves of boxed stock')];
             @endphp
             <div class="reveal reveal-2">
