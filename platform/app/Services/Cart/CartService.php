@@ -3,6 +3,8 @@
 namespace App\Services\Cart;
 
 use App\Models\Bundle;
+use App\Models\CakeDesign;
+use App\Models\CakeUpload;
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\ProductVariant;
@@ -127,6 +129,18 @@ class CartService
     }
 
     /**
+     * Put a custom cake design in the cart as one line (quantity always 1). The design is priced on every read.
+     */
+    public function addCakeDesign(Cart $cart, CakeDesign $design): CartItem
+    {
+        $item = $cart->items()->firstOrCreate(['cake_design_id' => $design->id], ['quantity' => 1]);
+        $design->forceFill(['status' => CakeDesign::IN_CART])->save();
+        $this->touch($cart);
+
+        return $item;
+    }
+
+    /**
      * Set an exact quantity (0 removes). Invalid quantities are rejected, not adjusted.
      * Quotation lines can only be removed: their quantities are fixed by the quote.
      *
@@ -142,6 +156,9 @@ class CartService
 
         if ($item->quotation_id !== null) {
             throw ValidationException::withMessages(['quantity' => __('Quoted quantities are fixed. Request a new quote to change them.')]);
+        }
+        if ($item->cake_design_id !== null) {
+            throw ValidationException::withMessages(['quantity' => __('Each custom cake is one design. Duplicate the design to order another.')]);
         }
 
         if ($item->product_variant_id !== null) {
@@ -188,7 +205,18 @@ class CartService
         DB::transaction(function () use ($guest, $user): void {
             $cart = $this->forUser($user);
 
+            // The guest's cake designs and private cake photos move to the account with the cart.
+            $guestHash = hash('sha256', $guest->token);
+            CakeDesign::query()->whereNull('user_id')->where('owner_token_hash', $guestHash)->update(['user_id' => $user->id, 'owner_token_hash' => null]);
+            CakeUpload::query()->whereNull('user_id')->where('owner_token_hash', $guestHash)->update(['user_id' => $user->id, 'owner_token_hash' => null]);
+
             foreach ($guest->items as $guestItem) {
+                if ($guestItem->cake_design_id !== null) {
+                    $cart->items()->firstOrCreate(['cake_design_id' => $guestItem->cake_design_id], ['quantity' => 1]);
+                    CakeDesign::query()->whereKey($guestItem->cake_design_id)->whereNull('user_id')->update(['user_id' => $user->id]);
+
+                    continue;
+                }
                 $column = $guestItem->product_variant_id !== null ? 'product_variant_id' : 'bundle_id';
                 $target = $cart->items()->where($column, $guestItem->{$column})->first();
 
@@ -223,22 +251,31 @@ class CartService
             ->map(fn (CartItem $item) => ['slug' => $item->bundle->slug, 'quantity' => $item->quantity])->values()->all();
         $quotationNumbers = $items->whereNotNull('quotation_id')->filter(fn (CartItem $item) => $item->quotation !== null)
             ->map(fn (CartItem $item) => $item->quotation->number)->values()->all();
+        $cakeDesignIds = $items->whereNotNull('cake_design_id')->pluck('cake_design_id')->map(fn ($id) => (int) $id)->values()->all();
 
-        $quote = $variantLines === [] && $bundleLines === [] && $quotationNumbers === []
+        $quote = $variantLines === [] && $bundleLines === [] && $quotationNumbers === [] && $cakeDesignIds === []
             ? ['lines' => [], 'subtotal_paisa' => 0, 'discount_paisa' => 0, 'total_paisa' => 0, 'promotions' => [], 'coupon' => null, 'valid' => false, 'audience' => $context->audience->value]
-            : $this->quotes->quote($variantLines, $bundleLines, $context, $cart->coupon_code, $quotationNumbers);
+            : $this->quotes->quote($variantLines, $bundleLines, $context, $cart->coupon_code, $quotationNumbers, $cakeDesignIds);
 
         $bySku = $items->filter(fn (CartItem $item) => $item->variant !== null)->mapWithKeys(fn (CartItem $item) => [$item->variant->sku => $item]);
         $bySlug = $items->filter(fn (CartItem $item) => $item->bundle !== null)->mapWithKeys(fn (CartItem $item) => [$item->bundle->slug => $item]);
         $byNumber = $items->filter(fn (CartItem $item) => $item->quotation !== null)->mapWithKeys(fn (CartItem $item) => [$item->quotation->number => $item]);
+        $byDesign = $items->whereNotNull('cake_design_id')->keyBy('cake_design_id');
 
-        $quote['lines'] = array_map(function (array $line) use ($bySku, $bySlug, $byNumber): array {
+        $quote['lines'] = array_map(function (array $line) use ($bySku, $bySlug, $byNumber, $byDesign): array {
             $item = match ($line['type']) {
                 'bundle' => $bySlug->get($line['slug']),
                 'quotation' => $byNumber->get($line['number']),
+                'cake' => $byDesign->get($line['cake_design_id']),
                 default => $bySku->get($line['sku']),
             };
             $line['cart_item_id'] = $item?->id;
+            if ($line['type'] === 'cake') {
+                $line['base_quantity'] = 1;
+                $line['is_weight'] = false;
+
+                return $line; // product_variant_id comes from the design (the cake line has no variant column)
+            }
             $line['product_variant_id'] = $item?->product_variant_id;
             $line['bundle_id'] = $item?->bundle_id;
             $line['base_quantity'] = $item?->quantity;

@@ -350,3 +350,10 @@ initTabs();
 initBuyBox();
 initQuoteLinks();
 initGallery();
+
+/* Checkout (custom cakes): the pickup-location box is shown only while "Store pickup" is chosen. */
+document.addEventListener('change', (event) => {
+  if (event.target.name !== 'fulfilment') return;
+  const box = document.querySelector('[data-pickup-box]');
+  if (box) box.hidden = event.target.value !== 'pickup';
+});

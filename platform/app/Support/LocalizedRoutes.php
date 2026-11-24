@@ -19,7 +19,7 @@ class LocalizedRoutes
     public const PREFIX = 'bn';
 
     /** Exact paths (no leading slash) that exist in both languages. */
-    private const EXACT = ['', 'shop', 'search', 'combos', 'business', 'reseller', 'contact', 'order/track'];
+    private const EXACT = ['', 'shop', 'search', 'combos', 'custom-cake', 'business', 'reseller', 'contact', 'order/track'];
 
     /** Path prefixes whose sub-pages exist in both languages. */
     private const PREFIXES = ['category/', 'product/', 'combo/', 'page/'];

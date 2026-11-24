@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  * Delivery zone: a set of districts with a delivery charge. Charges are placeholders until a
  * courier agreement exists. The default zone covers districts not listed elsewhere.
  */
-#[Fillable(['name', 'name_bn', 'districts', 'is_default', 'charge_paisa', 'free_over_paisa', 'estimate', 'cod_available', 'is_active', 'sort_order'])]
+#[Fillable(['name', 'name_bn', 'districts', 'is_default', 'charge_paisa', 'free_over_paisa', 'estimate', 'cod_available', 'is_active', 'sort_order',
+    'cake_delivery_enabled', 'cake_charge_paisa', 'cake_free_over_paisa', 'cake_min_order_paisa', 'cake_tiered_allowed'])]
 class DeliveryZone extends Model
 {
     use HasTranslations;
@@ -38,6 +39,11 @@ class DeliveryZone extends Model
             'is_default' => 'boolean',
             'charge_paisa' => 'integer',
             'free_over_paisa' => 'integer',
+            'cake_delivery_enabled' => 'boolean',
+            'cake_charge_paisa' => 'integer',
+            'cake_free_over_paisa' => 'integer',
+            'cake_min_order_paisa' => 'integer',
+            'cake_tiered_allowed' => 'boolean',
             'cod_available' => 'boolean',
             'is_active' => 'boolean',
         ];

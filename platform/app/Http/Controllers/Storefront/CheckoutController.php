@@ -57,12 +57,14 @@ class CheckoutController extends Controller
         }
 
         $district = $request->query('district', $draft['district'] ?? null);
-        $summary = $this->checkout->summarize($cart, $context, is_string($district) ? $district : null);
+        $fulfilment = (string) $request->query('fulfilment', $draft['fulfilment'] ?? 'delivery');
+        $pickupId = $request->query('pickup_location_id', $draft['pickup_location_id'] ?? null);
+        $summary = $this->checkout->summarize($cart, $context, is_string($district) ? $district : null, null, $fulfilment, is_numeric($pickupId) ? (int) $pickupId : null);
 
         return view('storefront.checkout.details', [
             'seo' => (new Seo(title: __('Checkout')))->noindex(),
             'summary' => $summary,
-            'draft' => $draft + ['name' => $user?->name, 'phone' => $user?->phone, 'email' => $user?->email, 'district' => $district],
+            'draft' => $draft + ['name' => $user?->name, 'phone' => $user?->phone, 'email' => $user?->email, 'district' => $district, 'fulfilment' => $summary['fulfilment'], 'pickup_location_id' => $pickupId],
             'districts' => DeliveryZone::DISTRICTS,
             'addresses' => $addresses,
             'chosenAddress' => $chosen,
@@ -74,6 +76,7 @@ class CheckoutController extends Controller
     public function review(Request $request): RedirectResponse
     {
         $request->merge(['phone' => BangladeshPhone::normalize($request->input('phone')) ?? $request->input('phone')]);
+        $pickup = $request->input('fulfilment') === 'pickup'; // offered only for carts with a custom cake (checked again in the summary)
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'phone' => ['required', 'string', function (string $attribute, mixed $value, \Closure $fail): void {
@@ -82,14 +85,17 @@ class CheckoutController extends Controller
                 }
             }],
             'email' => ['nullable', 'email:rfc', 'max:255'],
-            'address_line' => ['required', 'string', 'min:6', 'max:255'],
-            'area' => ['required', 'string', 'max:120'],
-            'district' => ['required', Rule::in(DeliveryZone::DISTRICTS)],
+            'fulfilment' => ['nullable', Rule::in(['delivery', 'pickup'])],
+            'pickup_location_id' => [$pickup ? 'required' : 'nullable', 'integer'],
+            'address_line' => [$pickup ? 'nullable' : 'required', 'string', 'min:6', 'max:255'],
+            'area' => [$pickup ? 'nullable' : 'required', 'string', 'max:120'],
+            'district' => [$pickup ? 'nullable' : 'required', Rule::in(DeliveryZone::DISTRICTS)],
             'note' => ['nullable', 'string', 'max:500'],
             'payment_method' => ['required', Rule::enum(PaymentMethod::class)],
             'save_address' => ['nullable', 'boolean'],
         ]);
 
+        $validated['fulfilment'] = $pickup ? 'pickup' : 'delivery';
         $request->session()->put(self::DRAFT, $validated + ['token' => Str::random(40)]);
 
         return redirect()->route('checkout.review');
@@ -103,7 +109,8 @@ class CheckoutController extends Controller
             return redirect()->route('checkout.show');
         }
 
-        $summary = $this->checkout->summarize($cart, $this->contexts->forWeb($request), $draft['district'], PaymentMethod::from($draft['payment_method']));
+        $summary = $this->checkout->summarize($cart, $this->contexts->forWeb($request), $draft['district'] ?? null, PaymentMethod::from($draft['payment_method']),
+            $draft['fulfilment'] ?? 'delivery', isset($draft['pickup_location_id']) ? (int) $draft['pickup_location_id'] : null);
 
         return view('storefront.checkout.review', [
             'seo' => (new Seo(title: __('Review your order')))->noindex(),
@@ -128,8 +135,9 @@ class CheckoutController extends Controller
         }
 
         $details = new CheckoutDetails(
-            $draft['name'], $draft['phone'], $draft['email'] ?? null, $draft['address_line'], $draft['area'], $draft['district'],
+            $draft['name'], $draft['phone'], $draft['email'] ?? null, (string) ($draft['address_line'] ?? ''), (string) ($draft['area'] ?? ''), (string) ($draft['district'] ?? ''),
             $draft['note'] ?? null, PaymentMethod::from($draft['payment_method']), $draft['token'], (string) $request->input('fingerprint'),
+            $draft['fulfilment'] ?? 'delivery', isset($draft['pickup_location_id']) ? (int) $draft['pickup_location_id'] : null,
         );
 
         try {
@@ -177,7 +185,8 @@ class CheckoutController extends Controller
     private function rememberAddress(Request $request, array $draft, bool $wasExisting): void
     {
         $user = $request->user();
-        if ($wasExisting || $user === null || empty($draft['save_address']) || $this->contexts->forWeb($request)->organization !== null) {
+        if ($wasExisting || $user === null || empty($draft['save_address']) || ($draft['fulfilment'] ?? 'delivery') === 'pickup'
+            || $this->contexts->forWeb($request)->organization !== null) {
             return;
         }
 

@@ -27,6 +27,7 @@ class OrderItem extends Model
             'line_paisa' => 'integer',
             'standard_line_paisa' => 'integer',
             'components' => 'array',
+            'scheduled_for' => 'date:Y-m-d',
             'created_at' => 'datetime',
         ];
     }
@@ -42,5 +43,18 @@ class OrderItem extends Model
     public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
+    }
+
+    /**
+     * @return BelongsTo<CakeDesign, $this>
+     */
+    public function cakeDesign(): BelongsTo
+    {
+        return $this->belongsTo(CakeDesign::class);
+    }
+
+    public function isCake(): bool
+    {
+        return $this->type === 'cake';
     }
 }

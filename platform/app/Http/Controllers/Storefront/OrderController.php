@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Storefront;
 
 use App\Http\Controllers\Controller;
+use App\Models\CakeDesign;
 use App\Models\Order;
+use App\Models\OrderItem;
 use App\Services\Orders\OrderService;
 use App\Services\Payments\PaymentService;
 use App\Support\BangladeshPhone;
 use App\Support\Seo;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Customer order pages. Access: the signed-in customer who placed it, or a guest holding the
@@ -26,7 +30,21 @@ class OrderController extends Controller
             'seo' => (new Seo(title: __('Order :number', ['number' => $order->number])))->noindex(),
             'order' => $order->load(['items', 'events', 'payments']),
             'bank' => config('commerce.bank_transfer'),
+            'cakeSnapshots' => CakeDesign::query()->whereIn('id', $order->items->pluck('cake_design_id')->filter())->whereNotNull('snapshot_path')->pluck('id')->flip()->all(),
         ]);
+    }
+
+    /**
+     * The 3D snapshot of a custom cake in this order, for whoever may see the order.
+     */
+    public function cakeSnapshot(Request $request, Order $order, OrderItem $item): Response
+    {
+        $this->authorizeView($request, $order);
+        abort_unless($item->order_id === $order->id && $item->isCake() && $item->cake_design_id !== null, 404);
+        $path = CakeDesign::query()->whereKey($item->cake_design_id)->value('snapshot_path');
+        abort_if($path === null || ! Storage::disk('local')->exists($path), 404);
+
+        return Storage::disk('local')->response($path, null, ['Content-Type' => 'image/png', 'Cache-Control' => 'private, max-age=300', 'X-Content-Type-Options' => 'nosniff']);
     }
 
     public function pay(Request $request, Order $order, PaymentService $payments): RedirectResponse

@@ -4,12 +4,14 @@
 @php
     $variant = $product->defaultVariant();
     $activeVariants = $product->variants->where('is_active', true);
-    $quoteOnly = $product->isQuoteOnly();
+    $isCake = \App\Models\CakeProduct::isCakeProduct($product->id);
+    $quoteOnly = ! $isCake && $product->isQuoteOnly();
     $isWeight = $variant?->pricing_mode === PricingMode::Weight;
     /* One badge per card, highest priority first (Phase 9.5). "Featured" is a staff choice, not measured popularity. */
     $badge = match (true) {
         (bool) $variant?->isDiscounted() => [__('Sale'), 'orange'],
         (bool) $variant?->isLowStock() => [__('Low stock'), 'warn'],
+        $isCake => [__('Made to order'), 'navy'],
         $quoteOnly => [__('Quote only'), 'navy'],
         (bool) $product->is_featured => [__('Featured'), ''],
         default => null,
@@ -34,7 +36,9 @@
         <div class="meta">{{ $product->primaryCategory?->localized('name') }}</div>
         <h3><a href="{{ $product->url() }}">{{ $product->localized('name') }}</a></h3>
         <div class="price tnum">
-            @if ($quoteOnly || $variant === null)
+            @if ($isCake)
+                <span class="muted small">{{ __('Priced by your design') }}</span>
+            @elseif ($quoteOnly || $variant === null)
                 <span class="muted small">{{ __('Price on request') }}</span>
             @elseif ($isWeight)
                 {{ Taka::format($variant->per_kg_paisa) }} <span class="muted small">/ kg</span>
@@ -48,8 +52,10 @@
                 @endif
             @endif
         </div>
-        <p class="pcard-stock small {{ $product->in_stock ? 'is-in' : 'is-out' }}">
-            @if ($quoteOnly)
+        <p class="pcard-stock small {{ $isCake || $product->in_stock ? 'is-in' : 'is-out' }}">
+            @if ($isCake)
+                {{ __('Baked to order') }}
+            @elseif ($quoteOnly)
                 {{ __('Quoted on request') }}
             @elseif ($product->in_stock)
                 {{ $isWeight ? __('In stock · sold by weight') : __('In stock') }}
@@ -57,7 +63,9 @@
                 {{ __('Out of stock') }}
             @endif
         </p>
-        @if ($quoteOnly)
+        @if ($isCake)
+            <a class="btn btn-primary btn-sm btn-block" href="{{ route('cakes.designer', ['product' => $product->slug]) }}"><x-icon name="cake" /> {{ __('Design this cake') }}</a>
+        @elseif ($quoteOnly)
             <a class="btn btn-outline btn-sm btn-block" href="{{ $product->url() }}#quote"><x-icon name="quote" /> {{ __('Request quote') }}</a>
         @elseif (! $product->in_stock)
             <span class="btn btn-outline btn-sm btn-block is-disabled" aria-disabled="true">{{ __('Out of stock') }}</span>
