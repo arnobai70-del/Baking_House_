@@ -24,6 +24,23 @@
         <form method="POST" action="{{ route('checkout.review.store') }}" class="card card-pad" novalidate>
             @csrf
             <h2 style="font-size:var(--bh-fs-lg)">{{ __('Delivery details') }}</h2>
+            @if ($summary['has_cakes'] && $summary['pickup_locations']->isNotEmpty())
+                {{-- Custom cakes can be collected from a store; the address below is then optional. --}}
+                <fieldset class="fulfil-choice"><legend>{{ __('How will you receive your order?') }}</legend>
+                    <label class="pay-opt"><input type="radio" name="fulfilment" value="delivery" @checked(old('fulfilment', $draft['fulfilment'] ?? 'delivery') === 'delivery')> <strong>{{ __('Delivery') }}</strong></label>
+                    <label class="pay-opt"><input type="radio" name="fulfilment" value="pickup" @checked(old('fulfilment', $draft['fulfilment'] ?? 'delivery') === 'pickup')> <strong>{{ __('Store pickup') }}</strong><span class="tag">{{ __('Free') }}</span></label>
+                    @php $pickupChosen = old('fulfilment', $draft['fulfilment'] ?? 'delivery') === 'pickup'; @endphp
+                    <div data-pickup-box @unless ($pickupChosen) hidden @endunless>
+                    <div class="field" style="margin-top:8px"><label for="pickup_location_id">{{ __('Pickup location') }}</label>
+                        <select class="input" id="pickup_location_id" name="pickup_location_id">
+                            @foreach ($summary['pickup_locations'] as $location)
+                                <option value="{{ $location->id }}" @selected((int) old('pickup_location_id', $draft['pickup_location_id'] ?? 0) === $location->id)>{{ $location->localized('name') }} — {{ $location->address }}@if ($location->hours) ({{ $location->hours }})@endif</option>
+                            @endforeach
+                        </select></div>
+                    <p class="hint">{{ __('For pickup, the address fields below are optional.') }}</p>
+                    </div>
+                </fieldset>
+            @endif
             @guest
                 <div class="alert alert-info" style="margin-bottom:14px"><x-icon name="info" /><span>{{ __('Checking out as a guest.') }} <a href="{{ route('login') }}">{{ __('Log in') }}</a> {{ __('to save addresses and see business prices.') }}</span></div>
             @endguest

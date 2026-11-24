@@ -39,6 +39,14 @@
             <h2 style="font-size:var(--bh-fs-lg)">{{ __('Items') }}</h2>
             @foreach ($order->items as $item)
                 <div class="sum-row"><span>{{ $item->name }} <span class="muted">{{ $item->quantity_label }}</span></span><span class="tnum">{{ Taka::format($item->line_paisa) }}</span></div>
+                @if ($item->isCake())
+                    <div class="order-cake">
+                        @if (isset($cakeSnapshots[$item->cake_design_id]))
+                            <img src="{{ route('orders.cake-snapshot', [$order, $item]) }}" alt="{{ __('3D preview of your custom cake') }}" width="240" height="240" loading="lazy">
+                        @endif
+                        <p class="small muted">{{ __('Ready for :date, :slot', ['date' => $item->scheduled_for?->translatedFormat('D j M'), 'slot' => $item->time_slot]) }}<br>{{ __('The real cake is handmade and may vary slightly from the preview.') }}</p>
+                    </div>
+                @endif
             @endforeach
             <div class="sum-row" style="border-top:1px solid var(--bh-border);margin-top:6px;padding-top:10px"><span>{{ __('Subtotal') }}</span><span class="tnum">{{ Taka::format($order->subtotal_paisa) }}</span></div>
             @if ($order->discount_paisa)<div class="sum-row"><span>{{ __('Discount') }}</span><span class="tnum">−{{ Taka::format($order->discount_paisa) }}</span></div>@endif

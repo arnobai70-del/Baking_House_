@@ -92,6 +92,9 @@ class OrderStock
     {
         $needs = [];
         foreach ($order->items()->get() as $item) {
+            if ($item->type === 'cake') {
+                continue; // custom cakes are made to order and hold no stock
+            }
             if (in_array($item->type, ['bundle', 'quotation'], true)) {
                 foreach ($item->components ?? [] as $component) {
                     if (($component['variant_id'] ?? null) === null) {

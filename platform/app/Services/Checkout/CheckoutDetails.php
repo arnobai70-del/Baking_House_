@@ -21,6 +21,8 @@ final readonly class CheckoutDetails
         public PaymentMethod $paymentMethod,
         public string $checkoutToken,
         public string $expectedFingerprint,
+        public string $fulfilment = 'delivery',     // delivery | pickup (pickup only for carts with a custom cake)
+        public ?int $pickupLocationId = null,
     ) {}
 
     /**

@@ -91,6 +91,16 @@ class Product extends Model
     }
 
     /**
+     * Cake profile: present when this product can be designed in the custom-cake designer.
+     *
+     * @return HasOne<CakeProduct, $this>
+     */
+    public function cakeProfile(): HasOne
+    {
+        return $this->hasOne(CakeProduct::class);
+    }
+
+    /**
      * Only photos that passed the licence / accuracy review (provenance review, D-074).
      *
      * @return HasMany<ProductImage, $this>

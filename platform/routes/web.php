@@ -32,6 +32,18 @@ Route::get('/combos', [Storefront\BundleController::class, 'index'])->name('bund
 Route::get('/combo/{slug}', [Storefront\BundleController::class, 'show'])->name('bundles.show');
 Route::post('/language', Storefront\LanguageController::class)->name('language');
 
+/* Custom cakes: designed here, then bought through the normal cart / checkout / orders. */
+Route::get('/custom-cake', [Storefront\CakeDesignerController::class, 'show'])->name('cakes.designer');
+Route::post('/custom-cake/price', [Storefront\CakeDesignerController::class, 'price'])->middleware('throttle:240,1')->name('cakes.price');
+Route::post('/custom-cake', [Storefront\CakeDesignerController::class, 'store'])->middleware('throttle:checkout')->name('cakes.store');
+Route::post('/custom-cake/uploads', [Storefront\CakeDesignerController::class, 'upload'])->middleware('throttle:20,1')->name('cakes.uploads.store');
+Route::get('/custom-cake/uploads/{uuid}', [Storefront\CakeDesignerController::class, 'showUpload'])->whereUuid('uuid')->name('cakes.uploads.show');
+Route::post('/custom-cake/designs/{uuid}/share', [Storefront\CakeDesignerController::class, 'share'])->whereUuid('uuid')->middleware('throttle:20,1')->name('cakes.share');
+Route::post('/custom-cake/designs/{uuid}/duplicate', [Storefront\CakeDesignerController::class, 'duplicate'])->whereUuid('uuid')->middleware('throttle:20,1')->name('cakes.duplicate');
+Route::get('/custom-cake/designs/{uuid}/{kind}.png', [Storefront\CakeDesignerController::class, 'designImage'])->whereUuid('uuid')->whereIn('kind', ['snapshot', 'top'])->name('cakes.design-image');
+Route::get('/custom-cake/shared/{token}', [Storefront\CakeDesignerController::class, 'shared'])->where('token', '[A-Za-z0-9]{40}')->name('cakes.shared');
+Route::post('/custom-cake/shared/{token}/use', [Storefront\CakeDesignerController::class, 'useShared'])->where('token', '[A-Za-z0-9]{40}')->middleware('throttle:20,1')->name('cakes.shared.use');
+
 /* Owner-supplied information pages and contact / support (messages go to the CRM queue). */
 Route::get('/page/{slug}', Storefront\PageController::class)->name('pages.show');
 Route::get('/contact', [Storefront\ContactController::class, 'show'])->name('contact');
@@ -58,6 +70,7 @@ Route::get('/checkout/review', [Storefront\CheckoutController::class, 'showRevie
 Route::post('/checkout/place', [Storefront\CheckoutController::class, 'place'])->middleware('throttle:checkout')->name('checkout.place');
 
 Route::get('/orders/{order}', [Storefront\OrderController::class, 'show'])->name('orders.show');
+Route::get('/orders/{order}/cake/{item}.png', [Storefront\OrderController::class, 'cakeSnapshot'])->whereNumber('item')->name('orders.cake-snapshot');
 Route::post('/orders/{order}/pay', [Storefront\OrderController::class, 'pay'])->middleware('throttle:checkout')->name('orders.pay');
 Route::post('/orders/{order}/cancel', [Storefront\OrderController::class, 'cancel'])->middleware('throttle:checkout')->name('orders.cancel');
 Route::get('/order/track', [Storefront\OrderController::class, 'track'])->middleware('throttle:checkout')->name('orders.track');
@@ -87,6 +100,8 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/account', AccountController::class)->name('account');
     Route::post('/account/context', OrganizationContextController::class)->name('account.context');
+    Route::get('/account/cake-designs', [Storefront\CakeDesignerController::class, 'mine'])->name('account.cake-designs');
+    Route::post('/custom-cake/save', [Storefront\CakeDesignerController::class, 'save'])->middleware('throttle:30,1')->name('cakes.save');
     Route::get('/account/addresses', [Account\AddressController::class, 'index'])->name('account.addresses');
     Route::post('/account/addresses', [Account\AddressController::class, 'store'])->name('account.addresses.store');
     Route::put('/account/addresses/{address}', [Account\AddressController::class, 'update'])->name('account.addresses.update');
@@ -231,7 +246,40 @@ Route::middleware('auth')->group(function (): void {
             Route::post('/orders/{order}/bank-transfer', [Admin\OrderController::class, 'confirmBankTransfer'])->name('orders.bank-transfer');
             Route::post('/orders/{order}/cash-collected', [Admin\OrderController::class, 'collectCash'])->name('orders.cash-collected');
             Route::post('/orders/{order}/refunds', [Admin\OrderController::class, 'refund'])->name('orders.refund');
+            Route::post('/orders/{order}/balance', [Admin\OrderController::class, 'collectBalance'])->name('orders.balance');
+            Route::get('/orders/{order}/cake-sheet/{item}', [Admin\CakeOrderController::class, 'sheet'])->name('orders.cake-sheet');
+            Route::get('/cake-uploads/{upload:uuid}', [Admin\CakeOrderController::class, 'upload'])->name('cakes.uploads.show');
+            Route::post('/cake-uploads/{upload:uuid}/review', [Admin\CakeOrderController::class, 'review'])->name('cakes.uploads.review');
             Route::resource('zones', Admin\DeliveryZoneController::class)->except(['show', 'destroy']);
+
+            /* Custom cakes: production calendar and pickup points */
+            Route::get('/cakes/calendar', [Admin\CakeCalendarController::class, 'calendar'])->name('cakes.calendar');
+            Route::post('/cakes/calendar', [Admin\CakeCalendarController::class, 'storeDate'])->name('cakes.dates.store');
+            Route::delete('/cakes/calendar/{exception}', [Admin\CakeCalendarController::class, 'destroyDate'])->name('cakes.dates.destroy');
+            Route::get('/cakes/pickup', [Admin\CakeCalendarController::class, 'pickup'])->name('cakes.pickup');
+            Route::post('/cakes/pickup', [Admin\CakeCalendarController::class, 'storePickup'])->name('cakes.pickup.store');
+            Route::put('/cakes/pickup/{location}', [Admin\CakeCalendarController::class, 'updatePickup'])->name('cakes.pickup.update');
+        });
+
+        /* Custom cakes: ordering rules, priced options (TEST until approved), cake products, simulator */
+        Route::middleware('can:'.StaffPermission::ManagePrices->value)->prefix('cakes')->name('cakes.')->group(function (): void {
+            Route::get('/settings', [Admin\CakeSetupController::class, 'settings'])->name('settings');
+            Route::put('/settings', [Admin\CakeSetupController::class, 'updateSettings'])->name('settings.update');
+            Route::get('/options', [Admin\CakeSetupController::class, 'options'])->name('options');
+            Route::post('/options', [Admin\CakeSetupController::class, 'storeOption'])->name('options.store');
+            Route::put('/options/{option}', [Admin\CakeSetupController::class, 'updateOption'])->name('options.update');
+            Route::post('/options/approve', [Admin\CakeSetupController::class, 'approve'])->middleware('can:'.StaffPermission::ApprovePriceChanges->value)->name('options.approve');
+            Route::get('/products', [Admin\CakeSetupController::class, 'products'])->name('products');
+            Route::post('/products', [Admin\CakeSetupController::class, 'storeProduct'])->name('products.store');
+            Route::get('/products/{cake}', [Admin\CakeSetupController::class, 'editProduct'])->name('products.edit');
+            Route::put('/products/{cake}', [Admin\CakeSetupController::class, 'updateProduct'])->name('products.update');
+            Route::get('/simulator', [Admin\CakeSetupController::class, 'simulator'])->name('simulator');
+            Route::get('/library', [Admin\CakeLibraryController::class, 'index'])->name('library');
+            Route::get('/library/new', [Admin\CakeLibraryController::class, 'create'])->name('library.create');
+            Route::post('/library', [Admin\CakeLibraryController::class, 'store'])->name('library.store');
+            Route::post('/library/approve', [Admin\CakeLibraryController::class, 'approve'])->middleware('can:'.StaffPermission::ApprovePriceChanges->value)->name('library.approve');
+            Route::get('/library/{item}', [Admin\CakeLibraryController::class, 'edit'])->name('library.edit');
+            Route::put('/library/{item}', [Admin\CakeLibraryController::class, 'update'])->name('library.update');
         });
 
         Route::middleware('can:'.StaffPermission::ManageInventory->value)->prefix('inventory')->name('inventory.')->group(function (): void {

@@ -9,6 +9,7 @@ use App\Enums\PaymentStatus;
 use App\Enums\QuotationStatus;
 use App\Exceptions\CheckoutChangedException;
 use App\Exceptions\InsufficientStockException;
+use App\Models\CakeDesign;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Payment;
@@ -17,6 +18,7 @@ use App\Models\Promotion;
 use App\Models\Quotation;
 use App\Models\User;
 use App\Services\AuditLogger;
+use App\Services\Cakes\CakeSchedule;
 use App\Services\Cart\CartService;
 use App\Services\Checkout\CheckoutDetails;
 use App\Services\Checkout\CheckoutService;
@@ -55,6 +57,7 @@ class OrderPlacer
         private AuditLogger $audit,
         private OrderNotifier $notifier,
         private CrmService $crm,
+        private CakeSchedule $cakeSchedule,
     ) {}
 
     /**
@@ -67,7 +70,7 @@ class OrderPlacer
             return $this->existingFor($existing, $user);
         }
 
-        $summary = $this->checkout->summarize($cart, $context, $details->district, $details->paymentMethod);
+        $summary = $this->checkout->summarize($cart, $context, $details->district, $details->paymentMethod, $details->fulfilment, $details->pickupLocationId);
         if ($summary['errors'] !== []) {
             throw ValidationException::withMessages(['checkout' => $summary['errors']]);
         }
@@ -95,6 +98,9 @@ class OrderPlacer
         } catch (RuntimeException $e) {
             if (str_contains($e->getMessage(), 'promotion')) {
                 throw ValidationException::withMessages(['checkout' => 'An offer in your cart is no longer available. Please review your cart.']);
+            }
+            if (str_contains($e->getMessage(), 'cake capacity')) {
+                throw ValidationException::withMessages(['checkout' => __('The date chosen for your cake has just been fully booked. Please choose another date.')]);
             }
             if (str_contains($e->getMessage(), 'quotation')) {
                 throw ValidationException::withMessages(['checkout' => __('A quotation in your cart has already been ordered or is no longer valid.')]);
@@ -138,14 +144,19 @@ class OrderPlacer
             'customer_email' => $details->email,
             'shipping_address' => $details->address(),
             'delivery_zone_id' => $summary['zone']?->id,
+            'fulfilment' => $summary['fulfilment'],
+            'pickup_location_id' => $summary['pickup_location']?->id,
             'subtotal_paisa' => (int) $quote['subtotal_paisa'],
             'discount_paisa' => (int) $quote['discount_paisa'],
             'delivery_paisa' => $summary['delivery_paisa'],
             'total_paisa' => $summary['total_paisa'],
+            'advance_paisa' => $summary['pay_now_paisa'] < $summary['total_paisa'] ? $summary['pay_now_paisa'] : 0,
             'promotion_snapshot' => $quote['promotions'] === [] ? null : $quote['promotions'],
             'pricing_snapshot' => [
                 'quote' => $quote,
-                'delivery' => ['zone' => $summary['zone']?->name, 'district' => $details->district, 'charge_paisa' => $summary['delivery_paisa']],
+                'delivery' => ['zone' => $summary['zone']?->name, 'district' => $details->district, 'charge_paisa' => $summary['delivery_paisa'],
+                    'fulfilment' => $summary['fulfilment'], 'pickup_location' => $summary['pickup_location']?->name],
+                'advance' => ['percent' => $summary['advance_percent'], 'pay_now_paisa' => $summary['pay_now_paisa'], 'balance_paisa' => $summary['balance_paisa']],
                 'fingerprint' => $summary['fingerprint'],
                 'rounding' => 'Each line rounded half-up to the paisa; total = sum(lines) - discount + delivery.',
             ],
@@ -157,6 +168,11 @@ class OrderPlacer
         ])->save();
 
         foreach ($quote['lines'] as $line) {
+            if ($line['type'] === 'cake') {
+                $this->createCakeLine($order, $line, $user);
+
+                continue;
+            }
             $order->items()->forceCreate([
                 'type' => in_array($line['type'], ['bundle', 'quotation'], true) ? $line['type'] : 'item',
                 'product_variant_id' => $line['product_variant_id'] ?? null,
@@ -203,7 +219,7 @@ class OrderPlacer
             'provider' => $details->paymentMethod,
             'mode' => 'test',
             'status' => PaymentRecordStatus::Initiated,
-            'amount_paisa' => $order->total_paisa,
+            'amount_paisa' => $summary['pay_now_paisa'], // the advance when one applies, else the total
             'reference' => 'PAY-'.Str::upper(Str::random(16)),
         ])->save();
 
@@ -230,6 +246,9 @@ class OrderPlacer
     {
         $needs = [];
         foreach ($quote['lines'] as $line) {
+            if ($line['type'] === 'cake') {
+                continue; // made to order: no stock reservation
+            }
             if (in_array($line['type'], ['bundle', 'quotation'], true)) {
                 foreach ($line['items'] as $component) {
                     if ($component['variant_id'] === null) {
@@ -244,6 +263,43 @@ class OrderPlacer
         ksort($needs);
 
         return array_map(fn (int $variantId, int $quantity) => [$variantId, $quantity], array_keys($needs), $needs);
+    }
+
+    /**
+     * One order line per custom cake, with the frozen design. The day's capacity is re-checked inside the
+     * order transaction so two checkouts cannot overbook the same date.
+     *
+     * @param  array<string, mixed>  $line
+     */
+    private function createCakeLine(Order $order, array $line, ?User $user): void
+    {
+        if ($this->cakeSchedule->remaining((string) $line['scheduled_for']) <= 0) {
+            throw new RuntimeException('cake capacity');
+        }
+
+        $design = CakeDesign::query()->findOrFail($line['cake_design_id']);
+        $order->items()->forceCreate([
+            'type' => 'cake',
+            'product_variant_id' => $line['product_variant_id'],
+            'cake_design_id' => $design->id,
+            'sku' => $line['sku'],
+            'name' => (string) $line['name'],
+            'quantity' => 1,
+            'quantity_label' => (string) $line['quantity_label'],
+            'unit_paisa' => (int) $line['line_paisa'],
+            'rate_source' => 'cake',
+            'line_paisa' => (int) $line['line_paisa'],
+            'standard_line_paisa' => (int) $line['standard_line_paisa'],
+            'scheduled_for' => $line['scheduled_for'],
+            'time_slot' => $line['time_slot'],
+            'components' => [
+                'design' => $design->uuid, 'spec' => $design->spec, 'breakdown' => $line['breakdown'], 'complexity' => $line['complexity'],
+                'fulfilment' => $order->fulfilment, 'uses_test_prices' => (bool) ($line['uses_test_prices'] ?? false),
+            ],
+        ]);
+
+        $design->forceFill(['status' => CakeDesign::ORDERED, 'order_id' => $order->id, 'user_id' => $design->user_id ?? $user?->id, 'fulfilment' => $order->fulfilment,
+            'pickup_location_id' => $order->pickup_location_id, 'price_snapshot' => ['line_paisa' => $line['line_paisa'], 'breakdown' => $line['breakdown']]])->save();
     }
 
     private function existingFor(Order $order, ?User $user): PlacedOrder

@@ -6,6 +6,7 @@ use App\Enums\CustomerAudience;
 use App\Enums\OrderStatus;
 use App\Enums\OrganizationStatus;
 use App\Enums\PaymentMethod;
+use App\Enums\PaymentRecordStatus;
 use App\Enums\PaymentStatus;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Model;
@@ -39,6 +40,7 @@ class Order extends Model
             'discount_paisa' => 'integer',
             'delivery_paisa' => 'integer',
             'total_paisa' => 'integer',
+            'advance_paisa' => 'integer',
             'refunded_paisa' => 'integer',
             'placed_at' => 'datetime',
             'confirmed_at' => 'datetime',
@@ -114,6 +116,35 @@ class Order extends Model
     public function isPaid(): bool
     {
         return in_array($this->payment_status, [PaymentStatus::Paid, PaymentStatus::PartiallyRefunded], true);
+    }
+
+    /**
+     * Captured payments so far (advance + balance), in paisa.
+     */
+    public function paidPaisa(): int
+    {
+        return (int) $this->payments()->whereIn('status', [PaymentRecordStatus::Paid->value, PaymentRecordStatus::PartiallyRefunded->value])->sum('amount_paisa');
+    }
+
+    /**
+     * Amount still to be collected (0 when fully paid).
+     */
+    public function balancePaisa(): int
+    {
+        return max(0, $this->total_paisa - $this->paidPaisa());
+    }
+
+    /**
+     * @return BelongsTo<PickupLocation, $this>
+     */
+    public function pickupLocation(): BelongsTo
+    {
+        return $this->belongsTo(PickupLocation::class);
+    }
+
+    public function isPickup(): bool
+    {
+        return $this->fulfilment === 'pickup';
     }
 
     public function customerCanCancel(): bool

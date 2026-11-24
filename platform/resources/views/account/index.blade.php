@@ -9,6 +9,7 @@
     <div class="portal-shortcuts reveal reveal-2" style="margin-bottom:16px">
         <a class="card card-pad" href="{{ route('account.profile') }}"><x-icon name="user" /><strong>{{ __('Profile & password') }}</strong><span class="muted small">{{ __('Name, mobile, email and password.') }}</span></a>
         <a class="card card-pad" href="{{ route('account.addresses') }}"><x-icon name="truck" /><strong>{{ __('My addresses') }}</strong><span class="muted small">{{ __('Delivery addresses for faster checkout.') }}</span></a>
+        <a class="card card-pad" href="{{ route('account.cake-designs') }}"><x-icon name="cake" /><strong>{{ __('My cake designs') }}</strong><span class="muted small">{{ __('Saved and ordered custom cakes: edit, share or order again.') }}</span></a>
         <a class="card card-pad" href="{{ route('contact') }}"><x-icon name="info" /><strong>{{ __('Contact & support') }}</strong><span class="muted small">{{ __('Questions about an order or product.') }}</span></a>
         @can('admin.access')
             <a class="card card-pad" href="{{ route('account.security') }}"><x-icon name="lock" /><strong>{{ __('Security & MFA') }}</strong><span class="muted small">{{ __('Two-step sign-in for staff.') }}</span></a>

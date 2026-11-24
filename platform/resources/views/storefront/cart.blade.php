@@ -29,15 +29,22 @@
                 @php $representatives = \App\Support\RepresentativeImage::bySkus(collect($quote['lines'])->where('type', 'item')->pluck('sku')); @endphp
                 @foreach ($quote['lines'] as $line)
                     <div class="line">
-                        @if ($line['type'] === 'item' && isset($representatives[$line['sku']]))
+                        @if ($line['type'] === 'cake' && ! empty($line['has_snapshot']))
+                            <img class="cake-thumb" src="{{ route('cakes.design-image', [$line['uuid'], 'snapshot']) }}" alt="{{ __('Preview of your cake design') }}" width="80" height="80" loading="lazy">
+                        @elseif ($line['type'] === 'item' && isset($representatives[$line['sku']]))
                             <x-representative-photo :image="$representatives[$line['sku']]" :label="false" sizes="80px" />
                         @else
-                            <x-photo-placeholder :icon="match ($line['type']) { 'bundle' => 'gift', 'quotation' => 'quote', default => 'box' }" />
+                            <x-photo-placeholder :icon="match ($line['type']) { 'bundle' => 'gift', 'quotation' => 'quote', 'cake' => 'cake', default => 'box' }" />
                         @endif
                         <div>
                             <h3>{{ $line['name'] ?? $line['sku'] ?? $line['slug'] }}</h3>
                             <div class="small muted">
-                                @if ($line['type'] === 'quotation')
+                                @if ($line['type'] === 'cake')
+                                    {{ $line['quantity_label'] }}@if ($line['scheduled_for']) · {{ \Illuminate\Support\Carbon::parse($line['scheduled_for'])->translatedFormat('D j M') }} · {{ $line['time_slot'] }}@endif
+                                    @if (! empty($line['breakdown']))
+                                        <ul class="cake-breakdown">@foreach ($line['breakdown'] as $part)<li><span>{{ $part['label'] }}</span><span class="tnum">{{ Taka::format($part['paisa']) }}</span></li>@endforeach</ul>
+                                    @endif
+                                @elseif ($line['type'] === 'quotation')
                                     @if ($line['ok'])
                                         {{ __('Quoted price, valid until :date', ['date' => \Illuminate\Support\Carbon::parse($line['valid_until'])->timezone('Asia/Dhaka')->format('d M Y')]) }}
                                         <ul style="margin:4px 0 0;padding-left:16px">@foreach ($line['items'] as $component)<li>{{ $component['name'] }} — {{ $component['quantity_label'] }}</li>@endforeach</ul>
@@ -49,7 +56,16 @@
                                     @if (! in_array($line['rate_source'], ['standard', null], true))<span class="status info">{{ __($line['rate_source']) }}</span>@endif
                                 @endif
                             </div>
-                            @if ($line['cart_item_id'] && $line['type'] === 'quotation')
+                            @if ($line['cart_item_id'] && $line['type'] === 'cake')
+                                <div class="row" style="gap:4px;margin-top:4px">
+                                    <a class="btn btn-ghost btn-sm" style="padding-left:0" href="{{ route('cakes.designer', ['design' => $line['uuid']]) }}">{{ __('Edit design') }}</a>
+                                    <form method="POST" action="{{ route('cart.items.destroy', $line['cart_item_id']) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-ghost btn-sm" type="submit">{{ __('Remove') }}</button>
+                                    </form>
+                                </div>
+                            @elseif ($line['cart_item_id'] && $line['type'] === 'quotation')
                                 <form method="POST" action="{{ route('cart.items.destroy', $line['cart_item_id']) }}" style="margin-top:4px">
                                     @csrf
                                     @method('DELETE')

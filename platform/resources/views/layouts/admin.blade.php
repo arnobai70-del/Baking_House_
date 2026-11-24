@@ -10,6 +10,7 @@
                 <a href="{{ route('admin.orders.index') }}" @if (request()->routeIs('admin.orders.index', 'admin.orders.show')) aria-current="page" @endif><x-icon name="cart" /> Orders</a>
                 <a href="{{ route('admin.orders.reconciliation') }}" @if (request()->routeIs('admin.orders.reconciliation')) aria-current="page" @endif><x-icon name="card" /> Payment reconciliation</a>
                 <a href="{{ route('admin.zones.index') }}" @if (request()->routeIs('admin.zones.*')) aria-current="page" @endif><x-icon name="truck" /> Delivery zones</a>
+                <a href="{{ route('admin.cakes.calendar') }}" @if (request()->routeIs('admin.cakes.calendar', 'admin.cakes.pickup')) aria-current="page" @endif><x-icon name="cake" /> Cake calendar &amp; pickup</a>
             @endcan
             @canany(['crm.access', 'reports.view'])
                 <h4>Sales &amp; insight</h4>
@@ -46,6 +47,7 @@
                 <a href="{{ route('admin.price-simulator') }}" @if (request()->routeIs('admin.price-simulator')) aria-current="page" @endif><x-icon name="settings" /> Price simulator</a>
                 <a href="{{ route('admin.promotions.index') }}" @if (request()->routeIs('admin.promotions.*')) aria-current="page" @endif><x-icon name="quote" /> Coupons &amp; promotions</a>
                 <a href="{{ route('admin.bundles.index') }}" @if (request()->routeIs('admin.bundles.*')) aria-current="page" @endif><x-icon name="gift" /> Bundles</a>
+                <a href="{{ route('admin.cakes.settings') }}" @if (request()->routeIs('admin.cakes.settings*', 'admin.cakes.options*', 'admin.cakes.products*', 'admin.cakes.simulator', 'admin.cakes.library*')) aria-current="page" @endif><x-icon name="cake" /> Custom cakes</a>
             @endcan
             @can('inventory.manage')
                 <h4>Inventory</h4>

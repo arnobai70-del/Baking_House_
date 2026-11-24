@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Enums\OrderStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\PaymentStatus;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
@@ -99,6 +100,20 @@ class OrderController extends Controller
         $this->payments->markCashCollected($order, $request->user());
 
         return back()->with('status', 'Cash collection recorded.');
+    }
+
+    /**
+     * Record the balance of an advance-paid (custom cake) order, received as cash or bank transfer.
+     */
+    public function collectBalance(Request $request, Order $order): RedirectResponse
+    {
+        $validated = $request->validate([
+            'method' => ['required', Rule::in([PaymentMethod::CashOnDelivery->value, PaymentMethod::BankTransfer->value])],
+            'reference' => ['nullable', 'string', 'max:120'],
+        ]);
+        $payment = $this->payments->collectBalance($order, PaymentMethod::from($validated['method']), $validated['reference'] ?? null, $request->user());
+
+        return back()->with('status', 'Balance of '.Taka::format($payment->amount_paisa).' recorded. The order is fully paid.');
     }
 
     public function refund(Request $request, Order $order): RedirectResponse

@@ -62,6 +62,11 @@ class DeliveryZoneController extends Controller
             'cod_available' => ['boolean'],
             'is_active' => ['boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
+            'cake_delivery_enabled' => ['boolean'],
+            'cake_charge' => ['nullable', 'string', 'max:20'],
+            'cake_free_over' => ['nullable', 'string', 'max:20'],
+            'cake_min_order' => ['nullable', 'string', 'max:20'],
+            'cake_tiered_allowed' => ['boolean'],
         ]);
 
         $charge = Taka::parse($validated['charge']);
@@ -75,7 +80,7 @@ class DeliveryZoneController extends Controller
             throw ValidationException::withMessages(['districts' => 'Already in another zone: '.$taken->implode(', ')]);
         }
 
-        $before = $zone->exists ? $zone->only(['name', 'charge_paisa', 'districts', 'is_active']) : [];
+        $before = $zone->exists ? $zone->only(['name', 'charge_paisa', 'districts', 'is_active', 'cake_delivery_enabled', 'cake_charge_paisa']) : [];
 
         DB::transaction(function () use ($request, $zone, $validated, $charge, $districts): void {
             if ($request->boolean('is_default')) {
@@ -92,10 +97,15 @@ class DeliveryZoneController extends Controller
                 'cod_available' => $request->boolean('cod_available'),
                 'is_active' => $request->boolean('is_active'),
                 'sort_order' => (int) ($validated['sort_order'] ?? 0),
+                'cake_delivery_enabled' => $request->boolean('cake_delivery_enabled'),
+                'cake_charge_paisa' => Taka::parse($validated['cake_charge'] ?? null),
+                'cake_free_over_paisa' => Taka::parse($validated['cake_free_over'] ?? null),
+                'cake_min_order_paisa' => Taka::parse($validated['cake_min_order'] ?? null),
+                'cake_tiered_allowed' => $request->boolean('cake_tiered_allowed'),
             ])->save();
         });
 
-        $audit->record($before === [] ? 'delivery_zone.created' : 'delivery_zone.updated', $zone, $before, $zone->only(['name', 'charge_paisa', 'districts', 'is_active']));
+        $audit->record($before === [] ? 'delivery_zone.created' : 'delivery_zone.updated', $zone, $before, $zone->only(['name', 'charge_paisa', 'districts', 'is_active', 'cake_delivery_enabled', 'cake_charge_paisa']));
 
         return $zone;
     }

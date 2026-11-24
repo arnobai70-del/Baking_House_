@@ -8,6 +8,7 @@
     $first = $variants->first();
     $icon = $product->primaryCategory->icon;
     $images = $product->approvedImages;
+    $isCake = \App\Models\CakeProduct::isCakeProduct($product->id);
 @endphp
 
 @section('content')
@@ -56,7 +57,13 @@
             <h1 id="p-title">{{ $product->localized('name') }}</h1>
             @if ($product->localized('short_description'))<p class="muted">{{ $product->localized('short_description') }}</p>@endif
 
-            @if ($variants->isEmpty())
+            @if ($isCake)
+                <div class="card card-pad stack cake-cta">
+                    <p class="rate" style="margin:0"><span style="font-size:var(--bh-fs-xl)">{{ __('Priced by your design') }}</span></p>
+                    <p class="muted small" style="margin:0">{{ __('Choose the size, flavour and finish, see the full price line by line, and pick an available date.') }}</p>
+                    <a class="btn btn-primary" href="{{ route('cakes.designer', ['product' => $product->slug]) }}"><x-icon name="cake" /> {{ __('Design this cake') }}</a>
+                </div>
+            @elseif ($variants->isEmpty())
                 <div class="alert alert-info"><x-icon name="info" /><span>{{ __('This product is not available to order right now.') }}</span></div>
             @else
                 <form id="buy-box" method="POST" action="{{ route('cart.items.store') }}" data-product='@json($buyerPayload)' novalidate>
@@ -156,6 +163,7 @@
                 </form>
             @endif
 
+            @unless ($isCake)
             <details class="card" id="quote" style="margin-top:16px" @if ($product->isQuoteOnly()) open @endif>
                 <summary class="card-pad quote-summary">{{ __('Request a quote for :name', ['name' => $product->localized('name')]) }}</summary>
                 <div class="card-pad" style="padding-top:0">
@@ -165,6 +173,7 @@
                     ])
                 </div>
             </details>
+            @endunless
         </section>
     </div>
 

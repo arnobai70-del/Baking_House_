@@ -1,5 +1,7 @@
 node_modules/
 vendor/
+# Browser libraries shipped with the site (Three.js, Konva; MIT, see their LICENSE.txt) are not Composer vendor code.
+!platform/public/vendor/
 .env
 .env.*
 !.env.example

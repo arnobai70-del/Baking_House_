@@ -3,8 +3,10 @@
 namespace App\Services\Pricing;
 
 use App\Models\Bundle;
+use App\Models\CakeDesign;
 use App\Models\ProductVariant;
 use App\Models\Quotation;
+use App\Services\Cakes\CakePricer;
 use App\Services\Promotions\AppliedPromotion;
 use App\Services\Promotions\BundlePricer;
 use App\Services\Promotions\PromotionEngine;
@@ -14,7 +16,8 @@ use App\Services\Quotations\QuotationPricer;
  * Prices a whole basket on the server: variant lines (quantities for the same SKU are merged so
  * volume tiers apply on the total), bundles, then promotions. Used by POST /api/v1/pricing/quote
  * now and by cart / checkout in Phase 5. Accepted quotations (Phase 6) are one line each at the quoted
- * total and, like trade prices, take no coupon unless a promotion is stackable. Client-supplied
+ * total and, like trade prices, take no coupon unless a promotion is stackable. Custom cake designs are
+ * one line each, priced by CakePricer (product promotions apply to the cake's product). Client-supplied
  * prices are never read.
  */
 class QuoteService
@@ -24,15 +27,17 @@ class QuoteService
         private BundlePricer $bundles,
         private PromotionEngine $promotions,
         private QuotationPricer $quotations,
+        private CakePricer $cakes,
     ) {}
 
     /**
      * @param  list<array{sku: string, quantity: int}>  $items
      * @param  list<array{slug: string, quantity: int}>  $bundleLines
      * @param  list<string>  $quotationNumbers
+     * @param  list<int>  $cakeDesignIds
      * @return array<string, mixed>
      */
-    public function quote(array $items, array $bundleLines, PricingContext $context, ?string $couponCode = null, array $quotationNumbers = []): array
+    public function quote(array $items, array $bundleLines, PricingContext $context, ?string $couponCode = null, array $quotationNumbers = [], array $cakeDesignIds = []): array
     {
         $merged = [];
         foreach ($items as $item) {
@@ -96,6 +101,18 @@ class QuoteService
 
             if ($line['ok']) {
                 $promotionLines[] = ['key' => 'quotation:'.$number, 'product_id' => null, 'line_paisa' => $line['line_paisa'], 'trade_priced' => true, 'is_bundle' => false];
+            } else {
+                $valid = false;
+            }
+        }
+
+        $designs = $cakeDesignIds === [] ? collect() : CakeDesign::query()->whereIn('id', array_values(array_unique($cakeDesignIds)))->orderBy('id')->get();
+        foreach ($designs as $design) {
+            $line = $this->cakes->line($design);
+            $lines[] = $line;
+
+            if ($line['ok']) {
+                $promotionLines[] = ['key' => 'cake:'.$design->uuid, 'product_id' => $line['product_id'], 'line_paisa' => (int) $line['line_paisa'], 'trade_priced' => false, 'is_bundle' => false];
             } else {
                 $valid = false;
             }

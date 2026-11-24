@@ -3,9 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Enums\StaffPermission;
+use App\Models\CakeLibraryItem;
+use App\Models\CakeOption;
+use App\Models\CakeProduct;
 use App\Models\Permission;
+use App\Models\PickupLocation;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\Cakes\CakeSettings;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
@@ -91,6 +96,14 @@ class CheckReadiness extends Command
         $this->check('A super admin exists', $superAdmins->isNotEmpty(), $live, 'Create the owner account and give it the super admin role.');
         $this->check('Every super admin has MFA', $superAdmins->every(fn (User $user) => $user->hasMfaEnrolled()), $live, 'Staff must enrol TOTP before using admin.');
         $this->check('No demo accounts', ! User::query()->where('email', 'like', '%@example.test')->exists(), $production, 'LocalDemoSeeder data must never reach production.');
+
+        $cakeTestPrices = CakeOption::query()->where('is_active', true)->where('is_test', true)->count()
+            + CakeLibraryItem::query()->where('is_active', true)->where('is_test', true)->count();
+        $this->check('No TEST custom-cake prices', $cakeTestPrices === 0, $live, $cakeTestPrices.' active cake option(s) / library item(s) still use TEST prices; the owner must approve real prices (Admin → Custom cakes).');
+        $this->check('No TEST cake data', ! PickupLocation::query()->where('name', 'like', 'TEST%')->exists() && ! CakeProduct::query()->where('ingredients', 'like', 'TEST%')->exists(), $live, 'Replace LocalCakeTestSeeder pickup / ingredient placeholders.');
+        if ((bool) app(CakeSettings::class)->get('cake.orders_open')) {
+            $this->check('Cake capacity configured', app(CakeSettings::class)->capacity() !== null, $live, 'Custom cake orders are open but no daily capacity is set.');
+        }
     }
 
     private function check(string $name, bool $ok, bool $blocking, string $note): void

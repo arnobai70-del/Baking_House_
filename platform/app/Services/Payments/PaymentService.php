@@ -15,6 +15,7 @@ use App\Services\AuditLogger;
 use App\Services\Notifications\OrderNotifier;
 use App\Services\Orders\OrderService;
 use App\Services\Orders\OrderStock;
+use App\Support\Taka;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -58,7 +59,7 @@ class PaymentService
             $payment = new Payment;
             $payment->forceFill([
                 'order_id' => $order->id, 'provider' => $order->payment_method, 'mode' => 'test',
-                'status' => PaymentRecordStatus::Initiated, 'amount_paisa' => $order->total_paisa,
+                'status' => PaymentRecordStatus::Initiated, 'amount_paisa' => $order->advance_paisa > 0 ? $order->advance_paisa : $order->total_paisa,
                 'reference' => 'PAY-'.Str::upper(Str::random(16)),
             ])->save();
             $this->orders->setPaymentStatus($order, PaymentStatus::Pending, null, 'New payment attempt');
@@ -122,15 +123,16 @@ class PaymentService
         if ($order->payment_method !== PaymentMethod::BankTransfer || $order->isPaid() || $order->status === OrderStatus::Cancelled) {
             throw ValidationException::withMessages(['payment' => 'This order is not awaiting a bank transfer.']);
         }
-        if ($amountPaisa !== $order->total_paisa) {
-            throw ValidationException::withMessages(['amount' => 'The amount received must equal the order total. Record part-payments with the customer first.']);
-        }
-
         $payment = $order->payments()->reorder()->where('status', PaymentRecordStatus::Initiated->value)->latest('id')->firstOrFail();
+        if ($amountPaisa !== $payment->amount_paisa) {
+            throw ValidationException::withMessages(['amount' => $payment->amount_paisa < $order->total_paisa
+                ? 'The amount received must equal the advance due ('.Taka::format($payment->amount_paisa).').'
+                : 'The amount received must equal the order total. Record part-payments with the customer first.']);
+        }
 
         DB::transaction(function () use ($order, $payment, $bankReference, $actor): void {
             $this->capture($payment, $bankReference, $actor);
-            $this->orders->setPaymentStatus($order, PaymentStatus::Paid, $actor, 'Bank transfer confirmed: '.$bankReference);
+            $this->orders->setPaymentStatus($order, $this->statusAfterCapture($order), $actor, 'Bank transfer confirmed: '.$bankReference);
             $this->orders->moveStatus($order, OrderStatus::PendingPayment, OrderStatus::Confirmed, $actor, 'Payment received', ['confirmed_at' => now()]);
             $this->audit->record('payment.bank_transfer_confirmed', $order, after: ['amount_paisa' => $order->total_paisa, 'bank_reference' => $bankReference], actorId: $actor->id);
         });
@@ -157,6 +159,39 @@ class PaymentService
             $this->capture($payment, 'COD-'.$order->number, $actor);
             $this->orders->setPaymentStatus($order, PaymentStatus::Paid, $actor, 'Cash collected on delivery');
             $this->audit->record('payment.cod_collected', $order, after: ['amount_paisa' => $order->total_paisa], actorId: $actor->id);
+        });
+    }
+
+    /**
+     * Staff records the balance of an order whose advance was paid (custom cakes): cash collected on delivery
+     * or a bank transfer. Creates and captures a payment for exactly the remaining amount.
+     *
+     * @throws ValidationException
+     */
+    public function collectBalance(Order $order, PaymentMethod $method, ?string $reference, User $actor): Payment
+    {
+        if ($order->payment_status !== PaymentStatus::PartiallyPaid || $order->status === OrderStatus::Cancelled) {
+            throw ValidationException::withMessages(['payment' => 'This order has no balance to collect.']);
+        }
+        if (! in_array($method, [PaymentMethod::CashOnDelivery, PaymentMethod::BankTransfer], true)) {
+            throw ValidationException::withMessages(['payment' => 'Record the balance as cash or bank transfer.']);
+        }
+        $balance = $order->balancePaisa();
+        if ($balance <= 0) {
+            throw ValidationException::withMessages(['payment' => 'This order has no balance to collect.']);
+        }
+
+        return DB::transaction(function () use ($order, $method, $reference, $actor, $balance): Payment {
+            $payment = new Payment;
+            $payment->forceFill([
+                'order_id' => $order->id, 'provider' => $method, 'mode' => 'test', 'status' => PaymentRecordStatus::Initiated,
+                'amount_paisa' => $balance, 'reference' => 'PAY-'.Str::upper(Str::random(16)),
+            ])->save();
+            $this->capture($payment, $reference !== null && trim($reference) !== '' ? trim($reference) : 'BAL-'.$order->number, $actor);
+            $this->orders->setPaymentStatus($order, PaymentStatus::Paid, $actor, 'Balance collected ('.$method->label().')');
+            $this->audit->record('payment.balance_collected', $order, after: ['amount_paisa' => $balance, 'method' => $method->value], actorId: $actor->id);
+
+            return $payment;
         });
     }
 
@@ -193,7 +228,9 @@ class PaymentService
 
             Order::query()->whereKey($order->id)->increment('refunded_paisa', $amountPaisa);
             $order->refresh();
-            $this->orders->setPaymentStatus($order, $order->refunded_paisa >= $order->total_paisa ? PaymentStatus::Refunded : PaymentStatus::PartiallyRefunded, $actor, 'Refund recorded');
+            // Fully refunded = everything captured came back (an advance-only cake order counts as captured = advance).
+            $captured = (int) $order->payments()->whereIn('status', [PaymentRecordStatus::Paid->value, PaymentRecordStatus::PartiallyRefunded->value, PaymentRecordStatus::Refunded->value])->sum('amount_paisa');
+            $this->orders->setPaymentStatus($order, $order->refunded_paisa >= min($order->total_paisa, $captured) ? PaymentStatus::Refunded : PaymentStatus::PartiallyRefunded, $actor, 'Refund recorded');
 
             $refund = new Refund;
             $refund->forceFill([
@@ -226,7 +263,8 @@ class PaymentService
                 $issues[] = ['order' => (string) $order?->number, 'payment' => $payment->reference, 'issue' => $issue];
             };
 
-            if ($payment->status === PaymentRecordStatus::Paid && $order !== null && ! $order->isPaid() && $order->payment_status !== PaymentStatus::Refunded) {
+            if ($payment->status === PaymentRecordStatus::Paid && $order !== null && ! $order->isPaid()
+                && ! in_array($order->payment_status, [PaymentStatus::Refunded, PaymentStatus::PartiallyPaid], true)) {
                 $add('Payment captured but order not marked paid.');
             }
             if ($payment->status === PaymentRecordStatus::Paid && $order?->status === OrderStatus::Cancelled && $order->refunded_paisa < $order->total_paisa) {
@@ -269,7 +307,7 @@ class PaymentService
                 return 'already_processed';
             }
 
-            $this->orders->setPaymentStatus($order, PaymentStatus::Paid, null, 'Verified '.$payment->provider->label().' callback');
+            $this->orders->setPaymentStatus($order, $this->statusAfterCapture($order), null, 'Verified '.$payment->provider->label().' callback');
 
             if ($order->status === OrderStatus::Cancelled) {
                 $this->audit->record('payment.paid_after_cancel', $order, after: ['refund_due_paisa' => $payment->amount_paisa]);
@@ -312,6 +350,14 @@ class PaymentService
         }
 
         return 'payment_'.$status->value;
+    }
+
+    /**
+     * Payment status once a capture has gone through: fully paid, or advance paid with a balance due.
+     */
+    private function statusAfterCapture(Order $order): PaymentStatus
+    {
+        return $order->balancePaisa() > 0 ? PaymentStatus::PartiallyPaid : PaymentStatus::Paid;
     }
 
     /**
